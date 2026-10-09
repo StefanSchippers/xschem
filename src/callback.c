@@ -409,6 +409,26 @@ void backannotate_at_cursor_b_pos(xRect *r, Graph_ctx *gr)
   }
 }
 
+/* Smith chart: 1 when the mouse is within `rad` screen pixels (euclidean
+ * distance) of any of the per-wave markers of the cursor that sits at
+ * frequency f on graph i; flag_bit is the graph_flags bit of that cursor
+ * (2: cursor1, 4: cursor2).  A disabled cursor, a degenerate plane
+ * (ss <= 0) or no marker in range -> 0 */
+static int smith_mouse_on_marker(int i, double f, double rad, int flag_bit)
+{
+  int sx[64], sy[64], m, n;
+
+  if(!flag_bit) return 0;
+  if(xctx->graph_struct.ss <= 0.0) return 0;
+  n = smith_cursor_markers(i, f, 64, sx, sy);
+  for(m = 0; m < n; m++) {
+    double dx = X_TO_SCREEN(xctx->mousex) - sx[m];
+    double dy = Y_TO_SCREEN(xctx->mousey) - sy[m];
+    if(dx * dx + dy * dy < rad * rad) return 1;
+  }
+  return 0;
+}
+
 /* process user input (arrow keys for now) when only graphs are selected */
 
 /* xctx->graph_flags:
@@ -465,15 +485,58 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
       if(POINTINSIDE(xctx->mousex, xctx->mousey, gr->x1, gr->y1, gr->x2 , gr->y2)) {
         int wcnt, save;
         save = gr->hilight_wave;
-        find_closest_wave(i, gr, &wcnt);
-        if(gr->hilight_wave >= 0) {
-          gr->hilight_wave = -1;
-          my_strdup2(_ALLOC_ID_, &r->prop_ptr,
-                     subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+        if(gr->mode == 3) {
+          /* Smith: button3 on a cursor marker -> Pos: prompt (below);
+           * on a trace -> hilight the wave of the plane-closest point */
+          double cursor1 = 0.0, cursor2 = 0.0;
+          if(xctx->graph_flags & 2) {
+            if(r->flags & 4) {
+              const char *s = get_tok_value(r->prop_ptr, "cursor1_x", 0);
+              if(s[0]) cursor1 = atof_eng(s);
+              else cursor1 = xctx->graph_cursor1_x;
+            } else {
+              cursor1 = xctx->graph_cursor1_x;
+            }
+          }
+          if(xctx->graph_flags & 4) {
+            if(r->flags & 4) {
+              const char *s = get_tok_value(r->prop_ptr, "cursor2_x", 0);
+              if(s[0]) cursor2 = atof_eng(s);
+              else cursor2 = xctx->graph_cursor2_x;
+            } else {
+              cursor2 = xctx->graph_cursor2_x;
+            }
+          }
+          if(!smith_mouse_on_marker(i, cursor1, 10.0, xctx->graph_flags & 2) &&
+             !smith_mouse_on_marker(i, cursor2, 10.0, xctx->graph_flags & 4)) {
+            double f = 0.0, u = 0.0, v = 0.0;
+            wcnt = -1;
+            if(gr->ss > 0.0) {
+              u = (X_TO_SCREEN(xctx->mousex) - gr->ssx0) / gr->ss;
+              v = (gr->ssy0 - Y_TO_SCREEN(xctx->mousey)) / gr->ss;
+              smith_closest_point(i, u, v, &f, &wcnt);
+            }
+            if(gr->hilight_wave >= 0) {
+              gr->hilight_wave = -1;
+              my_strdup2(_ALLOC_ID_, &r->prop_ptr,
+                         subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+            } else {
+              gr->hilight_wave = wcnt;
+              my_strdup2(_ALLOC_ID_, &r->prop_ptr,
+                         subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+            }
+          }
         } else {
-          gr->hilight_wave = wcnt;
-          my_strdup2(_ALLOC_ID_, &r->prop_ptr,
-                     subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+          find_closest_wave(i, gr, &wcnt);
+          if(gr->hilight_wave >= 0) {
+            gr->hilight_wave = -1;
+            my_strdup2(_ALLOC_ID_, &r->prop_ptr,
+                       subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+          } else {
+            gr->hilight_wave = wcnt;
+            my_strdup2(_ALLOC_ID_, &r->prop_ptr,
+                       subst_token(r->prop_ptr, "hilight_wave", my_itoa(gr->hilight_wave)));
+          }
         }
 
         if(save != gr->hilight_wave) {
@@ -492,34 +555,70 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
     if(xctx->graph_flags & 64) {
       char sx[100], sy[100];
       double xval, yval;
-      if(gr->digital) {
-        double deltag = gr->gy2 - gr->gy1;
-        double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
-        double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
-        double c = s1 * deltag;
-        deltag = deltag * s1 / s2;
-        yval=(DG_Y(xctx->mousey) - c) / s2;
-        yval=fmod(yval, deltag ) +  gr->gy1;
-        if(yval > gr->gy2 + deltag * (s1 + s2) * 0.5) yval -= deltag;
+      if(gr->mode == 3) {
+        /* Smith: plane readout under the mouse instead of x/y values:
+         * Gamma = u+jv (+ |Gamma|, angle) and
+         * Z = z0 (1 + Gamma) / (1 - Gamma) (+ |Z|, angle); ASCII
+         * stand-ins per the cursor-marker readout convention (the
+         * vector font has no Gamma/angle/degree glyphs, Omega does) */
+        char gstr[128], zstr[128];
+        if(gr->ss > 0.0) {
+          double u, v, abs_g, ang_g, den;
+          double z_re, z_im, abs_z, ang_z;
+          u = (X_TO_SCREEN(xctx->mousex) - gr->ssx0) / gr->ss;
+          v = (gr->ssy0 - Y_TO_SCREEN(xctx->mousey)) / gr->ss;
+          abs_g = sqrt(u * u + v * v);
+          ang_g = atan2(v, u) * 180.0 / XSCH_PI;
+          if(v >= 0.0)
+            my_snprintf(gstr, S(gstr), "Gamma = %g+j%g, |Gamma|=%g, %g deg", u, v, abs_g, ang_g);
+          else
+            my_snprintf(gstr, S(gstr), "Gamma = %g-j%g, |Gamma|=%g, %g deg", u, -v, abs_g, ang_g);
+          den = (1.0 - u) * (1.0 - u) + v * v; /* |1 - Gamma|^2 */
+          if(den < 1e-300) {
+            my_snprintf(zstr, S(zstr), "Z = inf");
+          } else {
+            z_re = gr->smith_z0 * (1.0 - u * u - v * v) / den;
+            z_im = gr->smith_z0 * 2.0 * v / den;
+            abs_z = sqrt(z_re * z_re + z_im * z_im);
+            ang_z = atan2(z_im, z_re) * 180.0 / XSCH_PI;
+            if(z_im >= 0.0)
+              my_snprintf(zstr, S(zstr), "Z = %g+j%g Ω, |Z|=%g, %g deg", z_re, z_im, abs_z, ang_z);
+            else
+              my_snprintf(zstr, S(zstr), "Z = %g-j%g Ω, |Z|=%g, %g deg", z_re, -z_im, abs_z, ang_z);
+          }
+          tclvareval("set measure_text \"", gstr, "\n", zstr, "\"", NULL);
+          tcleval("graph_show_measure");
+        }
       } else {
-        yval = G_Y(xctx->mousey);
+        if(gr->digital) {
+          double deltag = gr->gy2 - gr->gy1;
+          double s1 = DIG_NWAVES; /* 1/DIG_NWAVES  waveforms fit in graph if unscaled vertically */
+          double s2 = DIG_SPACE; /* (DIG_NWAVES - DIG_SPACE) spacing between traces */
+          double c = s1 * deltag;
+          deltag = deltag * s1 / s2;
+          yval=(DG_Y(xctx->mousey) - c) / s2;
+          yval=fmod(yval, deltag ) +  gr->gy1;
+          if(yval > gr->gy2 + deltag * (s1 + s2) * 0.5) yval -= deltag;
+        } else {
+          yval = G_Y(xctx->mousey);
+        }
+
+        xval = G_X(xctx->mousex);
+        if(gr->logx) xval = pow(10, xval);
+        if(gr->logy) yval = pow(10, yval);
+        if(gr->unitx != 1.0)
+          sprintf(sx, "%.*g%c", xctx->ev_precision, gr->unitx * xval, gr->unitx_suffix);
+        else
+          my_strncpy(sx, dtoa_eng(xval, xctx->ev_precision), S(sx));
+
+        if(gr->unity != 1.0)
+          sprintf(sy, "%.*g%c", xctx->ev_precision, gr->unity * yval, gr->unity_suffix);
+        else
+          my_strncpy(sy, dtoa_eng(yval, xctx->ev_precision), S(sy));
+
+        tclvareval("set measure_text \"y=", sy, "\nx=", sx, "\"", NULL);
+        tcleval("graph_show_measure");
       }
-
-      xval = G_X(xctx->mousex);
-      if(gr->logx) xval = pow(10, xval);
-      if(gr->logy) yval = pow(10, yval);
-      if(gr->unitx != 1.0)
-        sprintf(sx, "%.*g%c", xctx->ev_precision, gr->unitx * xval, gr->unitx_suffix);
-      else
-        my_strncpy(sx, dtoa_eng(xval, xctx->ev_precision), S(sx));
-
-      if(gr->unitx != 1.0)
-        sprintf(sy, "%.*g%c", xctx->ev_precision, gr->unity * yval, gr->unity_suffix);
-      else
-        my_strncpy(sy, dtoa_eng(yval, xctx->ev_precision), S(sy));
-
-      tclvareval("set measure_text \"y=", sy, "\nx=", sx, "\"", NULL);
-      tcleval("graph_show_measure");
     } /* if(xctx->graph_flags & 64) */
 
     gr->master_gx1 = gr->gx1;
@@ -754,7 +853,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(gr->logx ) {
           logcursor = mylog10(cursor);
         }
-        if(fabs(xctx->mousex - W_X(logcursor)) < 10) {
+        /* Smith: no vertical cursor line - the prompt opens when the mouse
+         * is within 10 px of one of this cursor's markers */
+        if(gr->mode == 3
+             ? smith_mouse_on_marker(i, cursor, 10.0, 2)
+             : fabs(xctx->mousex - W_X(logcursor)) < 10) {
           tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor, xctx->ev_precision), NULL);
           cursor = atof_eng(tclresult());
           if(r->flags & 4) {
@@ -784,7 +887,11 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(gr->logx) {
           logcursor = mylog10(cursor);
         }
-        if(fabs(xctx->mousex - W_X(logcursor)) < 10) {
+        /* Smith: no vertical cursor line - the prompt opens when the mouse
+         * is within 10 px of one of this cursor's markers */
+        if(gr->mode == 3
+             ? smith_mouse_on_marker(i, cursor, 10.0, 4)
+             : fabs(xctx->mousex - W_X(logcursor)) < 10) {
           tclvareval("input_line {Pos:} {} ", dtoa_eng(cursor, xctx->ev_precision), NULL);
           cursor = atof_eng(tclresult());
           if(r->flags & 4) {
@@ -992,7 +1099,15 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
         if(track_dset < 0) {
           int tmp;
-          track_dset = find_closest_wave(i, gr, &tmp);
+          if(gr->mode == 3) {
+            /* Smith: the sweep-axis nearest-wave search is inapplicable on
+             * the plane; select the dataset the traces are currently drawn
+             * from (the one the hilighted wave was picked from), or
+             * dataset 0 when all datasets are plotted */
+            track_dset = (gr->dataset >= 0) ? gr->dataset : 0;
+          } else {
+            track_dset = find_closest_wave(i, gr, &tmp);
+          }
         } else {
           track_dset = -1; /* all datasets */
         }
