@@ -1,0 +1,23 @@
+v {xschem version=3.4.8RC file_version=1.3}
+G {}
+K {type=subcircuit
+format="@name @pinlist @vccpin @vsspin @symname"
+template="name=x1 vccpin=vcca vsspin=vssa"
+extra="vccpin vsspin"
+}
+V {}
+S {}
+F {}
+E {}
+L 4 -130 -10 130 -10 {}
+L 4 -130 10 130 10 {}
+L 4 -130 -10 -130 10 {}
+L 4 130 -10 130 10 {}
+L 4 -150 0 -130 0 {}
+L 4 130 0 150 0 {}
+B 5 -152.5 -2.5 -147.5 2.5 {name=LDCP dir=in}
+B 5 147.5 -2.5 152.5 2.5 {name=LDCP_B dir=out}
+T {@symname} -76 -6 0 0 0.3 0.3 {}
+T {@name} 135 -22 0 0 0.2 0.2 {}
+T {LDCP} -125 -4 0 0 0.2 0.2 {}
+T {LDCP_B} 125 -4 0 1 0.2 0.2 {}

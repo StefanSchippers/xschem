@@ -1413,10 +1413,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   4: free data
      *   5: get info
      *   6: free indicated `sch_name`
+     *   7: lookup sch_name, return 1 if found, 0 if not
      * flags: 
      *   1: set window title [default]
      *   2: copy only metadata (yields an empty schematic)
      *   4: draw schematic when switching [default]
+     *   8: do not uniquify name when copying (what == 2)
+     *  16: copy undo pointers and undo directory
+     *  32: for fork_sch(6, ...): only delete hash table entry, do not delete schematic data
      * dbglev: 
      *   0: print informations, ask user to save a modified schematic [default]
      *  >0: print info only if debug_var >-dbglev, do not prompt user
@@ -1893,6 +1897,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           }
           break;
           case 'u':
+          if(!strcmp(argv[2], "undo_dirname")) { /* return undo directory path */
+            if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+            Tcl_SetResult(interp,  xctx->undo_dirname, TCL_STATIC);
+          }
           if(!strcmp(argv[2], "ui_state")) { /* return UI state */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             Tcl_SetResult(interp,  my_itoa(xctx->ui_state), TCL_VOLATILE);

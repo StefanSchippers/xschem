@@ -204,6 +204,8 @@ proc netlist_test {} {
     test_doublepin.sch                            spice       586121853
     test_parametric_ports/tb_param_ports_lcc.sch  spice      3752996922
     test_parametric_ports/tb_param_ports_lcc.sch  verilog    1069054205
+    test_parametric_ports/tb_test_param_model.sch spice       461250319
+    test_parametric_ports/tb_buffer.sch           spice      4041990473
     tb_test_evaluated_param.sch                   spice      1189251012
     simulate_ff.sch                               spice       574849766
     test_symbolgen.sch                            spice      4067585306

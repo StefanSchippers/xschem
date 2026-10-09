@@ -216,6 +216,9 @@ static void mem_init_undo(void)
       xctx->uslot[slot].pptr = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
     }
     xctx->mem_undo_initialized = 1;
+    xctx->cur_undo_ptr = 0; 
+    xctx->head_undo_ptr = 0; 
+    xctx->tail_undo_ptr = 0; 
   }
 }
 

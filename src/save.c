@@ -2410,21 +2410,22 @@ int plot_raw_custom_data(int sweep_idx, int first, int last, const char *expr, c
 int graph_sweep_expr_col(const char *sweep_attr, char **label_ret)
 {
   char *label = NULL, *expr = NULL;
-  const char *semi, *match;
+  const char *match;
+  ssize_t semi = -1;
   int idx = -1;
   Raw *raw = xctx->raw;
 
   if(label_ret) *label_ret = NULL;
   if(!raw || !raw->values || !sweep_attr || !sweep_attr[0]) return -1;
 
-  semi = strchr(sweep_attr, ';');
-  if(semi) {
+  semi = find_unescaped_sep(sweep_attr, ";", "\"", 1);
+  if(semi >= 0) {
     /* get the sweep variable alias (everything before ';'), leading and trailing spaces stripped off */
     my_strdup2(_ALLOC_ID_, &label, trim_chars(find_nth(sweep_attr, ";", "\"", 0, 1), " \t"));
   } else return -1; /* plain sweep variable(s), legacy handling */
 
   /* expression: everything after the first ';' strip off leading and trailing white space */
-  my_strdup2(_ALLOC_ID_, &expr, trim_chars(semi + 1, " \t"));
+  my_strdup2(_ALLOC_ID_, &expr, trim_chars(find_nth(sweep_attr, ";", "\"", 0, 2), " \t"));
 
   if(!expr[0]) { /* just "label;": use the first raw file variable with 'label' */
     idx = 0;
@@ -2550,12 +2551,12 @@ char *read_line(FILE *fp, int dbg_level)
 /* return "/<prefix><random string of random_size characters>"
  * example: "/xschem_undo_dj5hcG38T2"
  */
-static const char *random_string(const char *prefix)
+static const char *random_string(const char *prefix, const char *prefix2)
 {
-  static const char *charset="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  static const char charset[]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   static const int random_size=10;
   static char str[PATH_MAX]; /* safe even with multiple schematics, if immediately copied */
-  size_t prefix_size, i;
+  size_t prefix_size, prefix_size2, i;
   static unsigned short once=1; /* safe even with multiple schematics, set once and never changed */
   int idx;
   if(once) {
@@ -2563,9 +2564,12 @@ static const char *random_string(const char *prefix)
     once=0;
   }
   prefix_size = strlen(prefix);
+  prefix_size2 = strlen(prefix2);
   str[0]='/';
-  memcpy(str+1, prefix, prefix_size);
-  for(i=prefix_size+1; i < prefix_size + random_size+1; ++i) {
+  memcpy(str + 1, prefix, prefix_size);
+  memcpy(str + 1 + prefix_size, prefix2, prefix_size2);
+  
+  for(i=prefix_size + prefix_size2 + 1; i < prefix_size + prefix_size2 + random_size+1; ++i) {
     idx = rand()%(sizeof(charset)-1);
     str[i] = charset[idx];
   }
@@ -2581,13 +2585,13 @@ static const char *random_string(const char *prefix)
 /* after 5 unsuccessfull attemps give up */
 /* and return NULL */
 /* */
-const char *create_tmpdir(char *prefix)
+const char *create_tmpdir(const char *prefix, const char *prefix2)
 {
   static char str[PATH_MAX]; /* safe even with multiple schematics if immediately copied */
   int i;
   struct stat buf;
   for(i=0; i<5; ++i) {
-    my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix));
+    my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix, prefix2));
     if(stat(str, &buf) && !mkdir(str, 0700) ) { /* dir must not exist */
       dbg(1, ("create_tmpdir(): created dir: %s\n", str));
       return str;
@@ -2602,7 +2606,7 @@ const char *create_tmpdir(char *prefix)
 /* */
 
 /* try to create a tmp file in $XSCHEM_TMP_DIR */
-/* ${XSCHEM_TMP_DIR}/<prefix><trailing random chars> */
+/* ${XSCHEM_TMP_DIR}/<prefix><trailing random chars><suffix> */
 /* after 5 unsuccessfull attemps give up */
 /* and return NULL */
 /* */
@@ -2613,7 +2617,7 @@ FILE *open_tmpfile(char *prefix, char *suffix, char **filename)
   FILE *fd;
   struct stat buf;
   for(i=0; i<5; ++i) {
-    my_snprintf(str, S(str), "%s%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix), suffix);
+    my_snprintf(str, S(str), "%s%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix, ""), suffix);
     *filename = str;
     if(stat(str, &buf) && (fd = fopen(str, "w")) ) { /* file must not exist */
       dbg(1, ("open_tmpfile(): created file: %s\n", str));
@@ -3707,7 +3711,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
   xctx->prep_hash_wires=0;
   my_strdup2(_ALLOC_ID_, &ffname, trim_chars(fname, " \t\n"));
   if(reset_undo) {
-    xctx->clear_undo();
+    xctx->delete_undo();
     xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
   }
   else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
@@ -3863,16 +3867,24 @@ void delete_undo(void)
   int i;
   char diff_name[PATH_MAX]; /* overflow safe 20161122 */
 
-  dbg(1, ("delete_undo(): undo_initialized = %d\n", xctx->undo_initialized));
+  dbg(1, ("delete_undo() called...\n"));
   if(!xctx->undo_initialized) return;
   clear_undo();
-  for(i=0; i<MAX_UNDO; ++i) {
-    my_snprintf(diff_name, S(diff_name), "%s/undo%d",xctx->undo_dirname, i);
-    xunlink(diff_name);
-  }
-  rmdir(xctx->undo_dirname);
-  my_free(_ALLOC_ID_, &xctx->undo_dirname);
   xctx->undo_initialized = 0;
+  #ifdef EXPERIMENTAL
+  /* if cached schematic exists do not delete undo dir (Experimental) */
+  if(!fork_sch(7, xctx->current_name, 0, 0)) {
+  #endif
+    dbg(1, ("delete_undo(): %s, deleting %s\n", xctx->current_name, xctx->undo_dirname));
+    for(i=0; i<MAX_UNDO; ++i) {
+      my_snprintf(diff_name, S(diff_name), "%s/undo%d",xctx->undo_dirname, i);
+      xunlink(diff_name);
+    }
+    rmdir(xctx->undo_dirname);
+    my_free(_ALLOC_ID_, &xctx->undo_dirname);
+  #ifdef EXPERIMENTAL
+  }
+  #endif
 }
 
 /* create undo directory in XSCHEM_TEMP_DIR */
@@ -3880,12 +3892,16 @@ static void init_undo(void)
 {
   if(xctx->no_undo == 0 && !xctx->undo_initialized) {
     /* create undo directory */
-    if( !my_strdup(_ALLOC_ID_, &xctx->undo_dirname, create_tmpdir("xschem_undo_") )) {
+    if( !my_strdup(_ALLOC_ID_, &xctx->undo_dirname,
+         create_tmpdir("", "xschem_undo_") )) {
       info("init_undo(): problems creating tmp undo dir, Undo will be disabled\n");
       info("init_undo(): Check permissions in %s\n", tclgetvar("XSCHEM_TMP_DIR"));
       xctx->no_undo = 1; /* disable undo */
     }
     xctx->undo_initialized = 1;
+    xctx->cur_undo_ptr = 0; 
+    xctx->head_undo_ptr = 0; 
+    xctx->tail_undo_ptr = 0; 
   }
 }
 

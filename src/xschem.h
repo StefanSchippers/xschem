@@ -50,6 +50,11 @@
 /*  approximate PI definition */
 #define XSCH_PI 3.14159265358979323846264338327950288419716939937
 
+/* undefine or comment to avoid experimental code */
+#if 0
+#define EXPERIMENTAL 1
+#endif
+
 #ifdef __unix__
 #ifndef NO_SCCONFIG
 #include "../config.h"
@@ -1721,6 +1726,7 @@ extern Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable,
 extern int ptr_hash_copy(Ptr_hashtable *dest, Ptr_hashtable *source);
 
 extern char *trim_chars(const char *str, const char *sep);
+extern ssize_t find_unescaped_sep(const char *str, const char *sep, const char *quotechar, int n);
 extern char *find_nth(const char *str, const char *sep, const char *quote, int keep_quote, int n);
 extern int isonlydigit(const char *s);
 extern char *spice_get_node(const char *token);
@@ -1888,7 +1894,7 @@ extern void set_clip_mask(int what);
 extern int pending_events(void);
 #endif
 extern void get_square(double x, double y, int *xx, int *yy);
-extern const char *create_tmpdir(char *prefix);
+extern const char *create_tmpdir(const char *prefix, const char *prefix2);
 extern FILE *open_tmpfile(char *prefix, char *suffix, char **filename);
 extern void create_ps(char** psfile, int what, int fullzoom, int eps);
 extern void MyXCopyArea(Display* display, Drawable src, Drawable dest, GC gc, int src_x, int src_y, unsigned int width, unsigned int height, int dest_x, int dest_y);
