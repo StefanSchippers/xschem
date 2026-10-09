@@ -3602,6 +3602,15 @@ static double smith_label_font(Graph_ctx *gr)
   return sm_font_px / (52.0 * cairo_font_scale * xctx->mooz);
 }
 
+/* Smith cursor text (the per-wave readouts in draw_smith_cursor_markers()
+ * and the "(A)/(B) Frequency = ..." labels in
+ * draw_smith_cursor_freq_labels()): 0.7 * the Smith label font, so the
+ * cursor text stays a size below the grid/label text. */
+static double smith_cursor_font(Graph_ctx *gr)
+{
+  return 0.7 * smith_label_font(gr);
+}
+
 /* device-pixel height + ascent of text drawn by draw_string() at the given
  * font scale (same estimation approach as the Z0 readout in
  * draw_smith_labels()) */
@@ -3619,6 +3628,20 @@ static void smith_font_metrics(double scale, double *h_px, double *asc_px)
   *asc_px = FONTHEIGHT * scale *
             tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale * xctx->mooz;
 #endif
+}
+
+/* Format v with at most 3 decimal places: print %.3f, then rtrim the
+ * trailing '0's (and a dangling '.'), so 0.523 -> "0.523", 12.000 -> "12",
+ * -0.0004 -> "-0".  Used for the Smith cursor readout values. */
+static void smith_fmt3(char *buf, int n, double v)
+{
+  char *p;
+
+  my_snprintf(buf, n, "%.3f", v);
+  p = buf + strlen(buf);
+  while(p > buf + 1 && p[-1] == '0') p--;
+  if(p > buf && p[-1] == '.') p--;
+  *p = '\0';
 }
 
 static void draw_smith_grid(Graph_ctx *gr, void *ct)
@@ -3805,12 +3828,13 @@ static void draw_smith_labels(Graph_ctx *gr)
  * stacked near the container bottom-left corner (A = cursor1 on the bottom
  * line, B = cursor2 directly above it), mirroring the bottom-right Z0 readout
  * anchoring in draw_smith_labels().  Color = GRIDLAYER, font =
- * smith_label_font().  Drawn once per graph (not per wave). */
+ * smith_cursor_font() (0.7 * the Smith label font).  Drawn once per graph
+ * (not per wave). */
 static void draw_smith_cursor_freq_labels(Graph_ctx *gr, int flags,
         double cursor1, double cursor2)
 {
   char fstr[96];
-  double sm_font = smith_label_font(gr);
+  double sm_font = smith_cursor_font(gr);
   double h_px, asc_px;
   double x_scr, y_bottom, y_above;
 
@@ -3860,7 +3884,8 @@ static void draw_smith_cursor_freq_labels(Graph_ctx *gr, int flags,
  * The per-wave readouts are drawn under the top wave-label row, in this wave's
  * label column (same x anchor + row geometry as the horizontal-legend path in
  * draw_graph_variables()): cursor1's two lines first, then cursor2's two lines
- * below cursor1's, each line advanced by the label font height + a small gap,
+ * below cursor1's, each line advanced by the readout font height + a small
+ * gap (font = smith_cursor_font(), 0.7 * the Smith label font),
  * in the wave color (no wave-name prefix, no "@frequency" suffix):
  *   scattering wave: line 1 = |G| @thdeg, line 2 = Z = R+jX Ohm
  *   expression wave: line 1 = R+jX Ohm, line 2 = Gamma = |G| @thdeg
@@ -3882,7 +3907,7 @@ static void draw_smith_cursor_markers(int sweep_idx, int first, int last,
 
   if(!raw) return;
   sv = raw->values[sweep_idx];
-  sm_font = smith_label_font(gr);
+  sm_font = smith_cursor_font(gr);
 
   /* readout column: same x anchor + label-row position as the horizontal-
    * legend path in draw_graph_variables() (x = rx1 + 2 + rw/n_nodes*wcnt,
@@ -3972,6 +3997,10 @@ static void draw_smith_cursor_markers(int sweep_idx, int first, int last,
       char l1[80];
       char l2[80];
       char zstr[64];
+      char gstr[32];  /* |Gamma|, 3 decimals max */
+      char thstr[32]; /* theta in degrees, 3 decimals max */
+      char zrstr[32]; /* R, 3 decimals max */
+      char zxstr[32]; /* X, 3 decimals max */
       double abs_g, theta_deg;
       double den_re, den_im, den;
       double z_re, z_im;
@@ -3979,6 +4008,8 @@ static void draw_smith_cursor_markers(int sweep_idx, int first, int last,
 
       abs_g = sqrt(re * re + im * im);
       theta_deg = atan2(im, re) * 180.0 / XSCH_PI;
+      smith_fmt3(gstr, S(gstr), abs_g);
+      smith_fmt3(thstr, S(thstr), theta_deg);
       den_re = 1.0 - re;
       den_im = -im;
       den = den_re * den_re + den_im * den_im;
@@ -3988,14 +4019,16 @@ static void draw_smith_cursor_markers(int sweep_idx, int first, int last,
         /* (1 + G) / (1 - G) = ((1 - |G|^2) + 2j*im(G)) / |1 - G|^2 */
         z_re = gr->smith_z0 * (1.0 - re * re - im * im) / den;
         z_im = gr->smith_z0 * 2.0 * im / den;
-        if(z_im >= 0.0) my_snprintf(zstr, S(zstr), "%g+j%g Ω", z_re, z_im);
-        else my_snprintf(zstr, S(zstr), "%g-j%g Ω", z_re, -z_im);
+        smith_fmt3(zrstr, S(zrstr), z_re);
+        smith_fmt3(zxstr, S(zxstr), z_im >= 0.0 ? z_im : -z_im);
+        my_snprintf(zstr, S(zstr), "%s%sj%s Ω", zrstr,
+                    z_im >= 0.0 ? "+" : "-", zxstr);
       }
       if(expression) {
         my_snprintf(l1, S(l1), "%s", zstr);
-        my_snprintf(l2, S(l2), "Gamma = %g @%.1fdeg", abs_g, theta_deg);
+        my_snprintf(l2, S(l2), "Gamma = %s @%sdeg", gstr, thstr);
       } else {
-        my_snprintf(l1, S(l1), "%g @%.1fdeg", abs_g, theta_deg);
+        my_snprintf(l1, S(l1), "%s @%sdeg", gstr, thstr);
         my_snprintf(l2, S(l2), "Z = %s", zstr);
       }
       y1_dev = ro_y0_dev + line_idx * line_adv;
