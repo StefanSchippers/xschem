@@ -3711,7 +3711,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
   xctx->prep_hash_wires=0;
   my_strdup2(_ALLOC_ID_, &ffname, trim_chars(fname, " \t\n"));
   if(reset_undo) {
-    xctx->clear_undo();
+    xctx->delete_undo();
     xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
   }
   else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
@@ -3867,16 +3867,24 @@ void delete_undo(void)
   int i;
   char diff_name[PATH_MAX]; /* overflow safe 20161122 */
 
-  dbg(1, ("delete_undo(): undo_initialized = %d\n", xctx->undo_initialized));
+  dbg(1, ("delete_undo() called...\n"));
   if(!xctx->undo_initialized) return;
   clear_undo();
-  for(i=0; i<MAX_UNDO; ++i) {
-    my_snprintf(diff_name, S(diff_name), "%s/undo%d",xctx->undo_dirname, i);
-    xunlink(diff_name);
-  }
-  rmdir(xctx->undo_dirname);
-  my_free(_ALLOC_ID_, &xctx->undo_dirname);
   xctx->undo_initialized = 0;
+  #ifdef EXPERIMENTAL
+  /* if cached schematic exists do not delete undo dir (Experimental) */
+  if(!fork_sch(7, xctx->current_name, 0, 0)) {
+  #endif
+    dbg(1, ("delete_undo(): %s, deleting %s\n", xctx->current_name, xctx->undo_dirname));
+    for(i=0; i<MAX_UNDO; ++i) {
+      my_snprintf(diff_name, S(diff_name), "%s/undo%d",xctx->undo_dirname, i);
+      xunlink(diff_name);
+    }
+    rmdir(xctx->undo_dirname);
+    my_free(_ALLOC_ID_, &xctx->undo_dirname);
+  #ifdef EXPERIMENTAL
+  }
+  #endif
 }
 
 /* create undo directory in XSCHEM_TEMP_DIR */
@@ -3891,6 +3899,9 @@ static void init_undo(void)
       xctx->no_undo = 1; /* disable undo */
     }
     xctx->undo_initialized = 1;
+    xctx->cur_undo_ptr = 0; 
+    xctx->head_undo_ptr = 0; 
+    xctx->tail_undo_ptr = 0; 
   }
 }
 

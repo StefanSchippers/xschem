@@ -1320,8 +1320,9 @@ static void inherit_graphic_context(Xschem_ctx *new, Xschem_ctx *old)
 }
 
 /* flags: 
- *   1: DNU - set window title (used in fork_sch)
  *   2: copy only metadata, not schematic data(yields an empty schematic)
+ *   8: do not uniquify name
+ *  16: copy undo pointers and undo directory
  */
 static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_name, int flags)
 {
@@ -1391,6 +1392,15 @@ static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_
   dest->currsch = source->currsch;
 
 
+  /* copy undo data */
+  if(flags & 16) {
+    dest->cur_undo_ptr = source->cur_undo_ptr;
+    dest->head_undo_ptr = source->head_undo_ptr;
+    dest->tail_undo_ptr = source->tail_undo_ptr;
+    dest->undo_initialized = source->undo_initialized;
+    my_strdup2(_ALLOC_ID_, &dest->undo_dirname,source->undo_dirname);
+  }
+
   for(i = 0; i < CADMAXHIER; ++i) {
     my_strdup2(_ALLOC_ID_, &dest->sch[i], source->sch[i]);
     my_strdup2(_ALLOC_ID_, &dest->sch_path[i], source->sch_path[i]);
@@ -1437,7 +1447,7 @@ static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_
   my_strncpy(dest->current_dirname, source->current_dirname, S(dest->current_dirname));
   my_strncpy(dest->current_name, source->current_name, S(dest->current_name));
 
-  set_unique_sch_name(dest, sch_name);
+  if(!(flags & 8)) set_unique_sch_name(dest, sch_name);
 
   raw_copy(&dest->raw, source->raw, dest);
   extra_raw_arr_copy(dest, source);
@@ -1447,7 +1457,7 @@ static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_
   dest->undo_type = source->undo_type;
   dest->modified = source->modified;
   dest->prev_set_modify = source->prev_set_modify;
-  dest->semaphore = source->semaphore;
+  dest->semaphore = 0; /* better set to 0, if this function call originates from callback() */
 
   hilight_hash_copy(dest, source);
   node_hash_copy(dest, source);
@@ -1662,6 +1672,10 @@ static Ptr_hashentry *fork_sch_hash(Xschem_ctx *ctx, int what)
  *   1: set window/tab title
  *   2: sch_deep_copy will copy only metadata (no schematic objects) used to create an empty schematic.
  *   4: draw schematic when switching
+ *   8: do not uniquify name when copying (what == 2)
+ *  16: copy undo pointers and undo directory
+ *  32: for fork_sch(6, ...): only delete hash table entry, do not delete schematic data
+ *  64: for fork_sch(3, ...): delete pre-existing schematic also if modified.
  * returns: 
  *   1: all ok
  *   0: some error.
@@ -1732,14 +1746,14 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
       if(check_in_save_xctx(new_xctx) < 0) { /* Only do something if not already in a tab/win */
         ret = 1;
         /* save current schematic or shred it if empty */
-        if(is_empty_schematic(xctx) || !modified) { /* shred current schematic*/
+        if((flags & 64) || is_empty_schematic(xctx) || !modified) { /* shred current schematic*/
           if(!is_in_fork_sch(xctx)) {
             schedule_delete = 1;
             dbg(0, ("schedule deletion of empty or unmodified schematic: %p  %s\n",
                     xctx, xctx->current_name));
           }
         }
-        if(!modified) {
+        if((flags & 64) || !modified) {
           dbg(1, ("sch_fork 3: update current_win_path; %s\n", xctx->current_win_path));
           /* set window paths to current */
           my_strdup2(_ALLOC_ID_, &new_xctx->top_path, xctx->top_path);
@@ -1751,7 +1765,7 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
           dbg(0, ("deleting empty or unmodified schematic: %p  %s\n", xctx, xctx->current_name));
           delete_schematic_data(0); /* no reason to save empty junk */
         }
-        if(!modified) {
+        if((flags & 64) || !modified) {
           xctx = new_xctx;
           set_tcl_netlist_type(xctx);
           if(has_x) {
@@ -1811,8 +1825,13 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
   } else if(what == 6) { /* delete specified `sch_name` */
     if((entry = ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP))) {
       Xschem_ctx *new_xctx = entry->value;
+
+      /* only delete hash entry */
+      if(flags & 32) {
+        dbg(1, ("fork_sch(): delete only hash entry: %s\n", sch_name));
+        ptr_hash_lookup(&fork_table, sch_name, NULL, XDELETE);
       /* do not zap the schematic we are into or schematic in another window / tab */
-      if(new_xctx != xctx && check_in_save_xctx(new_xctx) < 0) {
+      } else if(new_xctx != xctx && check_in_save_xctx(new_xctx) < 0) {
         Xschem_ctx *xctx_save = xctx; /* save current schematic */
         ptr_hash_lookup(&fork_table, sch_name, NULL, XDELETE);
         xctx = new_xctx;

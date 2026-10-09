@@ -2497,7 +2497,8 @@ int change_sch_path(int instnumber, int dr)
 }
 
 /* fallback = 1: if schematic=.. attr is set but file not existing descend into symbol base schematic
- * instnumber: instance to descend into in case of vector instances (1 = leftmost, -1=rightmost)
+ * instnumber: instance to descend into in case of vector instances (1 = leftmost, -1=rightmost,
+ *             0 = ask user)
  * if set_title == 0 do not set window title (faster)
  *              == 1 do set_title
  *              == 2 do not process instance pins/nets
@@ -2513,17 +2514,21 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
  int i, n = 0;
  int descend_ok = 1;
 
+ /* too deep, sorry! */
  if(xctx->currsch + 1 >= CADMAXHIER) {
    info("descend_schematic(): max hierarchy depth reached: %d", CADMAXHIER);
    return 0;
  }
+
+ /* get selected item, is it a component? */
  rebuild_selected_array();
  if(/* xctx->lastsel !=1 || */ xctx->sel_array[0].type!=ELEMENT) {
    dbg(1, ("descend_schematic(): wrong selection\n"));
    return 0;
  }
  else {
-   /* no name set for current schematic: save it before descending*/
+
+   /* no name set for current schematic: save it before descending */
    if(!strcmp(xctx->sch[xctx->currsch],""))
    {
      char cmd[PATH_MAX+1000];
@@ -2538,17 +2543,22 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
      save_ok = save_schematic(res, 0);
      if(save_ok==0) return 0;
    }
-   n = xctx->sel_array[0].n;
-   get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym, n, fallback);
 
+   n = xctx->sel_array[0].n;
+
+   /*  do not descend if not subcircuit */
+   if( (xctx->inst[n].ptr+ xctx->sym)->type &&
+       strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") &&
+       strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "primitive")
+   ) return 0;
+
+   /* get schematic to descend into */
+   get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym, n, fallback);
    if(!filename[0]) return 0; /* no filename returned from get_sch_from_sym() --> abort */
    dbg(1, ("descend_schematic(): selected:%s\n", xctx->inst[n].name));
    dbg(1, ("descend_schematic(): inst type: %s\n", (xctx->inst[n].ptr+ xctx->sym)->type));
-   if(                   /*  do not descend if not subcircuit */
-      (xctx->inst[n].ptr+ xctx->sym)->type &&
-      strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") &&
-      strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "primitive")
-   ) return 0;
+
+   /* circuit is in modified state. Ask user to save (save()) */
    if(xctx->modified) {
      int ret;
 
@@ -2563,11 +2573,15 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
      if(ret == 0) clear_all_hilights();
      if(ret == -1) return 0; /* user cancel */
    }
-   /*  build up current hierarchy path */
-   dbg(1, ("descend_schematic(): selected instname=%s\n", xctx->inst[n].instname));
+   #ifdef EXPERIMENTAL
+   /* cache schematic (Experimental) */
+   fork_sch(2, xctx->current_name, 24, 0);
+   #endif
 
+   /* analyze instance name, expand if vector instance (like xinv[3:0]) */
+   dbg(1, ("descend_schematic(): selected instname=%s\n", xctx->inst[n].instname));
    if(xctx->inst[n].instname && xctx->inst[n].instname[0]) {
-     if(set_title & 4)  {
+     if(set_title & 4)  { /* get plain instance name (no vector expansion) */
        my_strdup2(_ALLOC_ID_, &str, xctx->inst[n].instname);
        inst_mult = 1;
        instnumber = 1;
@@ -2577,13 +2591,13 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    } else {
      my_strdup2(_ALLOC_ID_, &str, "");
      inst_mult = 1;
+     instnumber = 1;
    }
-   prepare_netlist_structs(0); /* for portmap feature (mapping subcircuit nodes connected to
-                                * ports to upper level) */
-
    inst_number = 1;
-   if(inst_mult > 1) { /* on multiple instances ask where to descend, to correctly evaluate
-                          the hierarchy path you descend to */
+
+   /* on multiple instances ask/decide where to descend, to correctly evaluate the hierarchy path we go */
+   if(inst_mult > 1) {
+     /* when called with instnumber=0 ask user the instance to descend into */
      if(instnumber == 0 ) {
        const char *inum;
        tclvareval("input_line ", "{input instance number (leftmost = 1) to descend into:\n"
@@ -2596,7 +2610,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
          return 0;
        }
        inst_number=atoi(inum);
-     } else {
+     } else { /* no ask: get instance to descend into from caller */
        inst_number = instnumber;
      }
      if(inst_number < 0 ) inst_number += inst_mult+1;
@@ -2604,6 +2618,8 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
      if(inst_number <1 || inst_number > inst_mult) inst_number = 1;
    }
 
+   prepare_netlist_structs(0); /* for portmap feature (mapping subcircuit nodes connected to
+                                * ports to upper level) */
    my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    xctx->sch_path_hash[xctx->currsch+1] =0;
    if(xctx->portmap[xctx->currsch + 1].table) str_hash_free(&xctx->portmap[xctx->currsch + 1]);
@@ -2615,6 +2631,8 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    my_strdup(_ALLOC_ID_, &xctx->hier_attr[xctx->currsch].sym_extra,
      get_tok_value(xctx->sym[xctx->inst[n].ptr].prop_ptr, "extra", 0));
 
+
+   /* build portmapping (parent nets connected to child symbol we descend into) */
    if(!(set_title & 2)) for(i = 0; i < xctx->sym[xctx->inst[n].ptr].rects[PINLAYER]; i++) {
      const char *pin_name = get_tok_value(xctx->sym[xctx->inst[n].ptr].rect[PINLAYER][i].prop_ptr,"name",0);
      char *pin_node = NULL, *net_node = NULL;
@@ -2660,6 +2678,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
      my_free(_ALLOC_ID_, &pin_node);
    }
 
+   /* add last path component (the instance we descended into */
    dbg(1,("descend_schematic(): inst_number=%d\n", inst_number));
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], find_nth(str, ",", "", 0, inst_number));
    my_free(_ALLOC_ID_, &str);
@@ -2669,6 +2688,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    dbg(1, ("descend_schematic(): current path: %s\n", xctx->sch_path[xctx->currsch+1]));
    dbg(1, ("descend_schematic(): inst_number=%d\n", inst_number));
 
+   /* set other information needed to get back correctly later on */
    xctx->previous_instance[xctx->currsch]=n;
    xctx->zoom_array[xctx->currsch].x=xctx->xorigin;
    xctx->zoom_array[xctx->currsch].y=xctx->yorigin;
@@ -2760,6 +2780,19 @@ void go_back(int what)
                             /* by default) to parent schematic if going back from embedded symbol */
 
   my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
+  
+  #ifdef EXPERIMENTAL
+  /* restore cached schematic (Experimental) */
+  if(fork_sch(7, rel_sym_path(filename), 0, 0)) {
+     fork_sch(3, rel_sym_path(filename), 64 + 5, 0);
+     dbg(1, ("go_back(): restored %s\n", rel_sym_path(filename)));
+     fork_sch(6, xctx->current_name, 32, 0);
+     change_linewidth(-1.);
+     draw();
+     return;
+  }
+  else
+  #endif 
   load_schematic(1, filename, set_title, 1);
   /* if we are returning from a symbol created from a generator don't set modified flag on parent
    * as these symbols can not be edited / saved as embedded

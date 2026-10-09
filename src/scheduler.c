@@ -1418,6 +1418,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   1: set window title [default]
      *   2: copy only metadata (yields an empty schematic)
      *   4: draw schematic when switching [default]
+     *   8: do not uniquify name when copying (what == 2)
+     *  16: copy undo pointers and undo directory
+     *  32: for fork_sch(6, ...): only delete hash table entry, do not delete schematic data
      * dbglev: 
      *   0: print informations, ask user to save a modified schematic [default]
      *  >0: print info only if debug_var >-dbglev, do not prompt user

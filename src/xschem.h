@@ -50,6 +50,11 @@
 /*  approximate PI definition */
 #define XSCH_PI 3.14159265358979323846264338327950288419716939937
 
+/* undefine or comment to avoid experimental code */
+#if 1
+#define EXPERIMENTAL 1
+#endif
+
 #ifdef __unix__
 #ifndef NO_SCCONFIG
 #include "../config.h"
