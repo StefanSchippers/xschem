@@ -389,6 +389,56 @@ The following syntax:
    chart to appear.
   </p>
 
+  <a id="smith_waves"></a>
+  <h3>Adding waves to a Smith plot</h3>
+  <p>
+   A Smith plot wave is entered in the graph's wave list, the dialog text area
+   or the <kbd>Waves</kbd> menu, with the same syntax as a regular graph.
+   There are two Smith-specific twists: what a bare name means, and a new
+   operator called <kbd>imp()</kbd>.
+  </p>
+  <p>
+   Form 1: a bare scattering variable. If the entry is just a variable name,
+   like <kbd>s_1_1</kbd>, xschem plots it directly as a reflection coefficient.
+   The real and imaginary parts of that variable in the raw file are the Gamma
+   value of each point, no conversion. This is how S-parameter data (from an
+   SP simulation) is usually shown. A Smith plot of this kind is driven by an
+   SP raw, loaded with <kbd>Waves -&gt; Sp</kbd>.
+  </p>
+  <p>
+   Form 2: the <kbd>imp()</kbd> operator. To plot a Z-domain quantity as a
+   Smith curve, append the zero-argument operator <kbd>imp()</kbd> to a wave
+   expression. It pops the top stack value (an impedance in ohms, complex) and
+   pushes its reflection coefficient, computed with the chart <kbd>Z0</kbd>:
+   <kbd>Gamma = (Z - Z0) / (Z + Z0)</kbd>. It works in the same postfix (RPN)
+   expression syntax described in the "Expression evaluation on waves" section;
+   <kbd>imp()</kbd> takes no arguments.
+   The example in the hero picture is entered as:
+   <kbd>"Zin(vx1); vx1 i(vmes) / -1 * imp()"</kbd>. The alias <kbd>Zin(vx1)</kbd>
+   is shown as the wave label. The expression computes
+   <kbd>v(vx1) / i(vmes) * -1</kbd> (the port impedance seen by the measuring
+   source, Vmes) and <kbd>imp()</kbd> converts it to Gamma.
+   <kbd>imp()</kbd> needs the raw file to contain the actual port voltage and
+   port current. A plain AC simulation with the <kbd>remzerovec</kbd> option
+   saves them, and -v(port node)/i(port source) is then the physical port
+   impedance. S-parameter raw files must not be used with <kbd>imp()</kbd>:
+   their saved port sources are not the real excitations, so the v()/i() values
+   in an SP raw do not represent the port impedance.
+  </p>
+  <p>
+   Form 3: dataset / raw file override per wave. Like regular graphs, a wave
+   entry can end with the "dataset / raw file / sim type" suffix:
+   <kbd>alias; expression % dataset rawfile simtype</kbd> (see the
+   "Specify a different raw file for a single signal in a graph" section; the
+   fields are not re-documented here). All three forms can be combined in one
+   entry.
+  </p>
+  <p>
+   The wave label shown on the chart is the alias (or the variable name), and
+   wave colors are chosen exactly as for a regular graph, with the dialog color
+   buttons or by editing the text area.
+  </p>
+
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
