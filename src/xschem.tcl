@@ -3711,7 +3711,9 @@ proc graph_edit_properties {n} {
       xschem setprop -fast rect 2 $graph_selected x2 [.graphdialog.top3.xmax get]
       xschem setprop -fast rect 2 $graph_selected y1 [.graphdialog.top3.ymin get]
       xschem setprop -fast rect 2 $graph_selected y2 [.graphdialog.top3.ymax get]
+      xschem setprop -fast rect 2 $graph_selected smz0 [.graphdialog.top2.z0 get]
       set_rect_flags $graph_selected
+      xschem draw_graph $graph_selected
     }
     set graph_dialog_default_geometry [winfo geometry .graphdialog]
     destroy .graphdialog
@@ -3726,7 +3728,9 @@ proc graph_edit_properties {n} {
       xschem setprop -fast rect 2 $graph_selected x2 [.graphdialog.top3.xmax get]
       xschem setprop -fast rect 2 $graph_selected y1 [.graphdialog.top3.ymin get]
       xschem setprop -fast rect 2 $graph_selected y2 [.graphdialog.top3.ymax get]
+      xschem setprop -fast rect 2 $graph_selected smz0 [.graphdialog.top2.z0 get]
       set_rect_flags $graph_selected
+      xschem draw_graph $graph_selected
     }
   }
 
@@ -3821,20 +3825,24 @@ proc graph_edit_properties {n} {
 
   label .graphdialog.top2.labmode -text {Mode}
   if  { [info tclversion] > 8.4} {
-    ttk::combobox .graphdialog.top2.mode -values {Line HistoV HistoH} -width 6
+    ttk::combobox .graphdialog.top2.mode -values {Line HistoV HistoH Smith} -width 6
     bind .graphdialog.top2.mode <<ComboboxSelected>> {
       graph_push_undo
       xschem setprop rect 2 $graph_selected mode [.graphdialog.top2.mode get]
       xschem draw_graph $graph_selected
     }
   } else {
-    spinbox .graphdialog.top2.mode -values {Line HistoV HistoH} -width 6 \
+    spinbox .graphdialog.top2.mode -values {Line HistoV HistoH Smith} -width 6 \
      -command {
         graph_push_undo
         xschem setprop rect 2 $graph_selected mode [.graphdialog.top2.mode get]
         xschem draw_graph $graph_selected
       }
   }
+
+  label .graphdialog.top2.labz0 -text {  Z0}
+  entry .graphdialog.top2.z0 -width 4
+  entry_replace_selection .graphdialog.top2.z0
 
   # bind .graphdialog.top2.sweep <KeyRelease> {
   #   graph_push_undo
@@ -3878,6 +3886,10 @@ proc graph_edit_properties {n} {
   if {$graph_mode eq {}} { set graph_mode Line}
   .graphdialog.top2.mode set $graph_mode
 
+  set graph_z0 [xschem getprop rect 2 $graph_selected smz0]
+  if {$graph_z0 eq {}} { set graph_z0 50}
+  .graphdialog.top2.z0 insert 0 $graph_z0
+
   label .graphdialog.top5.legendlabmag -text { Legend mag:}
   entry .graphdialog.top5.legendmag -width 4
   entry_replace_selection .graphdialog.top5.legendmag
@@ -3917,7 +3929,7 @@ proc graph_edit_properties {n} {
        .graphdialog.top2.labdivy .graphdialog.top2.divy \
        .graphdialog.top2.labsubdivx .graphdialog.top2.subdivx \
        .graphdialog.top2.labsubdivy .graphdialog.top2.subdivy -side left
-  pack .graphdialog.top2.labmode .graphdialog.top2.mode .graphdialog.top2.labsweep -side left
+  pack .graphdialog.top2.labmode .graphdialog.top2.mode .graphdialog.top2.labz0 .graphdialog.top2.z0 .graphdialog.top2.labsweep -side left
   pack .graphdialog.top2.sweep -side left -fill x -expand yes
 
   # top frame

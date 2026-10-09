@@ -3010,6 +3010,305 @@ static void draw_graph_bus_points(const char *ntok, int n_bits, SPICE_DATA **idx
 }
 
 #define MAX_POLY_POINTS 4096*16
+/* Smith chart: plot the (re, im) columns of a complex raw variable
+ * (idx = 4*i -> values[idx]=mag, idx+1=ph, idx+2=re, idx+3=im)
+ * as a trace on the fixed Smith plane, mapped through SM_X()/SM_Y() */
+void draw_smith_points(int idx, int first, int last,
+         XPoint *point, int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct)
+{
+  int p, x;
+  int poly_npoints = 0;
+  Raw *raw = xctx->raw;
+  register SPICE_DATA *re, *im;
+
+  if(!raw) {
+    info("draw_smith_points(): no raw struct allocated\n");
+    return;
+  }
+  re = raw->values[idx + 2];
+  im = raw->values[idx + 3];
+
+  dbg(1, ("draw_smith_points: idx=%d, first=%d, last=%d, wcnt=%d\n", idx, first, last, wcnt));
+  if(idx == -1) return;
+  for(p=0;p<cadlayers; ++p) {
+    XSetLineAttributes(display, xctx->gc[p],
+       XLINEWIDTH(gr->linewidth_mult * xctx->lw), LineSolid, LINECAP , LINEJOIN);
+  }
+  for(p = first ; p <= last; p++) {
+    /* Build poly x/y array. Translate from Smith plane to screen coordinates  */
+    point[poly_npoints].x = (short)CLIP(SM_X(re[p]), -30000, 30000);
+    point[poly_npoints].y = (short)CLIP(SM_Y(im[p]), -30000, 30000);
+    poly_npoints++;
+  }
+  set_thick_waves(1, wcnt, wave_color, gr);
+  for(x = 0; x < 2; x++) {
+    Drawable  w;
+    int offset = 0, size;
+    XPoint *pt = point;
+    if(x == 0 && xctx->draw_window) w = xctx->window;
+    else if(x == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+    else continue;
+    while(1) {
+      pt =  point + offset;
+      size = poly_npoints - offset;
+      if(size > MAX_POLY_POINTS) size = MAX_POLY_POINTS;
+      XDrawLines(display, w, xctx->gc[wave_color], pt, size, CoordModeOrigin);
+      if(offset + size >= poly_npoints) break;
+      offset += MAX_POLY_POINTS -1; /* repeat last point on next iteration */
+    }
+  }
+  set_thick_waves(0, wcnt, wave_color, gr);
+  for(p=0;p<cadlayers; ++p) {
+    XSetLineAttributes(display, xctx->gc[p], XLINEWIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
+  }
+}
+
+/* Smith chart: parse + validate the "label; expression" RPN expression
+ * into the program buffer prog (token recognition, in this order: the
+ * operators "+", "-", "*", "/", the "imp()" operator, real numbers, and
+ * raw variable names (push the COMPLEX re/im values of the var's base
+ * column)).  Operators are complex if either operand is complex, else
+ * real.  imp() pops the top stack value Z (complex or real) and pushes
+ * Gamma = (Z - z0)/(Z + z0).  The program must end with exactly one
+ * value on the stack.  Returns 0 on success, -1 on error (after info()). */
+int smith_expr_parse(const char *expr, smx_prog *prog)
+{
+  int i, depth;
+  int prog_n = 0;
+  const char *n;
+  char *endptr, *ntok_copy = NULL, *ntok_save, *ntok_ptr;
+  Raw *raw = xctx->raw;
+
+  if(!raw) {
+    info("smith_expr_parse(): no raw struct allocated\n");
+    return -1;
+  }
+  if(!raw->sim_type || strcmp(raw->sim_type, "ac")) {
+    info("Smith chart: expression '%s' requires an ac raw file - skipped\n", expr);
+    return -1;
+  }
+  my_strdup2(_ALLOC_ID_, &ntok_copy, expr);
+  ntok_ptr = ntok_copy;
+  dbg(1, ("smith_expr_parse: expr=%s\n", expr));
+  while( (n = my_strtok_r(ntok_ptr, " \t\n", "", 0, &ntok_save)) ) {
+    int idx;
+    ntok_ptr = NULL;
+    if(prog_n >= SMX_MAX) {
+      info("Smith chart: expression too long - skipped\n");
+      my_free(_ALLOC_ID_, &ntok_copy);
+      return -1;
+    }
+    dbg(1, ("  smith_expr_parse(): n = %s\n", n));
+    if(!strcmp(n, "+") || !strcmp(n, "-") || !strcmp(n, "*") || !strcmp(n, "/")) {
+      switch(n[0]) {
+        case '+': prog->tok[prog_n].t = SMX_PLUS; break;
+        case '-': prog->tok[prog_n].t = SMX_MINUS; break;
+        case '*': prog->tok[prog_n].t = SMX_MULT; break;
+        default:  prog->tok[prog_n].t = SMX_DIV; break;
+      }
+      prog_n++;
+    }
+    else if(!strcmp(n, "imp()")) {
+      prog->tok[prog_n].t = SMX_IMP;
+      prog_n++;
+    }
+    else if( (strtod(n, &endptr), endptr) > n) { /* NUMBER */
+      prog->tok[prog_n].t = SMX_NUM;
+      prog->tok[prog_n].d = atof_spice(n);
+      prog_n++;
+    }
+    else { /* raw variable name: must resolve to an AC base column */
+      idx = get_raw_index(n, NULL);
+      if(idx == -1 || idx % 4 != 0 || idx + 3 >= raw->nvars) {
+        info("Smith chart: expression token '%s' not supported - skipped\n", n);
+        my_free(_ALLOC_ID_, &ntok_copy);
+        return -1;
+      }
+      prog->tok[prog_n].t = SMX_VAR;
+      prog->tok[prog_n].idx = idx;
+      prog_n++;
+    }
+  } /* while(n = my_strtok_r(...)) */
+  my_free(_ALLOC_ID_, &ntok_copy);
+  /* static stack-shape check: simulate stack depths (NUM/VAR +1,
+   * + - * / -1, imp() 0); depth must never reach 0 and must end at 1 */
+  depth = 0;
+  for(i = 0; i < prog_n; i++) {
+    if(prog->tok[i].t == SMX_NUM || prog->tok[i].t == SMX_VAR) depth++;
+    else if(prog->tok[i].t != SMX_IMP) depth--; /* SMX_PLUS/MINUS/MULT/DIV */
+    if(depth < 1) break;
+  }
+  if(depth != 1) {
+    info("Smith chart: unbalanced expression '%s' - skipped\n", expr);
+    return -1;
+  }
+  prog->n = prog_n;
+  return 0;
+}
+
+/* Smith chart: evaluate the RPN program for one sweep point p, writing
+ * the result to *re/*im (complex result -> re/im, real -> (re, 0)).
+ * Reads xctx->raw - the caller guarantees the right raw file is loaded
+ * (point p of the selected dataset).  Returns 0 on success, -1 if the
+ * point is invalid.  imp() normalizes with the z0 passed by the caller
+ * (the smith_z0 of the graph being drawn). */
+int smith_expr_eval_point(const smx_prog *prog, int p, double z0, double *re, double *im)
+{
+  int i, stackptr;
+  struct { int is_c; double re, im; } cstack[SMX_MAX];
+  Raw *raw = xctx->raw;
+
+  if(!raw || !re || !im || p < 0 || p >= raw->allpoints) return -1;
+
+  stackptr = 0;
+  for(i = 0; i < prog->n; i++) {
+    switch(prog->tok[i].t) {
+      case SMX_NUM:
+        cstack[stackptr].is_c = 0;
+        cstack[stackptr].re = prog->tok[i].d;
+        cstack[stackptr].im = 0.0;
+        stackptr++;
+        break;
+      case SMX_VAR:
+        cstack[stackptr].is_c = 1;
+        cstack[stackptr].re = raw->values[prog->tok[i].idx + 2][p];
+        cstack[stackptr].im = raw->values[prog->tok[i].idx + 3][p];
+        stackptr++;
+        break;
+      case SMX_PLUS:
+      case SMX_MINUS:
+      case SMX_MULT:
+      case SMX_DIV:
+        {
+          int is_c = cstack[stackptr - 1].is_c || cstack[stackptr - 2].is_c;
+          double a_re = cstack[stackptr - 2].re, a_im = cstack[stackptr - 2].im;
+          double b_re = cstack[stackptr - 1].re, b_im = cstack[stackptr - 1].im;
+          double r_re = 0.0, r_im = 0.0;
+          if(is_c) {
+            /* a is the value below the top of the stack, b the top */
+            switch(prog->tok[i].t) {
+              case SMX_PLUS:
+                r_re = a_re + b_re;
+                r_im = a_im + b_im;
+                break;
+              case SMX_MINUS:
+                r_re = a_re - b_re;
+                r_im = a_im - b_im;
+                break;
+              case SMX_MULT:
+                r_re = a_re * b_re - a_im * b_im;
+                r_im = a_re * b_im + a_im * b_re;
+                break;
+              default: /* SMX_DIV: a / b = a * conj(b) / |b|^2 */
+                {
+                  double den = b_re * b_re + b_im * b_im;
+                  if(den < 1e-300) { /* guard: divide by (near) zero */
+                    r_re = 0.0;
+                    r_im = 0.0;
+                  } else {
+                    r_re = (a_re * b_re + a_im * b_im) / den;
+                    r_im = (a_im * b_re - a_re * b_im) / den;
+                  }
+                }
+                break;
+            }
+          } else {
+            switch(prog->tok[i].t) {
+              case SMX_PLUS:  r_re = a_re + b_re; break;
+              case SMX_MINUS: r_re = a_re - b_re; break;
+              case SMX_MULT:  r_re = a_re * b_re; break;
+              default:       r_re = (b_re != 0.0) ? a_re / b_re : 0.0; break;
+            }
+            r_im = 0.0;
+          }
+          cstack[stackptr - 2].is_c = is_c;
+          cstack[stackptr - 2].re = r_re;
+          cstack[stackptr - 2].im = r_im;
+          stackptr--;
+          break;
+        }
+      case SMX_IMP:
+        {
+          /* pop Z (complex or real), push Gamma = (Z - z0)/(Z + z0) */
+          double z_re = cstack[stackptr - 1].re;
+          double z_im = cstack[stackptr - 1].im;
+          double den_re = z_re + z0, den_im = z_im;
+          double den = den_re * den_re + den_im * den_im;
+          double r_re, r_im;
+          if(den < 1e-300) { /* guard: Z = -z0 */
+            r_re = 0.0;
+            r_im = 0.0;
+          } else {
+            r_re = ((z_re - z0) * den_re + z_im * den_im) / den;
+            r_im = (z_im * den_re - (z_re - z0) * den_im) / den;
+          }
+          cstack[stackptr - 1].is_c = 1;
+          cstack[stackptr - 1].re = r_re;
+          cstack[stackptr - 1].im = r_im;
+          break;
+        }
+    }
+  }
+  /* one value is guaranteed to remain on the stack (shape checked in
+   * smith_expr_parse()) */
+  *re = cstack[0].re;
+  *im = cstack[0].im;
+  return 0;
+}
+
+/* Smith chart: fill point[] with the (already parsed) RPN program
+ * evaluated per sweep point and draw the trace on the fixed Smith plane
+ * (same drawing primitives as draw_smith_points()).
+ * Returns 0 on success, -1 on error. */
+int draw_smith_expr_points(const smx_prog *prog, int first, int last, XPoint *point,
+        int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct)
+{
+  int p, x;
+  int poly_npoints = 0;
+  Raw *raw = xctx->raw;
+
+  if(!raw) {
+    info("draw_smith_expr_points(): no raw struct allocated\n");
+    return -1;
+  }
+  dbg(1, ("draw_smith_expr_points: first=%d, last=%d\n", first, last));
+  for(p = first ; p <= last; p++) {
+    double re, im;
+
+    if(smith_expr_eval_point(prog, p, gr->smith_z0, &re, &im) != 0) return -1;
+    /* Build poly x/y array. Translate from Smith plane to screen coordinates  */
+    point[poly_npoints].x = (short)CLIP(SM_X(re), -30000, 30000);
+    point[poly_npoints].y = (short)CLIP(SM_Y(im), -30000, 30000);
+    poly_npoints++;
+  }
+  for(p=0;p<cadlayers; ++p) {
+    XSetLineAttributes(display, xctx->gc[p],
+       XLINEWIDTH(gr->linewidth_mult * xctx->lw), LineSolid, LINECAP , LINEJOIN);
+  }
+  set_thick_waves(1, wcnt, wave_color, gr);
+  for(x = 0; x < 2; x++) {
+    Drawable  w;
+    int offset = 0, size;
+    XPoint *pt = point;
+    if(x == 0 && xctx->draw_window) w = xctx->window;
+    else if(x == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+    else continue;
+    while(1) {
+      pt =  point + offset;
+      size = poly_npoints - offset;
+      if(size > MAX_POLY_POINTS) size = MAX_POLY_POINTS;
+      XDrawLines(display, w, xctx->gc[wave_color], pt, size, CoordModeOrigin);
+      if(offset + size >= poly_npoints) break;
+      offset += MAX_POLY_POINTS -1; /* repeat last point on next iteration */
+    }
+  }
+  set_thick_waves(0, wcnt, wave_color, gr);
+  for(p=0;p<cadlayers; ++p) {
+    XSetLineAttributes(display, xctx->gc[p], XLINEWIDTH(xctx->lw), LineSolid, LINECAP , LINEJOIN);
+  }
+  return 0;
+}
+
 /* wcnt is the nth wave in graph, idx is the index in spice raw file */
 static void draw_graph_points(int idx, int first, int last,
          XPoint *point, int wave_col, int wcnt, int n_nodes, Graph_ctx *gr, void *ct)
@@ -3231,6 +3530,518 @@ static void draw_graph_grid(Graph_ctx *gr, void *ct)
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
+/* Sample the part of the constant-X circle that lies inside the unit circle
+ * (the constant-X arc) as a polyline in data space (Gamma = u + jv).
+ * For this chart's convention (Gamma = (Z-1)/(Z+1), positive j up, as fixed
+ * by the constant-R circles), the constant-X circle has center (1, 1/X) and
+ * radius 1/|X|: it passes through the R = 0 point on the unit circle and
+ * through Gamma = 1 (R -> infinity).
+ * The full circle is sampled with 720 points; the kept points (|Gamma| <= 1,
+ * with a small tolerance) form a single contiguous, possibly wrapping, run.
+ * The run is emitted into u[]/v[] in sampling order, starting at the first
+ * kept point.  Returns the number of points (0 if none is inside the unit
+ * circle or if npts is too small to hold the run).
+ */
+static int smith_x_arc(double X, int npts, double *u, double *v)
+{
+  double cx, cy, rad, ang;
+  double pu[720], pv[720];
+  int keep[720];
+  int i, k, nkeep, start;
+
+  cx = 1.0;
+  cy = 1.0 / X;
+  rad = 1.0 / ((X < 0.0) ? -X : X);
+
+  nkeep = 0;
+  for(i = 0; i < 720; i++) {
+    ang = 2.0 * XSCH_PI * (double)i / 720.0;
+    pu[i] = cx + rad * cos(ang);
+    pv[i] = cy + rad * sin(ang);
+    keep[i] = (pu[i] * pu[i] + pv[i] * pv[i] <= 1.0001);
+    if(keep[i]) nkeep++;
+  }
+  if(nkeep == 0 || nkeep > npts) return 0;
+
+  /* the kept points form one contiguous circular run; walk backwards from
+   * the first kept index to find where the run starts (a gap is guaranteed
+   * because the kept arc is always shorter than the full circle) */
+  for(i = 0; i < 720; i++)
+    if(keep[i]) break;
+  start = i;
+  for(k = 0; k < 720 && keep[(start + 719) % 720]; k++)
+    start = (start + 719) % 720;
+
+  for(k = 0; k < nkeep; k++) {
+    i = (start + k) % 720;
+    u[k] = pu[i];
+    v[k] = pv[i];
+  }
+  return nkeep;
+}
+
+static const double smith_r_values[] = { 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0 };
+static const char *smith_r_labels[] = { "0.1", "0.2", "0.5", "1", "2", "5", "10" };
+static const double smith_x_values[] = { 0.1, 0.2, 0.5, 1.0, 2.0, 5.0,
+                                         -0.1, -0.2, -0.5, -1.0, -2.0, -5.0 };
+static const char *smith_x_labels[] = { "j0.1", "j0.2", "j0.5", "j1", "j2", "j5",
+                                        "-j0.1", "-j0.2", "-j0.5", "-j1", "-j2", "-j5" };
+
+/* Smith label font: about 4.5% of the unit circle diameter in pixels
+ * (the unit circle radius in pixels is gr->ss).  draw_string() renders
+ * a font of scale 1.0 at 52*cairo_font_scale*mooz pixels tall, so
+ * convert the pixel target into that xscale convention; clamp the pixel
+ * target so a degenerate data window cannot make the labels explode or
+ * vanish.  Shared by the grid and the label passes. */
+static double smith_label_font(Graph_ctx *gr)
+{
+  double sm_font_px = 0.045 * 2.0 * gr->ss;
+
+  if(sm_font_px < 3.0) sm_font_px = 3.0;
+  if(sm_font_px > 100.0) sm_font_px = 100.0;
+  return sm_font_px / (52.0 * cairo_font_scale * xctx->mooz);
+}
+
+/* Smith cursor text (the per-wave readouts in draw_smith_cursor_markers()
+ * and the "(A)/(B) Frequency = ..." labels in
+ * draw_smith_cursor_freq_labels()): 0.7 * the Smith label font, so the
+ * cursor text stays a size below the grid/label text. */
+static double smith_cursor_font(Graph_ctx *gr)
+{
+  return 0.7 * smith_label_font(gr);
+}
+
+/* device-pixel height + ascent of text drawn by draw_string() at the given
+ * font scale (same estimation approach as the Z0 readout in
+ * draw_smith_labels()) */
+static void smith_font_metrics(double scale, double *h_px, double *asc_px)
+{
+#if HAS_CAIRO==1
+  cairo_font_extents_t fext;
+  cairo_set_font_size(xctx->cairo_ctx, scale*52.*cairo_font_scale*xctx->mooz);
+  cairo_font_extents(xctx->cairo_ctx, &fext);
+  *h_px = fext.height;
+  *asc_px = fext.ascent;
+#else
+  *h_px = (FONTHEIGHT + FONTDESCENT + FONTWHITESPACE) * scale *
+          tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale * xctx->mooz;
+  *asc_px = FONTHEIGHT * scale *
+            tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale * xctx->mooz;
+#endif
+}
+
+/* Format v with at most 3 decimal places: print %.3f, then rtrim the
+ * trailing '0's (and a dangling '.'), so 0.523 -> "0.523", 12.000 -> "12",
+ * -0.0004 -> "-0".  Used for the Smith cursor readout values. */
+static void smith_fmt3(char *buf, int n, double v)
+{
+  char *p;
+
+  my_snprintf(buf, n, "%.3f", v);
+  p = buf + strlen(buf);
+  while(p > buf + 1 && p[-1] == '0') p--;
+  if(p > buf && p[-1] == '.') p--;
+  *p = '\0';
+}
+
+static void draw_smith_grid(Graph_ctx *gr, void *ct)
+{
+  const int n_r = 7;
+  const int n_x = 12;
+  const int n_pts = 96;
+  double circ_cx[8], circ_cy[8], circ_r[8];
+  double xu[720], xv[720];
+  XPoint pts[n_pts + 1];
+  XPoint xpts[720];
+  int i, ir, p, n_circ, ix, n_xpts;
+  double cx, cy, rad, theta, u, v;
+
+  (void)ct; /* context unused; kept for signature consistency with draw_graph_grid() */
+
+  /* clipping everything outside container area */
+  /* background */
+  filledrect(0, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 2, -1, -1);
+  /* graph bounding box */
+  drawrect(SYMLAYER, NOW, gr->rx1, gr->ry1, gr->rx2, gr->ry2, 0.0, 2, -1, -1);
+
+  /* clip to the plot box exactly like draw_graph_grid() */
+  bbox(START, 0.0, 0.0, 0.0, 0.0);
+  bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+  bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+
+  /* solid grid-line width, same as draw_graph_grid() major lines */
+  /* LineSolid is the default state after wave drawing; no save/restore needed */
+  XSetLineAttributes(display, xctx->gc[GRIDLAYER], XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
+
+  /* circle table: [0] = unit circle, [1..n_r] = constant-R circles */
+  circ_cx[0] = 0.0; circ_cy[0] = 0.0; circ_r[0] = 1.0;
+  n_circ = 1;
+  for(ir = 0; ir < n_r; ir++) {
+    double r = smith_r_values[ir];
+    circ_cx[n_circ] = r / (1.0 + r);
+    circ_cy[n_circ] = 0.0;
+    circ_r[n_circ] = 1.0 / (1.0 + r);
+    n_circ++;
+  }
+
+  /* draw each circle as a closed 96-segment polyline in data space, mapped via SM_X/SM_Y */
+  for(ir = 0; ir < n_circ; ir++) {
+    cx = circ_cx[ir];
+    cy = circ_cy[ir];
+    rad = circ_r[ir];
+    for(i = 0; i < n_pts; i++) {
+      theta = 2.0 * XSCH_PI * (double)i / (double)n_pts;
+      u = cx + rad * cos(theta);
+      v = cy + rad * sin(theta);
+      pts[i].x = (short)CLIP(SM_X(u), -30000, 30000);
+      pts[i].y = (short)CLIP(SM_Y(v), -30000, 30000);
+    }
+    pts[n_pts].x = pts[0].x; /* close the loop by repeating the first point */
+    pts[n_pts].y = pts[0].y;
+    for(p = 0; p < 2; p++) {
+      Drawable w;
+      if(p == 0 && xctx->draw_window) w = xctx->window;
+      else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+      else continue;
+      XDrawLines(display, w, xctx->gc[GRIDLAYER], pts, n_pts + 1, CoordModeOrigin);
+    }
+  }
+
+  /* real axis: straight line from (-1,0) to (1,0) */
+  for(p = 0; p < 2; p++) {
+    Drawable w;
+    if(p == 0 && xctx->draw_window) w = xctx->window;
+    else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+    else continue;
+    XDrawLine(display, w, xctx->gc[GRIDLAYER],
+              (int)CLIP(SM_X(-1.0), -30000, 30000), (int)CLIP(SM_Y(0.0), -30000, 30000),
+              (int)CLIP(SM_X(1.0), -30000, 30000), (int)CLIP(SM_Y(0.0), -30000, 30000));
+  }
+
+  /* constant-X arcs: open polylines in data space, same style as the R
+   * circles; the labels are drawn later by draw_smith_labels() so they
+   * stay above the traces */
+  for(ix = 0; ix < n_x; ix++) {
+    n_xpts = smith_x_arc(smith_x_values[ix], 720, xu, xv);
+    if(n_xpts < 2) continue;
+    for(i = 0; i < n_xpts; i++) {
+      xpts[i].x = (short)CLIP(SM_X(xu[i]), -30000, 30000);
+      xpts[i].y = (short)CLIP(SM_Y(xv[i]), -30000, 30000);
+    }
+    for(p = 0; p < 2; p++) {
+      Drawable w;
+      if(p == 0 && xctx->draw_window) w = xctx->window;
+      else if(p == 1 && xctx->draw_pixmap) w = xctx->save_pixmap;
+      else continue;
+      XDrawLines(display, w, xctx->gc[GRIDLAYER], xpts, n_xpts, CoordModeOrigin);
+    }
+  }
+
+  bbox(END, 0.0, 0.0, 0.0, 0.0);
+}
+
+/* Smith chart labels: R/X labels and the Z0 readout.  Called after the
+ * per-wave traces so the labels are never overpainted.  Same fonts,
+ * positions, colors and container clip as when they were part of
+ * draw_smith_grid(). */
+static void draw_smith_labels(Graph_ctx *gr)
+{
+  const int n_r = 7;
+  const int n_x = 12;
+  double sm_font = smith_label_font(gr);
+  int ir, ix;
+  double u, v;
+
+  /* same container clip as draw_smith_grid() */
+  bbox(START, 0.0, 0.0, 0.0, 0.0);
+  bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+  bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+
+  /* labels for constant-R circles, on the real axis at each circle's
+   * real-axis crossing u = (R-1)/(R+1); horizontally centered on that
+   * crossing and placed a few pixels below the axis line (vertically
+   * centered on a point ~4 px below the axis) */
+  for(ir = 0; ir < n_r; ir++) {
+    double r = smith_r_values[ir];
+    double lu = (r - 1.0) / (1.0 + r);
+    double lx = CLIP(SM_X(lu), -30000, 30000);
+    double ly = CLIP(SM_Y(0.0), -30000, 30000) + 4.0;
+    draw_string(3, NOW, smith_r_labels[ir], 0, 0, 1, 1, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
+                sm_font, sm_font);
+  }
+
+  /* labels for constant-X arcs: anchored at the arc's R=0 crossing, which
+   * lies exactly on the unit circle: u = (X*X - 1) / (1 + X*X),
+   * v = 2*X / (1 + X*X); offset ~6 pixels radially outside the unit circle
+   * (SM_Y flips v, hence the minus on ly) and center the text on that point */
+  for(ix = 0; ix < n_x; ix++) {
+    double lx, ly;
+    double x = smith_x_values[ix];
+    u = (x * x - 1.0) / (1.0 + x * x);
+    v = 2.0 * x / (1.0 + x * x);
+    lx = CLIP(SM_X(u), -30000, 30000) + 6.0 * u;
+    ly = CLIP(SM_Y(v), -30000, 30000) - 6.0 * v;
+    draw_string(3, NOW, smith_x_labels[ix], 0, 0, 1, 1, X_TO_XSCHEM(lx), Y_TO_XSCHEM(ly),
+                sm_font, sm_font);
+  }
+
+  /* Z0 readout: small label inside the plot box at the bottom-right corner,
+   * text = Z0 value + " Ω", same font as the R/X labels; right-aligned ~6 px
+   * left of the box right edge, with the full text above the box bottom edge
+   * (baseline ~ font-height + 3 px above the bottom line).  With vcenter=0
+   * draw_string() anchors the top of the text at the given y, so place the
+   * top at (bottom edge - height - 3 - ascent) to land the baseline there. */
+  {
+    char z0str[32];
+    double z0w_px, z0h_px, z0asc_px, z0x_scr, z0y_scr;
+#if HAS_CAIRO==1
+    cairo_text_extents_t z0ext;
+    cairo_font_extents_t z0fext;
+#endif
+    my_snprintf(z0str, S(z0str), "%g Ω", gr->smith_z0);
+#if HAS_CAIRO==1
+    cairo_set_font_size(xctx->cairo_ctx, sm_font*52.*cairo_font_scale*xctx->mooz);
+    cairo_text_extents(xctx->cairo_ctx, z0str, &z0ext);
+    cairo_font_extents(xctx->cairo_ctx, &z0fext);
+    z0w_px = (z0ext.x_advance > z0ext.width) ? z0ext.x_advance : z0ext.width;
+    z0h_px = z0fext.height;
+    z0asc_px = z0fext.ascent;
+#else
+    /* estimate from the vector-font cell: 65 font units tall
+     * (FONTHEIGHT above baseline, FONTDESCENT below), see text_bbox_nocairo() */
+    z0w_px = 0.0;
+    z0h_px = (FONTHEIGHT + FONTDESCENT + FONTWHITESPACE) * sm_font *
+             tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale * xctx->mooz;
+    z0asc_px = FONTHEIGHT * sm_font *
+               tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale * xctx->mooz;
+#endif
+    z0y_scr = gr->sy2 - z0h_px - 3.0 - z0asc_px + cairo_vert_correct * xctx->mooz;
+    z0x_scr = gr->sx2 - 6.0 - z0w_px;
+    draw_string(3, NOW, z0str, 0, 0, 0, 0, X_TO_XSCHEM(z0x_scr), Y_TO_XSCHEM(z0y_scr),
+                sm_font, sm_font);
+  }
+
+  bbox(END, 0.0, 0.0, 0.0, 0.0);
+}
+
+/* Smith chart: bottom-left cursor frequency labels, one per active cursor,
+ * stacked near the container bottom-left corner (A = cursor1 on the bottom
+ * line, B = cursor2 directly above it), mirroring the bottom-right Z0 readout
+ * anchoring in draw_smith_labels().  Color = GRIDLAYER, font =
+ * smith_cursor_font() (0.7 * the Smith label font).  Drawn once per graph
+ * (not per wave). */
+static void draw_smith_cursor_freq_labels(Graph_ctx *gr, int flags,
+        double cursor1, double cursor2)
+{
+  char fstr[96];
+  double sm_font = smith_cursor_font(gr);
+  double h_px, asc_px;
+  double x_scr, y_bottom, y_above;
+
+  /* container clip, same as draw_smith_labels() */
+  bbox(START, 0.0, 0.0, 0.0, 0.0);
+  bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+  bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+
+  smith_font_metrics(sm_font, &h_px, &asc_px);
+  x_scr = gr->sx1 + 8.0; /* ~8 px in from the left edge */
+  /* A (cursor1) is the bottom line: its top sits h_px + 3 px above the
+   * container bottom edge (mirrors the Z0 readout); B (cursor2) is drawn
+   * directly above A, or on the bottom line when cursor1 is not active */
+  y_bottom = gr->sy2 - h_px - 3.0 - asc_px + cairo_vert_correct * xctx->mooz;
+  y_above = y_bottom - (h_px + 3.0);
+  if(flags & 2) {
+    my_snprintf(fstr, S(fstr), "(A) Frequency = %s", dtoa_eng(cursor1, 5));
+    draw_string(GRIDLAYER, NOW, fstr, 0, 0, 0, 0,
+        X_TO_XSCHEM(x_scr), Y_TO_XSCHEM(y_bottom), sm_font, sm_font);
+  }
+  if(flags & 4) {
+    my_snprintf(fstr, S(fstr), "(B) Frequency = %s", dtoa_eng(cursor2, 5));
+    draw_string(GRIDLAYER, NOW, fstr, 0, 0, 0, 0,
+        X_TO_XSCHEM(x_scr), Y_TO_XSCHEM((flags & 2) ? y_above : y_bottom),
+        sm_font, sm_font);
+  }
+  bbox(END, 0.0, 0.0, 0.0, 0.0);
+}
+
+/* |Gamma| limit of the fixed visible Smith plane (+epsilon): a marker, grab
+ * or snap point with re*re + im*im above SMITH_GAMMA_LIM^2 lies outside the
+ * plane and is skipped everywhere (draw, grab, snap) */
+#define SMITH_GAMMA_LIM (1.05 + 1e-9)
+
+/* Smith chart: cursor markers + per-wave readouts.  Called from draw_graph()
+ * right after a wave trace has been drawn (per selected dataset), only when a
+ * cursor flag is set.  The markers scale with the global zoom (mooz).
+ *
+ * For each active cursor (cursor1: filled dot, cursor2: cross), one marker is
+ * drawn on this wave's trace at the common cursor frequency f_c: Gamma(f_c)
+ * with re/im linearly interpolated between the two bracketing sweep points -
+ * the very points the trace is built from - so all markers of one cursor sit
+ * at one frequency and land on the trace.  No marker/readout is drawn for a
+ * wave whose sweep span does not cover f_c or whose |Gamma| lies outside the
+ * visible plane.
+ *
+ * The per-wave readouts are drawn under the top wave-label row, in this wave's
+ * label column (same x anchor + row geometry as the horizontal-legend path in
+ * draw_graph_variables()): cursor1's two lines first, then cursor2's two lines
+ * below cursor1's, each line advanced by the readout font height + a small
+ * gap (font = smith_cursor_font(), 0.7 * the Smith label font),
+ * in the wave color (no wave-name prefix, no "@frequency" suffix):
+ *   scattering wave: line 1 = |G| @thdeg, line 2 = Z = R+jX Ohm
+ *   expression wave: line 1 = R+jX Ohm, line 2 = Gamma = |G| @thdeg
+ * (ASCII stand-ins for angle/degree/Gamma: the vector font has no such
+ * glyphs, and the cairo build renders the Z0-readout-style Ohm glyph already).
+ * The bottom-left "(A)/(B) Frequency = ..." labels are drawn once per graph
+ * by draw_smith_cursor_freq_labels(). */
+static void draw_smith_cursor_markers(int sweep_idx, int first, int last,
+        int wave_color, int expression, int idx, const smx_prog *prog,
+        int wcnt, int n_nodes, int flags, double cursor1, double cursor2,
+        Graph_ctx *gr)
+{
+  SPICE_DATA *sv;
+  Raw *raw = xctx->raw;
+  double sm_font;
+  double lab_h_px, ro_h_px, asc_px;
+  double label_x, ro_y0_dev, line_adv;
+  int line_idx, c, i, p, w;
+
+  if(!raw) return;
+  sv = raw->values[sweep_idx];
+  sm_font = smith_cursor_font(gr);
+
+  /* readout column: same x anchor + label-row position as the horizontal-
+   * legend path in draw_graph_variables() (x = rx1 + 2 + rw/n_nodes*wcnt,
+   * row at the container top ry1, wave-label font gr->txtsizelab).  The
+   * readouts sit directly below the label row, in the wave color, stacked
+   * cursor1 first then cursor2, each line advanced by its font height +
+   * a small gap */
+  label_x = gr->rx1 + 2 + gr->rw / n_nodes * wcnt;
+  smith_font_metrics((double)gr->txtsizelab, &lab_h_px, &asc_px);
+  smith_font_metrics(sm_font, &ro_h_px, &asc_px);
+  ro_y0_dev = Y_TO_SCREEN(gr->ry1) + lab_h_px + 3.0; /* top of cursor1 line 1 */
+  line_adv = ro_h_px + 3.0;                          /* line-to-line advance */
+  line_idx = 0;                                      /* running readout slot  */
+
+  for(c = 0; c < 2; c++) {
+    double f_c, t, re, im, sx, sy;
+    int active;
+    double mr;
+
+    if(c == 0) {
+      active = (flags & 2);
+      f_c = cursor1;
+    } else {
+      active = (flags & 4);
+      f_c = cursor2;
+    }
+    if(!active) continue;
+
+    /* find the bracketing p in [first..last-1] with
+     * sv[p] <= f_c <= sv[p+1] (sweep is the frequency, ascending,
+     * logx forced off in Smith mode); f_c outside the span -> no
+     * marker/readout for this wave */
+    p = -1;
+    for(i = first; i < last; i++) {
+      if(sv[i] <= f_c && f_c <= sv[i + 1]) {
+        p = i;
+        break;
+      }
+    }
+    if(p < 0) continue;
+    if(sv[p + 1] == sv[p]) continue; /* guard zero denominator */
+    t = (f_c - sv[p]) / (sv[p + 1] - sv[p]);
+
+    /* Gamma(f_c): lerp of re/im between the bracketing sweep points */
+    if(expression) {
+      double re0, im0, re1, im1;
+      if(smith_expr_eval_point(prog, p, gr->smith_z0, &re0, &im0) != 0) continue;
+      if(smith_expr_eval_point(prog, p + 1, gr->smith_z0, &re1, &im1) != 0) continue;
+      re = re0 + t * (re1 - re0);
+      im = im0 + t * (im1 - im0);
+    } else {
+      re = raw->values[idx + 2][p] + t * (raw->values[idx + 2][p + 1] - raw->values[idx + 2][p]);
+      im = raw->values[idx + 3][p] + t * (raw->values[idx + 3][p + 1] - raw->values[idx + 3][p]);
+    }
+    if(re * re + im * im > SMITH_GAMMA_LIM * SMITH_GAMMA_LIM) continue; /* |Gamma| outside the plane */
+    sx = CLIP(SM_X(re), -30000, 30000);
+    sy = CLIP(SM_Y(im), -30000, 30000);
+
+    /* marker: cursor1 = filled dot, cursor2 = cross; size scales with the
+     * global zoom (mooz), clamped to [2,200]; cross line width = lw */
+    mr = 4.0 * xctx->mooz;
+    if(mr < 2.0) mr = 2.0;
+    if(mr > 200.0) mr = 200.0;
+    for(w = 0; w < 2; w++) {
+      Drawable d;
+      if(w == 0 && xctx->draw_window) d = xctx->window;
+      else if(w == 1 && xctx->draw_pixmap) d = xctx->save_pixmap;
+      else continue;
+      if(c == 0) {
+        XFillArc(display, d, xctx->gc[wave_color], (int)(sx - mr), (int)(sy - mr),
+            (int)(2.0 * mr), (int)(2.0 * mr), 0, 360 * 64);
+      } else {
+        XSetLineAttributes(display, xctx->gc[wave_color],
+            XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
+        XDrawLine(display, d, xctx->gc[wave_color],
+            (int)(sx - mr), (int)(sy - mr), (int)(sx + mr), (int)(sy + mr));
+        XDrawLine(display, d, xctx->gc[wave_color],
+            (int)(sx - mr), (int)(sy + mr), (int)(sx + mr), (int)(sy - mr));
+      }
+    }
+
+    /* readout: |G| = hypot(re, im), theta in degrees,
+     * Z = z0 * (1 + G) / (1 - G) (guard |1 - G|^2 < 1e-300 -> Z = inf).
+     * Two lines in this wave's label column below the label row, in the wave
+     * color, no wave-name prefix, no "@frequency" suffix */
+    {
+      char l1[80];
+      char l2[80];
+      char zstr[64];
+      char gstr[32];  /* |Gamma|, 3 decimals max */
+      char thstr[32]; /* theta in degrees, 3 decimals max */
+      char zrstr[32]; /* R, 3 decimals max */
+      char zxstr[32]; /* X, 3 decimals max */
+      double abs_g, theta_deg;
+      double den_re, den_im, den;
+      double z_re, z_im;
+      double y1_dev, y2_dev;
+
+      abs_g = sqrt(re * re + im * im);
+      theta_deg = atan2(im, re) * 180.0 / XSCH_PI;
+      smith_fmt3(gstr, S(gstr), abs_g);
+      smith_fmt3(thstr, S(thstr), theta_deg);
+      den_re = 1.0 - re;
+      den_im = -im;
+      den = den_re * den_re + den_im * den_im;
+      if(den < 1e-300) {
+        my_snprintf(zstr, S(zstr), "inf");
+      } else {
+        /* (1 + G) / (1 - G) = ((1 - |G|^2) + 2j*im(G)) / |1 - G|^2 */
+        z_re = gr->smith_z0 * (1.0 - re * re - im * im) / den;
+        z_im = gr->smith_z0 * 2.0 * im / den;
+        smith_fmt3(zrstr, S(zrstr), z_re);
+        smith_fmt3(zxstr, S(zxstr), z_im >= 0.0 ? z_im : -z_im);
+        my_snprintf(zstr, S(zstr), "%s%sj%s Ω", zrstr,
+                    z_im >= 0.0 ? "+" : "-", zxstr);
+      }
+      if(expression) {
+        my_snprintf(l1, S(l1), "%s", zstr);
+        my_snprintf(l2, S(l2), "Gamma = %s @%sdeg", gstr, thstr);
+      } else {
+        my_snprintf(l1, S(l1), "%s @%sdeg", gstr, thstr);
+        my_snprintf(l2, S(l2), "Z = %s", zstr);
+      }
+      y1_dev = ro_y0_dev + line_idx * line_adv;
+      y2_dev = y1_dev + line_adv;
+      line_idx += 2;
+      draw_string(wave_color, NOW, l1, 0, 0, 0, 0,
+          label_x, Y_TO_XSCHEM(y1_dev), sm_font, sm_font);
+      draw_string(wave_color, NOW, l2, 0, 0, 0, 0,
+          label_x, Y_TO_XSCHEM(y2_dev), sm_font, sm_font);
+    }
+  }
+}
+
 void setup_graph_data(int i, int skip, Graph_ctx *gr)
 {
   double tmp;
@@ -3311,10 +4122,11 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   if(val[0]) gr->vlegend = atoi(val);
 
   /* draw mode (0: Line, 1: Histo. Default: Line) */
-  val = get_tok_value(r->prop_ptr,"mode", 0);
-  if(!strcmp(val, "HistoV")) gr->mode = 1;
-  else if(!strcmp(val, "HistoH")) gr->mode = 2;
-  else gr->mode = 0;
+   val = get_tok_value(r->prop_ptr,"mode", 0);
+   if(!strcmp(val, "HistoV")) gr->mode = 1;
+   else if(!strcmp(val, "HistoH")) gr->mode = 2;
+   else if(!strcmp(val, "Smith")) gr->mode = 3;
+   else gr->mode = 0;
 
   /* get x/y range, grid info etc */
   val = get_tok_value(r->prop_ptr,"unitx", 0);
@@ -3357,9 +4169,23 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   val = get_tok_value(r->prop_ptr,"y2", 0);
   if(val[0]) gr->gy2 = atof_eng(val);
   if(gr->gy1 == gr->gy2) gr->gy2 += 1.0;
-  val = get_tok_value(r->prop_ptr,"digital", 0);
-  if(val[0]) gr->digital = atoi(val);
-  if(gr->digital) {
+   val = get_tok_value(r->prop_ptr,"digital", 0);
+   if(val[0]) gr->digital = atoi(val);
+   if(gr->mode == 3) { /* Smith chart: force linear & non-digital, read reference impedance */
+     val = get_tok_value(r->prop_ptr,"smz0", 0);
+     gr->smith_z0 = val[0] ? atof_eng(val) : 50.0;
+     gr->logx = 0;
+     gr->logy = 0;
+     gr->digital = 0;
+      /* Smith plane: fixed ±1.05 view of the Gamma plane, centered on
+       * Gamma=0; the ±0.05 label margin (~33 px at the reference size)
+       * clears the R=0-crossing labels.  The x1/x2/y1/y2 attrs do not
+       * affect the Smith mapping (they are sweep-axis attrs). */
+      gr->gx1 = -1.05; gr->gx2 = 1.05;
+      gr->gy1 = -1.05; gr->gy2 = 1.05;
+      gr->gw = gr->gx2 - gr->gx1; /* keep window width consistent with gx1/gx2 */
+   }
+   if(gr->digital) {
     val = get_tok_value(r->prop_ptr,"ypos1", 0);
     if(val[0]) gr->ypos1 = atof_eng(val);
     val = get_tok_value(r->prop_ptr,"ypos2", 0);
@@ -3437,10 +4263,34 @@ void setup_graph_data(int i, int skip, Graph_ctx *gr)
   gr->sdx = (gr->dx + xctx->xorigin) * xctx->mooz;
   gr->scy = gr->cy * xctx->mooz;
   gr->sdy = (gr->dy + xctx->yorigin) * xctx->mooz;
-  /* direct graph --> screen for digital waves y axis */
-  gr->dscy = gr->dcy * xctx->mooz;
-  gr->dsdy = (gr->ddy + xctx->yorigin) * xctx->mooz;
-}
+   /* direct graph --> screen for digital waves y axis */
+   gr->dscy = gr->dcy * xctx->mooz;
+   gr->dsdy = (gr->ddy + xctx->yorigin) * xctx->mooz;
+
+   /* Smith chart: unified square mapping (data -> pixel); the square fits
+    * inside the plot box (the edge-to-edge span sets ss) but is centered
+    * on the container, not on the asymmetric plot box */
+   if(gr->mode == 3) {
+     double dx, dy, left, right, top, bottom;
+      dx = gr->gx2 - gr->gx1;
+      dy = gr->gy2 - gr->gy1;
+      /* linear mapping spans edge-to-edge, so the pixel plot box is */
+      left = S_X(gr->gx1);
+      right = S_X(gr->gx2);
+      top = S_Y(gr->gy2);
+      bottom = S_Y(gr->gy1);
+      if(dx <= 0.0 || dy <= 0.0) {
+        gr->ss = 0.0;
+        gr->ssx0 = X_TO_SCREEN((gr->rx1 + gr->rx2) / 2.0);
+        gr->ssy0 = Y_TO_SCREEN((gr->ry1 + gr->ry2) / 2.0);
+        dbg(1, ("setup_graph_data: Smith mode, degenerate span dx=%g dy=%g\n", dx, dy));
+      } else {
+        gr->ss = ((right - left) / dx < (bottom - top) / dy) ? ((right - left) / dx) : ((bottom - top) / dy);
+        gr->ssx0 = X_TO_SCREEN((gr->rx1 + gr->rx2) / 2.0);
+        gr->ssy0 = Y_TO_SCREEN((gr->ry1 + gr->ry2) / 2.0);
+      }
+   }
+ }
 
 static void draw_cursor(double active_cursorx, double other_cursorx, int cursor_color, Graph_ctx *gr)
 {
@@ -3581,8 +4431,8 @@ static void draw_graph_variables(int wcnt, int wave_color, int n_nodes, int swee
   bbox(START, 0.0, 0.0, 0.0, 0.0);
   bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
   bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
-  /* draw sweep variable(s) on x-axis */
-  if(wcnt == 0 || (stok && stok[0])) {
+  /* draw sweep variable(s) on x-axis (normal-mode axis label: suppressed in Smith mode) */
+  if(gr->mode != 3 && (wcnt == 0 || (stok && stok[0]))) {
     if(sweep_label && sweep_label[0]) {
       /* "label; expression" sweep attribute: show the label instead of a raw file variable name */
       stok = sweep_label;
@@ -4256,6 +5106,525 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
   return closest_dataset;
 }
 
+/* Nearest plotted point on the Smith plane to (um, vm) [in Gamma units].
+ * Enumerates all waves of the graph (same wave-attribute parsing, per-wave raw
+ * override and validation as the draw path), all points of the selected
+ * dataset, skipping points with |Gamma| > 1.05 (outside the visible plane).
+ * Returns 0 and sets *freq_ret (sweep value, values[sweep_idx]),
+ * *wave_ret (0-based wave index) and *dset_ret (dataset index of the winning
+ * point) on success, or -1 if no plotted point. dset_ret may be NULL; when
+ * non-NULL it is set to -1 at entry (the uniform -1 contract of the other
+ * out-params), so it is defined on every failure path as well.
+ * Leaves xctx->raw in the state it found it: the per-wave raw switching is
+ * restored after each wave (same save/restore as the draw path). */
+int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave_ret, int *dset_ret)
+{
+  char *node = NULL, *sweep = NULL;
+  int sweep_idx = 0;
+  int sweep_expr_idx = -1, sweep_resolved = 0; /* sweep attribute: "label; expression" */
+  char *sweep_label = NULL;
+  char *saven, *saves, *nptr, *sptr;
+  const char *ntok;
+  int wcnt = -1, idx, expression;
+  char *ntok_copy = NULL; /* copy of ntok without %<n> */
+  char *express = NULL;
+  xRect *r;
+  int autoload = 0;
+  int node_dataset = -1;
+  char *custom_rawfile = NULL; /* "rawfile" attr. set in graph: load and switch to specified raw */
+  char *sim_type = NULL;
+  const char *ptr;
+  Graph_ctx gr;
+  double min = -1.0; /* squared plane distance; -1: no plotted point found yet */
+  double best_freq = 0.0;
+  int best_wave = -1;
+  int best_dset = -1;
+  int save_extra_idx = -1;
+  char str_extra_idx[30];
+
+  /* leave the return values defined on every path (also all the -1 paths below) */
+  *freq_ret = 0.0;
+  *wave_ret = -1;
+  if(dset_ret) *dset_ret = -1;
+
+  if(i < 0 || i >= xctx->rects[GRIDLAYER]) return -1;
+  r = &xctx->rect[GRIDLAYER][i];
+  if(!(r->flags & 1)) return -1; /* not a graph */
+  if(!xctx->raw) {
+    info("smith_closest_point(): no raw struct allocated\n");
+    return -1;
+  }
+
+  memset(&gr, 0, sizeof(gr));
+  setup_graph_data(i, 0, &gr);
+  if(gr.mode != 3) return -1; /* Smith plane distance only makes sense in Smith mode */
+  if(gr.digital) return -1;
+
+  autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "true");
+  if(autoload == 0) autoload = 2; /* 2: switch */
+  else if(autoload == 1) autoload = 33; /* 1: read, 32: no_warning */
+
+  my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
+  my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0));
+
+  ptr = get_tok_value(r->prop_ptr,"rawfile", 0);
+  if(!ptr[0]) {
+    if(xctx->raw && xctx->raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, xctx->raw->rawfile);
+    else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
+  } else {
+    my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
+  }
+  my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type", 0));
+
+  nptr = node;
+  sptr = sweep;
+  /* per-wave raw switching is saved here and restored after each wave, so the
+   * function leaves xctx->raw as found (same save/restore as the draw path) */
+  save_extra_idx = xctx->extra_idx;
+  /* process each node given in "node" attribute, get also associated sweep var if any*/
+  while( (ntok = my_strtok_r(nptr, "\n", "\"", 4, &saven)) ) {
+    char *nd = NULL;
+    int valid_rawfile = 1;
+    wcnt++;
+    if(strstr(ntok, ",")) {
+      if(find_nth(ntok, ";,", "\"", 0, 2)[0]) continue; /* bus signal: skip */
+    }
+    if(custom_rawfile[0]) {
+      if(extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type :
+         (xctx->raw && xctx->raw->sim_type ? xctx->raw->sim_type : NULL), -1.0, -1.0) == 0) {
+        valid_rawfile = 0;
+      }
+    }
+    if(!sweep_resolved && sweep[0]) { /* resolve "label; expression" sweep attribute after raw file switch */
+      sweep_resolved = 1;
+      sweep_expr_idx = graph_sweep_expr_col(sweep, &sweep_label);
+    }
+    if(sweep_expr_idx >= 0) {
+      /* sweep is "label; expression": all waves share the computed sweep column */
+      sweep_idx = sweep_expr_idx;
+    } else {
+      char *stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
+      if(stok && stok[0]) {
+        sweep_idx = get_raw_index(stok, NULL);
+        if( sweep_idx == -1) {
+          sweep_idx = 0;
+        }
+      }
+    }
+    nptr = sptr = NULL;
+    dbg(1, ("ntok=%s\n", ntok));
+    my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
+
+    if(nd[0]) {
+      int pos = 1;
+      if(isonlydigit(find_nth(nd, "\n ", "\"", 0, 1))) pos = 2;
+      if(xctx->raw && xctx->raw->values) {
+        char *node_rawfile = NULL;
+        char *node_sim_type = NULL;
+        tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos), "}", NULL);
+        my_strdup2(_ALLOC_ID_, &node_rawfile, tclresult());
+        tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos + 1), "}", NULL);
+        my_strdup2(_ALLOC_ID_, &node_sim_type, tclresult()[0] ? tclresult() :
+              sim_type[0] ? sim_type : xctx->raw->sim_type);
+        dbg(1, ("node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type));
+        if(node_rawfile && node_rawfile[0]) {
+          if(extra_rawfile(autoload, node_rawfile, node_sim_type, -1.0, -1.0) == 0) {
+            my_free(_ALLOC_ID_, &node_rawfile);
+            my_free(_ALLOC_ID_, &node_sim_type);
+            valid_rawfile = 0;
+          }
+        }
+        my_free(_ALLOC_ID_, &node_rawfile);
+        my_free(_ALLOC_ID_, &node_sim_type);
+      }
+      if(pos == 2) node_dataset = atoi(nd);
+      else node_dataset = -1;
+      dbg(1, ("nd=|%s|, node_dataset = %d\n", nd, node_dataset));
+      my_strdup(_ALLOC_ID_, &ntok_copy, find_nth(ntok, "%", "\"", 4, 1));
+    } else {
+      node_dataset = -1;
+      my_strdup(_ALLOC_ID_, &ntok_copy, ntok);
+    }
+    if(nd) my_free(_ALLOC_ID_, &nd);
+
+    /* if ntok following possible 'alias;' definition contains spaces --> custom data plot */
+    idx = -1;
+    expression = 0;
+    if(xctx->raw && xctx->raw->values) {
+      char *match;
+      if(strstr(ntok_copy, ";")) {
+        my_strdup2(_ALLOC_ID_, &express, find_nth(ntok_copy, ";", "\"", 0, 2));
+      } else {
+        my_strdup2(_ALLOC_ID_, &express, ntok_copy);
+      }
+      /* same backslash-aware test as the draw path: a bare wave name may
+       * contain escaped spaces (e.g. ngspice two-node voltage "V\ (n1 n2)") */
+      match = strpbrk(express, " \n\t");
+      if(match && (match == express || *(match - 1) != '\\')) {
+        expression = 1;
+      }
+      /* unescape "\ " -> " ", exactly as the draw path does, so the bare
+       * variable name resolves in the raw */
+      if(match && match > express && *(match - 1) == '\\') {
+        my_strdup2(_ALLOC_ID_, &express, str_replace(express, "\\ ", " ", 0, -1));
+      }
+    }
+    if(expression) idx = xctx->raw->nvars;
+    else idx = get_raw_index(express, NULL);
+    dbg(1, ("smith_closest_point(): expression=%d, ntok_copy=%s express=%s idx=%d\n", expression, ntok_copy, express, idx));
+    if( sch_waves_loaded() != -1 && valid_rawfile && idx != -1 ) {
+      int p, dset, ofs, ofs_end;
+      int dataset;
+      int smith_valid = 1;
+      double lim;
+      register SPICE_DATA *gvx;
+      smx_prog smith_prog; /* Smith chart: RPN program of a "label; expression" wave */
+      /* Smith chart: a BARE wave entry must be a complex variable (4*i=mag,
+       * 4*i+1=ph, 4*i+2=re, 4*i+3=im in the raw), else it cannot be plotted
+       * as a trace. "label; expression" entries are validated in
+       * smith_expr_parse() below. */
+      if(!expression && (!xctx->raw->sim_type ||
+         strcmp(xctx->raw->sim_type, "ac") || idx % 4 != 0 || idx + 3 >= xctx->raw->nvars)) {
+        dbg(1, ("Smith chart: '%s' is not a complex (re/im) variable - skipped\n", express));
+        smith_valid = 0;
+      }
+      /* Smith chart: a "label; expression" wave entry: parse the RPN program
+       * once per wave, before the dataset loop; parse failure -> skip the
+       * wave the same way as the draw path */
+      if(expression && smith_valid) {
+        if(smith_expr_parse(express, &smith_prog) != 0) smith_valid = 0;
+      }
+      if(smith_valid) {
+        dataset = node_dataset >= 0 ? node_dataset : gr.dataset;
+        lim = SMITH_GAMMA_LIM; /* |Gamma| limit of the visible plane + epsilon */
+        ofs = 0;
+        /* loop through all datasets found in raw file */
+        for(dset = 0; dset < xctx->raw->datasets; dset++) {
+          /* dataset gate: same selection as the draw path (per-wave %<n>
+           * override, else the graph's selected dataset; -1: all datasets).
+           * Smith accepts only ac raws, so no sweep-variable wrap here */
+          if(dataset != -1 && dset != dataset) {
+            ofs += xctx->raw->npoints[dset];
+            continue;
+          }
+          ofs_end = ofs + xctx->raw->npoints[dset];
+          gvx = xctx->raw->values[sweep_idx];
+          for(p = ofs; p < ofs_end; p++) {
+            double u, v, d2;
+            if(expression) {
+              if(smith_expr_eval_point(&smith_prog, p, gr.smith_z0, &u, &v) != 0) continue;
+            } else {
+              u = xctx->raw->values[idx + 2][p];
+              v = xctx->raw->values[idx + 3][p];
+            }
+            if(u * u + v * v > lim * lim) continue; /* |Gamma| > 1.05: outside the visible plane */
+            d2 = (u - um) * (u - um) + (v - vm) * (v - vm);
+            if(min < 0.0 || d2 < min) {
+              min = d2;
+              best_freq = gvx[p];
+              best_wave = wcnt;
+              best_dset = dset;
+              dbg(1, ("smith_closest_point(): dset=%d expression=%d idx=%d wcnt=%d p=%d dist=%g\n",
+                  dset, expression, idx, wcnt, p, d2));
+            }
+          } /* for(p = ofs ; p < ofs_end; p++) */
+          ofs = ofs_end;
+        } /* for(dset...) */
+      } /* if(smith_valid) */
+    } /* if( sch_waves_loaded() != -1 && valid_rawfile && idx != -1 ) */
+    /* restore the raw file found at entry: the per-wave raw switching must not
+     * leak between waves (same save/restore as the draw path) */
+    if(save_extra_idx != -1 && save_extra_idx != xctx->extra_idx) {
+      my_snprintf(str_extra_idx, S(str_extra_idx), "%d", save_extra_idx);
+      extra_rawfile(2, str_extra_idx, NULL, -1.0, -1.0);
+    }
+  } /* while( (ntok = my_strtok_r(nptr, "\n", "\"", 4, &saven)) ) */
+
+  if(express) my_free(_ALLOC_ID_, &express);
+  my_free(_ALLOC_ID_, &custom_rawfile);
+  my_free(_ALLOC_ID_, &sim_type);
+
+  if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
+  my_free(_ALLOC_ID_, &node);
+  my_free(_ALLOC_ID_, &sweep);
+  my_free(_ALLOC_ID_, &sweep_label);
+
+  if(best_wave >= 0) {
+    *freq_ret = best_freq;
+    *wave_ret = best_wave;
+    if(dset_ret) *dset_ret = best_dset;
+    dbg(1, ("smith_closest_point(): wave=%d freq=%g dist=%g\n", best_wave, best_freq, min));
+    return 0;
+  }
+  return -1;
+}
+
+/* Screen-px positions of every wave's cursor marker at frequency f:
+ * Gamma(f) linearly interpolated between bracketing sweep points
+ * (sv[p] <= f <= sv[p+1], t = (f - sv[p]) / (sv[p+1] - sv[p]), zero-denom skip),
+ * bare waves lerp values[idx+2][p..p+1] / values[idx+3][p..p+1];
+ * expression waves: smith_expr_parse() once per wave, then
+ * smith_expr_eval_point(prog, p, gr.smith_z0, ...) at p and p+1 and lerp.
+ * Skips a wave when f is outside its sweep span, or when the interpolated
+ * |Gamma(f)| > 1.05 + 1e-9 (outside the visible plane).
+ * Coords CLIP(SM_X/SM_Y, -30000, 30000), written as int to sx[]/sy[].
+ * Same guards, raw switch/restore, validation, escaped-space handling,
+ * dataset gate and memory discipline as smith_closest_point (dbg(1) per-wave).
+ * Returns number of markers written. */
+int smith_cursor_markers(int i, double f, int max_n, int *sx, int *sy)
+{
+  char *node = NULL, *sweep = NULL;
+  int sweep_idx = 0;
+  int sweep_expr_idx = -1, sweep_resolved = 0; /* sweep attribute: "label; expression" */
+  char *sweep_label = NULL;
+  char *saven, *saves, *nptr, *sptr;
+  const char *ntok;
+  int wcnt = -1, idx, expression;
+  char *ntok_copy = NULL; /* copy of ntok without %<n> */
+  char *express = NULL;
+  xRect *r;
+  int autoload = 0;
+  int node_dataset = -1;
+  char *custom_rawfile = NULL; /* "rawfile" attr. set in graph: load and switch to specified raw */
+  char *sim_type = NULL;
+  const char *ptr;
+  Graph_ctx gr_local; /* SM_X/SM_Y macros dereference a `gr` pointer */
+  Graph_ctx *gr = &gr_local;
+  int save_extra_idx = -1;
+  char str_extra_idx[30];
+  int n = 0; /* number of markers written */
+
+  if(i < 0 || i >= xctx->rects[GRIDLAYER]) return 0;
+  r = &xctx->rect[GRIDLAYER][i];
+  if(!(r->flags & 1)) return 0; /* not a graph */
+  if(!xctx->raw) {
+    info("smith_cursor_markers(): no raw struct allocated\n");
+    return 0;
+  }
+
+  memset(&gr_local, 0, sizeof(gr_local));
+  setup_graph_data(i, 0, gr);
+  if(gr->mode != 3) return 0; /* Smith plane distance only makes sense in Smith mode */
+  if(gr->digital) return 0;
+
+  autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "true");
+  if(autoload == 0) autoload = 2; /* 2: switch */
+  else if(autoload == 1) autoload = 33; /* 1: read, 32: no_warning */
+
+  my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
+  my_strdup2(_ALLOC_ID_, &sweep, get_tok_value(r->prop_ptr,"sweep", 0));
+
+  ptr = get_tok_value(r->prop_ptr,"rawfile", 0);
+  if(!ptr[0]) {
+    if(xctx->raw && xctx->raw->rawfile) my_strdup2(_ALLOC_ID_, &custom_rawfile, xctx->raw->rawfile);
+    else  my_strdup2(_ALLOC_ID_, &custom_rawfile, "");
+  } else {
+    my_strdup2(_ALLOC_ID_, &custom_rawfile, ptr);
+  }
+  my_strdup2(_ALLOC_ID_, &sim_type, get_tok_value(r->prop_ptr,"sim_type", 0));
+
+  nptr = node;
+  sptr = sweep;
+  /* per-wave raw switching is saved here and restored after each wave, so the
+   * function leaves xctx->raw as found (same save/restore as the draw path) */
+  save_extra_idx = xctx->extra_idx;
+  /* process each node given in "node" attribute, get also associated sweep var if any*/
+  while( (ntok = my_strtok_r(nptr, "\n", "\"", 4, &saven)) ) {
+    char *nd = NULL;
+    int valid_rawfile = 1;
+    wcnt++;
+    if(strstr(ntok, ",")) {
+      if(find_nth(ntok, ";,", "\"", 0, 2)[0]) continue; /* bus signal: skip */
+    }
+    if(custom_rawfile[0]) {
+      if(extra_rawfile(autoload, custom_rawfile, sim_type[0] ? sim_type :
+         (xctx->raw && xctx->raw->sim_type ? xctx->raw->sim_type : NULL), -1.0, -1.0) == 0) {
+        valid_rawfile = 0;
+      }
+    }
+    if(!sweep_resolved && sweep[0]) { /* resolve "label; expression" sweep attribute after raw file switch */
+      sweep_resolved = 1;
+      sweep_expr_idx = graph_sweep_expr_col(sweep, &sweep_label);
+    }
+    if(sweep_expr_idx >= 0) {
+      /* sweep is "label; expression": all waves share the computed sweep column */
+      sweep_idx = sweep_expr_idx;
+    } else {
+      char *stok = my_strtok_r(sptr, "\t\n ", "\"", 0, &saves);
+      if(stok && stok[0]) {
+        sweep_idx = get_raw_index(stok, NULL);
+        if( sweep_idx == -1) {
+          sweep_idx = 0;
+        }
+      }
+    }
+    nptr = sptr = NULL;
+    dbg(1, ("ntok=%s\n", ntok));
+    my_strdup2(_ALLOC_ID_, &nd, find_nth(ntok, "%", "\"", 0, 2));
+
+    if(nd[0]) {
+      int pos = 1;
+      if(isonlydigit(find_nth(nd, "\n ", "\"", 0, 1))) pos = 2;
+      if(xctx->raw && xctx->raw->values) {
+        char *node_rawfile = NULL;
+        char *node_sim_type = NULL;
+        tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos), "}", NULL);
+        my_strdup2(_ALLOC_ID_, &node_rawfile, tclresult());
+        tclvareval("subst {", find_nth(nd, "\n ", "\"", 0, pos + 1), "}", NULL);
+        my_strdup2(_ALLOC_ID_, &node_sim_type, tclresult()[0] ? tclresult() :
+              sim_type[0] ? sim_type : xctx->raw->sim_type);
+        dbg(1, ("node_rawfile=|%s| node_sim_type=|%s|\n", node_rawfile, node_sim_type));
+        if(node_rawfile && node_rawfile[0]) {
+          if(extra_rawfile(autoload, node_rawfile, node_sim_type, -1.0, -1.0) == 0) {
+            my_free(_ALLOC_ID_, &node_rawfile);
+            my_free(_ALLOC_ID_, &node_sim_type);
+            valid_rawfile = 0;
+          }
+        }
+        my_free(_ALLOC_ID_, &node_rawfile);
+        my_free(_ALLOC_ID_, &node_sim_type);
+      }
+      if(pos == 2) node_dataset = atoi(nd);
+      else node_dataset = -1;
+      dbg(1, ("nd=|%s|, node_dataset = %d\n", nd, node_dataset));
+      my_strdup(_ALLOC_ID_, &ntok_copy, find_nth(ntok, "%", "\"", 4, 1));
+    } else {
+      node_dataset = -1;
+      my_strdup(_ALLOC_ID_, &ntok_copy, ntok);
+    }
+    if(nd) my_free(_ALLOC_ID_, &nd);
+
+    /* if ntok following possible 'alias;' definition contains spaces --> custom data plot */
+    idx = -1;
+    expression = 0;
+    if(xctx->raw && xctx->raw->values) {
+      char *match;
+      if(strstr(ntok_copy, ";")) {
+        my_strdup2(_ALLOC_ID_, &express, find_nth(ntok_copy, ";", "\"", 0, 2));
+      } else {
+        my_strdup2(_ALLOC_ID_, &express, ntok_copy);
+      }
+      /* same backslash-aware test as the draw path: a bare wave name may
+       * contain escaped spaces (e.g. ngspice two-node voltage "V\ (n1 n2)") */
+      match = strpbrk(express, " \n\t");
+      if(match && (match == express || *(match - 1) != '\\')) {
+        expression = 1;
+      }
+      /* unescape "\ " -> " ", exactly as the draw path does, so the bare
+       * variable name resolves in the raw */
+      if(match && match > express && *(match - 1) == '\\') {
+        my_strdup2(_ALLOC_ID_, &express, str_replace(express, "\\ ", " ", 0, -1));
+      }
+    }
+    if(expression) idx = xctx->raw->nvars;
+    else idx = get_raw_index(express, NULL);
+    dbg(1, ("smith_cursor_markers(): expression=%d, ntok_copy=%s express=%s idx=%d\n", expression, ntok_copy, express, idx));
+    if( sch_waves_loaded() != -1 && valid_rawfile && idx != -1 ) {
+      int dset, ofs, ofs_end;
+      int dataset;
+      int smith_valid = 1;
+      double lim;
+      register SPICE_DATA *gvx;
+      smx_prog smith_prog; /* Smith chart: RPN program of a "label; expression" wave */
+      /* Smith chart: a BARE wave entry must be a complex variable (4*i=mag,
+       * 4*i+1=ph, 4*i+2=re, 4*i+3=im in the raw), else it cannot be plotted
+       * as a trace. "label; expression" entries are validated in
+       * smith_expr_parse() below. */
+      if(!expression && (!xctx->raw->sim_type ||
+         strcmp(xctx->raw->sim_type, "ac") || idx % 4 != 0 || idx + 3 >= xctx->raw->nvars)) {
+        dbg(1, ("Smith chart: '%s' is not a complex (re/im) variable - skipped\n", express));
+        smith_valid = 0;
+      }
+      /* Smith chart: a "label; expression" wave entry: parse the RPN program
+       * once per wave, before the dataset loop; parse failure -> skip the
+       * wave the same way as the draw path */
+      if(expression && smith_valid) {
+        if(smith_expr_parse(express, &smith_prog) != 0) smith_valid = 0;
+      }
+      if(smith_valid) {
+        double t; /* interpolation parameter; -1: f outside the sweep span */
+        int p2;
+        dataset = node_dataset >= 0 ? node_dataset : gr->dataset;
+        lim = SMITH_GAMMA_LIM; /* |Gamma| limit of the visible plane + epsilon */
+        ofs = 0;
+        /* loop through all datasets found in raw file */
+        for(dset = 0; dset < xctx->raw->datasets; dset++) {
+          int found;
+          /* dataset gate: same selection as the draw path (per-wave %<n>
+           * override, else the graph's selected dataset; -1: all datasets).
+           * Smith accepts only ac raws, so no sweep-variable wrap here */
+          if(dataset != -1 && dset != dataset) {
+            ofs += xctx->raw->npoints[dset];
+            continue;
+          }
+          if(n >= max_n) break; /* cap: extra markers ignored, raw still restored below */
+          gvx = xctx->raw->values[sweep_idx];
+          ofs_end = ofs + xctx->raw->npoints[dset];
+          /* find the bracketing p2 in [ofs..ofs_end-2] with gvx[p2] <= f <=
+           * gvx[p2+1] (sweep is the frequency, ascending, logx forced off in
+           * Smith mode); f outside the span -> no marker, same as the draw path */
+          found = 0;
+          t = -1.0;
+          for(p2 = ofs; p2 < ofs_end - 1; p2++) {
+            if(gvx[p2] <= f && f <= gvx[p2 + 1]) {
+              if(gvx[p2 + 1] == gvx[p2]) continue; /* guard zero denominator */
+              t = (f - gvx[p2]) / (gvx[p2 + 1] - gvx[p2]);
+              found = 1;
+              break;
+            }
+          }
+          if(found) {
+            double re, im, re0, im0, re1, im1;
+            if(expression) {
+              if(smith_expr_eval_point(&smith_prog, p2, gr->smith_z0, &re0, &im0) != 0) found = 0;
+              else if(smith_expr_eval_point(&smith_prog, p2 + 1, gr->smith_z0, &re1, &im1) != 0) found = 0;
+              else {
+                re = re0 + t * (re1 - re0);
+                im = im0 + t * (im1 - im0);
+              }
+            } else {
+              re0 = xctx->raw->values[idx + 2][p2];
+              im0 = xctx->raw->values[idx + 3][p2];
+              re1 = xctx->raw->values[idx + 2][p2 + 1];
+              im1 = xctx->raw->values[idx + 3][p2 + 1];
+              re = re0 + t * (re1 - re0);
+              im = im0 + t * (im1 - im0);
+            }
+            if(found && re * re + im * im <= lim * lim) {
+              /* |Gamma| <= 1.05: inside the visible plane */
+              double sxv = CLIP(SM_X(re), -30000, 30000);
+              double syv = CLIP(SM_Y(im), -30000, 30000);
+              sx[n] = (int)sxv;
+              sy[n] = (int)syv;
+              n++;
+              dbg(1, ("smith_cursor_markers(): wcnt=%d dset=%d p2=%d t=%g re=%g im=%g -> px=(%d,%d)\n",
+                  wcnt, dset, p2, t, re, im, (int)sxv, (int)syv));
+            }
+          }
+          ofs = ofs_end;
+        } /* for(dset...) */
+      } /* if(smith_valid) */
+    } /* if( sch_waves_loaded() != -1 && valid_rawfile && idx != -1 ) */
+    /* restore the raw file found at entry: the per-wave raw switching must not
+     * leak between waves (same save/restore as the draw path) */
+    if(save_extra_idx != -1 && save_extra_idx != xctx->extra_idx) {
+      my_snprintf(str_extra_idx, S(str_extra_idx), "%d", save_extra_idx);
+      extra_rawfile(2, str_extra_idx, NULL, -1.0, -1.0);
+    }
+  } /* while( (ntok = my_strtok_r(nptr, "\n", "\"", 4, &saven)) ) */
+
+  if(express) my_free(_ALLOC_ID_, &express);
+  my_free(_ALLOC_ID_, &custom_rawfile);
+  my_free(_ALLOC_ID_, &sim_type);
+
+  if(ntok_copy) my_free(_ALLOC_ID_, &ntok_copy);
+  my_free(_ALLOC_ID_, &node);
+  my_free(_ALLOC_ID_, &sweep);
+  my_free(_ALLOC_ID_, &sweep_label);
+
+  dbg(1, ("smith_cursor_markers(): wrote %d markers for f=%g\n", n, f));
+  return n;
+}
 
 /* flags:
  *  1: do final XCopyArea (copy 2nd buffer areas to screen)
@@ -4341,7 +5710,8 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
     if(autoload == 0) autoload = 2; /* 2: switch */
     else if(autoload == 1) autoload = 33; /* 1: read, 32: no_warning */
     /* graph box, gridlines and axes */
-    draw_graph_grid(gr, ct);
+    if(gr->mode == 3) draw_smith_grid(gr, ct);
+    else draw_graph_grid(gr, ct);
     /* get data to plot */
     my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
     my_strdup2(_ALLOC_ID_, &color, get_tok_value(r->prop_ptr,"color", 0));
@@ -4511,6 +5881,24 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
         XPoint *point = NULL;
         int dataset = node_dataset >=0 ? node_dataset : gr->dataset;
         int digital = gr->digital;
+        int smith_valid = 1;
+        smx_prog smith_prog; /* Smith chart: RPN program of a "label; expression" wave */
+        /* Smith chart: a BARE wave entry must be a complex variable (4*i=mag,
+         * 4*i+1=ph, 4*i+2=re, 4*i+3=im in the raw), else it cannot be plotted
+         * as a trace. "label; expression" entries are validated in
+         * smith_expr_parse() below. */
+        if(gr->mode == 3 && !expression && (!xctx->raw->sim_type ||
+           strcmp(xctx->raw->sim_type, "ac") || idx % 4 != 0 || idx + 3 >= xctx->raw->nvars)) {
+          info("Smith chart: '%s' is not a complex (re/im) variable - skipped\n",
+               bus_msb ? bus_msb : express);
+          smith_valid = 0;
+        }
+        /* Smith chart: a "label; expression" wave entry: parse the RPN program
+         * once per wave, before the dataset loop; parse failure -> skip the
+         * wave the same way as a bare-variable validation failure */
+        if(gr->mode == 3 && expression && smith_valid) {
+          if(smith_expr_parse(express, &smith_prog) != 0) smith_valid = 0;
+        }
         ofs = 0;
         start = (gr->gx1 <= gr->gx2) ? gr->gx1 : gr->gx2;
         end = (gr->gx1 <= gr->gx2) ? gr->gx2 : gr->gx1;
@@ -4518,11 +5906,21 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
           idx_arr = get_bus_idx_array(ntok_copy, &n_bits); /* idx_arr allocated by function, must free! */
         }
         bbox(START, 0.0, 0.0, 0.0, 0.0);
-        bbox(ADD,gr->x1, gr->y1, gr->x2, gr->y2);
-        bbox(SET, 0.0, 0.0, 0.0, 0.0);
+        if(gr->mode == 3) {
+          /* Smith chart: the plane square (±1.05) is always inside the
+           * container, so clip to the container directly (instead of the
+           * plot box) - same clip as the Z0 readout in
+           * draw_smith_labels() - so the cursor readouts can reach the
+           * container edge */
+          bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+          bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+        } else {
+          bbox(ADD,gr->x1, gr->y1, gr->x2, gr->y2);
+          bbox(SET, 0.0, 0.0, 0.0, 0.0);
+        }
         /* loop through all datasets found in raw file */
 
-        if(sch_waves_loaded() != -1) for(dset = 0 ; dset < xctx->raw->datasets; dset++) {
+        if(sch_waves_loaded() != -1 && smith_valid) for(dset = 0 ; dset < xctx->raw->datasets; dset++) {
           double prev_x;
           int cnt=0, wrap;
           register SPICE_DATA *gv = xctx->raw->values[sweep_idx];
@@ -4539,6 +5937,30 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
 
           /* optimization: skip unwanted datasets, if no dc no need to detect sweep variable wraps */
           if(dataset >= 0 && strcmp(xctx->raw->sim_type, "dc") && dataset != sweepvar_wrap) goto done;
+          /* Smith chart: the sweep variable is the frequency and the plane is fixed
+           * (±1.05), so draw the whole selected dataset, no x-windowing */
+          if(gr->mode == 3) {
+            if(dataset == -1 || dataset == sweepvar_wrap) {
+              int rc;
+              if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
+              else wave_color = wc;
+              if(expression) {
+                rc = draw_smith_expr_points(&smith_prog, ofs, ofs_end - 1, point,
+                    wave_color, wcnt, n_nodes, gr, ct);
+                if(rc == -1) goto done;
+              } else {
+                draw_smith_points(idx, ofs, ofs_end - 1, point, wave_color, wcnt, n_nodes, gr, ct);
+              }
+              /* Smith chart: cursor markers + per-wave readouts under the
+               * wave-label row (only when a cursor flag is set) */
+              if((flags & 2) || (flags & 4)) {
+                draw_smith_cursor_markers(sweep_idx, ofs, ofs_end - 1, wave_color,
+                    expression, idx, &smith_prog, wcnt, n_nodes, flags,
+                    cursor1, cursor2, gr);
+              }
+            }
+            goto done;
+          }
           for(p = ofs ; p < ofs_end; p++) {
             double xxprevious, xxfollowing;
 
@@ -4645,7 +6067,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
           sweepvar_wrap++;
         } /* for(dset...) */
         bbox(END, 0.0, 0.0, 0.0, 0.0);
-        if(sch_waves_loaded()!= -1 && flags & 2 && measure_p != -1)
+        if(sch_waves_loaded()!= -1 && flags & 2 && measure_p != -1 && gr->mode != 3)
            show_node_measures(measure_p, measure_x, measure_prev_x, bus_msb, wave_color,
               idx, idx_arr, n_bits, n_nodes, ntok_copy, wcnt, gr, r, cursor1);
 
@@ -4676,21 +6098,28 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
   } /* if(flags & 8) */
   
   if(flags & 8) {
+    /* Smith chart: labels/Z0 readout go on top, drawn after the traces */
+    if(gr->mode == 3) {
+      draw_smith_labels(gr);
+      /* bottom-left cursor frequency labels: once per graph */
+      if((flags & 2) || (flags & 4))
+        draw_smith_cursor_freq_labels(gr, flags, cursor1, cursor2);
+    }
     bbox(START, 0.0, 0.0, 0.0, 0.0);
     bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
     bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
     /* cursor1 */
-    if((flags & 2)) draw_cursor(cursor1, cursor2, 1, gr);
+    if((flags & 2) && gr->mode != 3) draw_cursor(cursor1, cursor2, 1, gr);
     /* cursor2 */
-    if((flags & 4)) draw_cursor(cursor2, cursor1, 3, gr);
+    if((flags & 4) && gr->mode != 3) draw_cursor(cursor2, cursor1, 3, gr);
     /* difference between cursors */
-    if((flags & 2) && (flags & 4)) draw_cursor_difference(cursor1, cursor2, gr);
+    if((flags & 2) && (flags & 4) && gr->mode != 3) draw_cursor_difference(cursor1, cursor2, gr);
     /* difference between hcursors */
-    if((flags & 128) && (flags & 256)) draw_hcursor_difference(gr->hcursor1_y, gr->hcursor2_y, gr);
+    if((flags & 128) && (flags & 256) && gr->mode != 3) draw_hcursor_difference(gr->hcursor1_y, gr->hcursor2_y, gr);
     /* hcursor1 */
-    if(flags & 128) draw_hcursor(gr->hcursor1_y, 15, gr);
+    if((flags & 128) && gr->mode != 3) draw_hcursor(gr->hcursor1_y, 15, gr);
     /* hcursor2 */
-    if(flags & 256) draw_hcursor(gr->hcursor2_y, 19, gr);
+    if((flags & 256) && gr->mode != 3) draw_hcursor(gr->hcursor2_y, 19, gr);
     bbox(END, 0.0, 0.0, 0.0, 0.0);
   }
   if(flags & 1) { /* copy save buffer to screen */

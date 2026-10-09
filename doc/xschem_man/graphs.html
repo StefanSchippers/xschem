@@ -334,7 +334,204 @@ The following syntax:
    use the first variable in the raw file as sweep axis. Note that when an expression is
    used, the same X-axis is applied to all the waves in the graph, so the one-variable-per-wave
    syntax like <kbd>v(a) v(z)</kbd> above is not available in that case.
+   </p>
+
+  <a id="smith_plots"></a>
+  <h3>Smith plots</h3>
+  <p>
+   A Smith chart displays the reflection coefficient &Gamma; for a port, normalized to a
+   reference impedance <kbd>Z0</kbd> that is configurable in the graph properties dialog,
+   with a default of 50 &Omega;. The center of the chart is a load equal to <kbd>Z0</kbd>,
+   and the outer ring is a short or an open circuit.<br>
+   Unlike normal graphs, a Smith chart ignores the X/Y range settings: xschem always shows
+   the square window |&Gamma;| &le; 1.05, centered on the chart rectangle.
+   Points outside this window are clipped at the edge of the graph rectangle.<br>
+   The grid is made of constant-<kbd>R</kbd> circles at 0.1, 0.2, 0.5, 1, 2, 5 and 10 and
+   constant-<kbd>X</kbd> arcs at +/-0.1, +/-0.2, +/-0.5, +/-1, +/-2 and +/-5, all in units
+   of <kbd>Z0</kbd>, plus the unit circle and the real axis; <kbd>R</kbd> and j<kbd>X</kbd>
+   values are labelled on the grid. The <kbd>Z0</kbd> value of the chart is shown as a
+   readout at the bottom-right corner of the chart.<br>
+   Smith charts are useful to view impedance, matching and S-parameter behavior over
+   frequency, from AC or SP simulations.<br>
+   The example below is the LNA_SP schematic from the examples library, showing two Smith
+   charts stacked one above the other: <kbd>S11</kbd> and <kbd>S22</kbd> from an SP
+   simulation (top chart)
+   and the input impedance <kbd>Zin = -v(vx1)/i(vmes)</kbd> computed from a plain AC
+   simulation (bottom chart); the gain and noise graphs
+   of the same design are visible on the right.<br>
+   <img src="smith01.png" style="display: block; margin-left: 0;"><br>
   </p>
+
+  <a id="smith_create"></a>
+  <h3>Creating a Smith plot</h3>
+  <p>
+   The menu <kbd>Graph -&gt; Add waveform graph</kbd> adds a Smith plot just like any
+   other graph: the box is placed in the schematic and works like the other graphs;
+   placement, resizing, moving and selecting are covered in the
+   "Using XSCHEM's internal graph functions" section above.<br>
+   Double-clicking the graph opens the properties dialog, the same dialog described
+   in the sections above. It is a regular waveform graph until the <kbd>Mode</kbd>
+   combobox at the top of the dialog is set to <kbd>Smith</kbd>.
+  </p>
+  <p>
+   The <kbd>Z0</kbd> entry, next to the <kbd>Mode</kbd> selector, sets the reference
+   impedance of the chart in ohms; it defaults to <kbd>50</kbd>. All values shown on
+   the chart and in the cursor readouts are normalized to this impedance.
+   <img src="smith06.png" style="display: block; margin-left: 0;"><br>
+  </p>
+  <p>
+   In Smith mode the fields that set the X/Y view range (min/max X and Y values),
+   the <kbd>Log X</kbd> / <kbd>Log Y</kbd> checkboxes, the axis units and the
+   div/subdiv counts are ignored: the chart always shows the fixed plane described
+   in the Smith plots section above, centered on the graph rectangle.<br>
+   The simulation data loading (menu <kbd>Waves -&gt; Ac | Sp | ...</kbd>) works
+   exactly as for a regular graph; nothing else needs to be configured for the
+   chart to appear.
+  </p>
+
+  <a id="smith_waves"></a>
+  <h3>Adding waves to a Smith plot</h3>
+  <p>
+   A Smith plot wave is entered in the graph's wave list, the dialog text area
+   or the <kbd>Waves</kbd> menu, with the same syntax as a regular graph.
+   There are two Smith-specific twists: what a bare name means, and a new
+   operator called <kbd>imp()</kbd>.
+  </p>
+  <p>
+   Form 1: a bare scattering variable. If the entry is just a variable name,
+   like <kbd>s_1_1</kbd>, xschem plots it directly as a reflection coefficient.
+   The real and imaginary parts of that variable in the raw file are the Gamma
+   value of each point, no conversion. This is how S-parameter data (from an
+   SP simulation) is usually shown. A Smith plot of this kind is driven by an
+   SP raw, loaded with <kbd>Waves -&gt; Sp</kbd>.
+  </p>
+  <p>
+   Form 2: the <kbd>imp()</kbd> operator. To plot a Z-domain quantity as a
+   Smith curve, append the zero-argument operator <kbd>imp()</kbd> to a wave
+   expression. It pops the top stack value (an impedance in ohms, complex) and
+   pushes its reflection coefficient, computed with the chart <kbd>Z0</kbd>:
+   <kbd>Gamma = (Z - Z0) / (Z + Z0)</kbd>. It works in the same postfix (RPN)
+   expression syntax described in the "Expression evaluation on waves" section;
+   <kbd>imp()</kbd> takes no arguments.
+   The example in the hero picture is entered as:
+   <kbd>"Zin(vx1); vx1 i(vmes) / -1 * imp()"</kbd>. The alias <kbd>Zin(vx1)</kbd>
+   is shown as the wave label. The expression computes
+   <kbd>v(vx1) / i(vmes) * -1</kbd> (the port impedance seen by the measuring
+   source, Vmes) and <kbd>imp()</kbd> converts it to Gamma.
+   <kbd>imp()</kbd> needs the raw file to contain the actual port voltage and
+   port current: -v(port node)/i(port source) is then the physical port
+   impedance. S-parameter raw files must not be used with <kbd>imp()</kbd>:
+   their saved port sources are not the real excitations, so the v()/i() values
+   in an SP raw do not represent the port impedance.
+  </p>
+  <p>
+   Form 3: dataset / raw file override per wave. Like regular graphs, a wave
+   entry can end with the "dataset / raw file / sim type" suffix:
+   <kbd>alias; expression % dataset rawfile simtype</kbd> (see the
+   "Specify a different raw file for a single signal in a graph" section; the
+   fields are not re-documented here). All three forms can be combined in one
+   entry.
+  </p>
+  <p>
+   The wave label shown on the chart is the alias (or the variable name), and
+   wave colors are chosen exactly as for a regular graph, with the dialog color
+   buttons or by editing the text area.
+  </p>
+
+  <a id="smith_cursors"></a>
+  <h3>Smith chart cursors</h3>
+  <p>
+   The <kbd>a</kbd> and <kbd>b</kbd> keys place cursor A and cursor B; on a
+   Smith plot each cursor has a frequency and each wave shows its own point
+   on the plane at that frequency. Placing a cursor with the mouse inside a Smith chart snaps the
+   cursor to the trace point closest to the mouse pointer; all waves in all
+   Smith charts of the schematic share the cursor frequency.
+  </p>
+  <p>
+   At each cursor frequency every wave is marked at its &Gamma; point in the
+   wave color: cursor A as a filled dot, cursor B as a cross (x). Marker size
+   follows the global zoom: the marker size scales with the chart
+   under the display zoom.
+   <img src="smith02.png" style="display: block; margin-left: 0;"><br>
+   The picture shows cursor A: one marker per wave, and the cursor frequency
+   at the bottom-left corner.
+   <img src="smith03.png" style="display: block; margin-left: 0;"><br>
+   With both cursors active, each wave shows its dot (A) and cross (B) and
+   both frequency labels are shown.
+  </p>
+  <p>
+   A cursor can be dragged: press the <kbd>left</kbd> mouse button on (or
+   close to) one of its markers and move; the cursor follows the closest
+   trace point to the pointer, so you can sweep the cursor along the curves.
+  </p>
+  <p>
+   With a cursor active, every wave shows its values below the wave label, in
+   the wave color, two lines per cursor (cursor A's lines first, then cursor
+   B's): for waves plotted directly as &Gamma; (S-parameters): |&Gamma;| and
+   the angle in degrees on the first line, and the impedance Z = R+jX in ohms
+   on the second; for waves converted with <kbd>imp()</kbd> the two lines are
+   swapped (impedance first, &Gamma; second). Values are shown with at most 3
+   decimals.
+  </p>
+
+  <a id="smith_probe"></a>
+  <h3>Probing a Smith chart</h3>
+  <p>
+   Pressing <kbd>m</kbd> with the mouse on the chart shows the text probe
+   at the pointer: the &Gamma; value
+   (u+jv, magnitude, angle) and the impedance value (R+jX, magnitude, angle)
+   at that point.
+   <img src="smith04.png" style="display: block; margin-left: 0;"><br>
+  </p>
+  <p>
+   Pressing the <kbd>right</kbd> mouse button on a cursor marker opens a
+   prompt preset with the current frequency; enter a value in hertz to move
+   that cursor to that exact frequency. Cancelling the prompt moves the
+   cursor to 0, inherited from regular graphs.
+  </p>
+  <p>
+   Pressing the <kbd>right</kbd> mouse button on a wave (not on a marker)
+   hilights that wave, like in a regular graph; with a wave hilighted,
+   <kbd>t</kbd> switches its dataset when multiple datasets are present in
+   the raw file (see the "Display a specific dataset for a node" section
+   above).
+  </p>
+  <p>
+    Because the plane is fixed, the in-graph zoom and pan commands (the
+    <kbd>f</kbd> key, the arrow keys, the right-button zoom boxes and the
+    drag panning) have no effect on a Smith plot. Only the overall display
+    zoom changes the size of the chart, and the cursor markers are drawn at
+    the zoomed size (see the cursors section above).
+  </p>
+  <p>
+   With the mouse outside the chart, the usual schematic functions apply; the
+   <kbd>graph_use_ctrl_key</kbd> option behaves exactly as documented above.
+  </p>
+
+  <a id="smith_notes"></a>
+  <h3>Smith chart notes and limitations</h3>
+  <ul>
+   <li>PLANE: The Smith plane is fixed to the region |&Gamma;| &le; 1 (plus a
+   small margin): the 1-ohm circle always fills the plot. Values with
+   |&Gamma;| greater than 1 are not drawn, so a trace breaks at that point;
+   a passive network's S-parameters stay inside the plane, but an active
+   (gain) network can leave it.</li>
+   <li>DATA: A Smith chart always plots two-variable (real/imaginary) data;
+   it does not accept scalar (single-value) waves. The S-parameter quantities
+   shown are the ones defined by the simulation (the port pairs set up in the
+   control script); the chart just draws their real and imaginary parts.</li>
+   <li>Z0: The reference impedance <kbd>Z0</kbd> is a per-graph property (set
+   in the graph properties dialog); only <kbd>imp()</kbd> conversions use it;
+   S-parameter data is plotted as saved.</li>
+   <li>CURSORS: The cursor frequency is shared by all Smith charts in the
+   schematic (see the Smith chart cursors section above).</li>
+   <li>ZOOM: In-graph zoom and panning do not apply to the fixed plane (see
+   the probing section above); only the overall display zoom changes the
+   chart size.</li>
+   <li>CLOSE: No other limitations; everything else (wave colors, labels,
+   datasets, the <kbd>graph_use_ctrl_key</kbd> option) behaves exactly as in
+   a regular graph.</li>
+  </ul>
 
  <!-- end of slide -->
  <div class="filler"></div>

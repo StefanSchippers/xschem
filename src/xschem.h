@@ -404,6 +404,8 @@ extern char win_temp_dir[PATH_MAX];
 /* coordinate transformations graph to screen */
 #define S_X(x) (gr->scx * (x) + gr->sdx)
 #define S_Y(y) (gr->scy * (y) + gr->sdy)
+#define SM_X(v) (gr->ssx0 + (v) * gr->ss)
+#define SM_Y(v) (gr->ssy0 - (v) * gr->ss)
 /* for digital waves */
 #define DS_Y(y) (gr->dscy * (y) + gr->dsdy)
 
@@ -886,13 +888,15 @@ typedef struct {
   /* direct graph->screen transform */
   double scx, sdx, scy, sdy;
   double dscy, dsdy;
+  double ss, ssx0, ssy0;
+  double smith_z0;
   int divx, divy;
   int subdivx, subdivy;
   double magx, magy, maglegend;
   double unitx, unity;
   int unitx_suffix; /* 'n' or 'u' or 'M' or 'k' ... */
   int unity_suffix;
-  int mode; /* default:0   0:Line, 1:HistoV, 2:HistoH */
+  int mode; /* default:0   0:Line, 1:HistoV, 2:HistoH, 3:Smith */
   double txtsizelab, digtxtsizelab, txtsizey, txtsizex, txtsizelegend;
   int dataset;
   int hilight_wave; /* wave index */
@@ -1315,6 +1319,45 @@ extern int calc_custom_data_yrange(int sweep_idx, const char *express, Graph_ctx
 extern int sch_waves_loaded(void);
 extern int edit_wave_attributes(int what, int i, Graph_ctx *gr);
 extern void draw_graph(int i, int flags, Graph_ctx *gr, void *ct);
+/* Smith chart "label; expression" RPN program: a token sequence evaluated
+ * on a complex value stack (see smith_expr_parse()/
+ * smith_expr_eval_point()/draw_smith_expr_points() in draw.c) */
+#define SMX_MAX 128
+typedef enum { SMX_NUM, SMX_VAR, SMX_PLUS, SMX_MINUS, SMX_MULT, SMX_DIV, SMX_IMP } smx_type;
+typedef struct {
+  smx_type t;
+  double d; /* SMX_NUM value */
+  int idx;  /* SMX_VAR: raw base column index (% 4 == 0) */
+} smx_tok;
+typedef struct {
+  smx_tok tok[SMX_MAX];
+  int n;    /* number of valid tokens */
+} smx_prog;
+extern int smith_expr_parse(const char *expr, smx_prog *prog);
+extern int smith_expr_eval_point(const smx_prog *prog, int p, double z0, double *re, double *im);
+extern void draw_smith_points(int idx, int first, int last, XPoint *point,
+              int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct);
+extern int draw_smith_expr_points(const smx_prog *prog, int first, int last, XPoint *point,
+              int wave_color, int wcnt, int n_nodes, Graph_ctx *gr, GC ct);
+/* Nearest plotted point on the Smith plane to (um, vm) [in Gamma units]:
+ * enumerates all waves of graph rect i (same wave-attribute parsing, per-wave
+ * raw override and validation as the draw path), all points of the selected
+ * dataset, skipping points with |Gamma| > 1.05 (outside the visible plane).
+ * Returns 0 and sets *freq_ret (sweep value, values[sweep_idx]), *wave_ret
+ * (0-based wave index) and *dset_ret (dataset index of the winning point) on
+ * success, or -1 if no plotted point. *freq_ret and *wave_ret are set to 0.0
+ * and -1 at entry, so they are defined on every failure path as well (i out
+ * of range, not a graph, no raw, not Smith mode, digital graph, no plotted
+ * point). dset_ret may be NULL; when non-NULL it is set to -1 at entry, so it
+ * is defined on every failure path as well. */
+extern int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave_ret, int *dset_ret);
+/* Screen-px positions of every wave's cursor marker at frequency f on the
+ * Smith plane of graph rect i: Gamma(f) linearly interpolated between the
+ * bracketing sweep points, coords CLIP(SM_X/SM_Y, -30000, 30000). Same wave
+ * enumeration, guards, per-wave raw switch/restore and validation as
+ * smith_closest_point(). Writes up to max_n (x, y) integer pairs to sx[]/sy[]
+ * and returns the number of markers written (extra waves ignored). */
+extern int smith_cursor_markers(int i, double f, int max_n, int *sx, int *sy);
 extern int find_closest_wave(int i, Graph_ctx *gr, int *node_number);
 extern void setup_graph_data(int i, int skip, Graph_ctx *gr);
 extern int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset);
