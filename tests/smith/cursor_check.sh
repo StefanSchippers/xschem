@@ -11,16 +11,25 @@
 #  You should have received a copy of the GNU General Public License along with
 #  this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
 #  Street, Fifth Floor, Boston, MA 02110-1301 USA
-#  Smith-chart cursor-marker pixel test (draw_smith_cursor_markers in src/draw.c).
+#  Smith-chart cursor-presentation pixel test (draw_smith_cursor_markers +
+#  draw_smith_cursor_freq_labels in src/draw.c).
 #  Renders tests/SC_Test.sch (3 waves: s_1_1, s_2_1 and the imp()-derived Zin)
 #  with both graph cursors enabled (cursor1 = 100 MHz -> filled dot, cursor2 =
-#  300 MHz -> cross) in its own process per capture, plus a no-cursor control.
+#  300 MHz -> cross; markers scale with the global zoom - at the 1:1 capture
+#  mooz=1 the dot is ~4 px radius and the cross arms are +/-4 px) in its own
+#  process per capture, plus a no-cursor control.
 #  Headless: Xvfb + xschem print png + PIL. Checks, per wave:
 #    * a wave-color marker at the self-calibrated Smith position of Gamma(f_c)
 #      (unit circle fitted from the GRIDLAYER render -> C, R; expected Gamma is
 #      lerped from tests/SC_Test.raw exactly like the C code);
-#    * the per-wave readout text in wave color next to the marker;
-#    * the GRIDLAYER "f = ..." labels top-left of the plot square.
+#    * the per-wave readout text (TWO lines per active cursor: |G|@th then
+#      Z = R+jX for scattering, R+jX then Gamma = |G|@th for expression) in
+#      wave color, in that wave's TOP label column just below the label row
+#      (x = rx1 + 2 + rw/n_nodes*wcnt, the same anchor as the s_1_1/s_2_1/Zin
+#      labels);
+#    * the GRIDLAYER "(A)/(B) Frequency = ..." labels bottom-LEFT of the
+#      container (~8 px in from the left edge, stacked at the bottom); the
+#      old top-left "f = ..." labels must be gone.
 #  s_1_1 and Zin land on the SAME point (identical Gamma), so the marker of the
 #  later-drawn wave occludes the earlier one: the as-is capture checks Zin's
 #  marker there; a second capture re-orders the node (s_1_1 drawn last, colors
@@ -345,13 +354,34 @@ def marker_delta(imgA, imgB, c, g, half=5):
                       max(0, int(px-half)):int(px+half+1)]
     return int((a & ~b).sum()), int(a.sum()), px, py
 
-# wave-color readout text: band right of the marker (ry = sy-16 / sy+8)
-def readout_delta(imgA, imgB, c, g, which):
-    px, py = P(g)
-    ry = (py - 16.0) if which == 1 else (py + 8.0)
-    a = near(imgA, c); b = near(imgB, c)
-    m = (a & ~b)[max(0, int(ry-2)):int(ry+18), max(0, int(px-40)):int(px+260)]
-    return int(m.sum()), px, py
+# ---- readout + f-label geometry (from the reworked presentation) ----
+# CAPBOX 2000x1600 over xschem -1000..1000 / -800..800 is 1:1, so
+# px = xschem + (1000, 800); the .sch container rect 2 is 600,-440..1000,-40
+# -> px x[1600,2000] y[360,760] (the calibration above already uses this).
+RX1, RW, N_NODES = 600, 400, 3
+OFS_X, OFS_Y = 1000, 800
+def label_col_x(wcnt):
+    # same x anchor as the top wave-label row: rx1 + 2 + rw/n_nodes*wcnt
+    return int(RX1 + 2 + RW / N_NODES * wcnt + OFS_X)
+# the readout block sits directly below the label row: with two active cursors
+# the 4 lines span ~ y[392..474] (measured); the box is a little wider.
+RO_Y0, RO_Y1 = 384, 480
+# bottom-left "(A)/(B) Frequency = ..." labels: ~8 px in from the container
+# left edge (px x=1600), stacked at the bottom (container bottom px y=760).
+FL_X0, FL_X1 = 1600, 1780
+FL_Y0, FL_Y1 = 698, 762
+# top-left band where the OLD "f = ..." labels used to sit (must now be empty)
+TL_X0, TL_X1 = 1600, 1840
+TL_Y0, TL_Y1 = 360, 400
+
+# new wave-color readout pixels in this wave's label column, below the row
+# (the delta vs the control drops the always-present trace/label pixels, so
+#  this isolates the readout text even where a trace crosses the column)
+def readout_col(img, ctrl, c, wcnt):
+    x0 = label_col_x(wcnt) - 8
+    x1 = label_col_x(wcnt) + 160
+    m = (near(img, c) & ~near(ctrl, c))[RO_Y0:RO_Y1, x0:x1]
+    return int(m.sum()), x0, x1
 
 # ---- on (as-is order) vs off: s_2_1 + Zin markers, readouts, f labels ----
 for tag, c, g in (("s_2_1 cursor1@100M", COL_S21, g_s21_c1),
@@ -361,28 +391,39 @@ for tag, c, g in (("s_2_1 cursor1@100M", COL_S21, g_s21_c1),
     d, tot, px, py = marker_delta(on, off, c, g)
     check("on: %s marker at P" % tag, d >= 15 and tot >= 40,
           "P=(%.1f,%.1f) new=%d boxtot=%d" % (px, py, d, tot))
-for tag, c, g, w in (("s_2_1 readout c1", COL_S21, g_s21_c1, 1),
-                     ("s_2_1 readout c2", COL_S21, g_s21_c2, 2),
-                     ("Zin     readout c1", COL_ZIN, g_s11_c1, 1),
-                     ("Zin     readout c2", COL_ZIN, g_s11_c2, 2)):
-    d, px, py = readout_delta(on, off, c, g, w)
-    check("on: %s" % tag, d >= 40, "new-band-px=%d (near P=(%.1f,%.1f))" % (d, px, py))
+# per-wave readouts: wave-color text in this wave's top label column, just
+# below the label row.  orig order: s_1_1 wc0, s_2_1 wc1, Zin wc2 -> check the
+# two waves whose markers are visible here (s_2_1, Zin); s_1_1's is checked in
+# the s11 capture below.
+for tag, c, wc in (("s_2_1 readout", COL_S21, 1),
+                   ("Zin     readout", COL_ZIN, 2)):
+    d, x0, x1 = readout_col(on, off, c, wc)
+    check("on: %s in label column" % tag, d >= 150,
+          "new-wave-px=%d x[%d..%d] (col@x=%d)"
+          % (d, x0, x1, label_col_x(wc)))
 
-# f labels: GRIDLAYER text top-left of the plot square, once per active cursor
+# (A)/(B) frequency labels: GRIDLAYER, bottom-LEFT of the container (~8 px in
+# from the left edge, stacked at the bottom); one line per active cursor
 ml = (near(on, COL_GRID, 14) & ~near(off, COL_GRID, 14))
-fx = int(Cx + (-1.05) * R + 8.0 - 5); fy = int(Cy - (1.05) * R + 4.0 - 5)
-nl = int(ml[fy:fy+40, fx:fx+240].sum())
-check("on: f-labels present (both cursors)", nl >= 50,
-      "top-left new-GRID-px=%d" % nl)
+nl = int(ml[FL_Y0:FL_Y1, FL_X0:FL_X1].sum())
+check("on: (A)/(B) f-labels present bottom-left (both cursors)", nl >= 50,
+      "bottom-left new-GRID-px=%d (band x[%d..%d] y[%d..%d])"
+      % (nl, FL_X0, FL_X1, FL_Y0, FL_Y1))
+# the OLD top-left "f = ..." labels must be gone now
+nl_tl = int(ml[TL_Y0:TL_Y1, TL_X0:TL_X1].sum())
+check("on: old top-left f-labels gone", nl_tl < 15,
+      "top-left new-GRID-px=%d" % nl_tl)
 
 # ---- s11 (s_1_1 drawn last) vs off: s_1_1 marker + readouts visible ----
 for tag, g in (("s_1_1 cursor1@100M", g_s11_c1), ("s_1_1 cursor2@300M", g_s11_c2)):
     d, tot, px, py = marker_delta(s11, off, COL_S11, g)
     check("s11: %s marker at P" % tag, d >= 15 and tot >= 40,
           "P=(%.1f,%.1f) new=%d boxtot=%d" % (px, py, d, tot))
-for tag, g, w in (("s_1_1 readout c1", g_s11_c1, 1), ("s_1_1 readout c2", g_s11_c2, 2)):
-    d, px, py = readout_delta(s11, off, COL_S11, g, w)
-    check("s11: %s" % tag, d >= 40, "new-band-px=%d (near P=(%.1f,%.1f))" % (d, px, py))
+# s_1_1 readout: in its label column.  In the s11 capture s_1_1 is the LAST
+# node -> wcnt=2 (col x = rx1 + 2 + rw/3*2)
+d, x0, x1 = readout_col(s11, off, COL_S11, 2)
+check("s11: s_1_1 readout in label column", d >= 150,
+      "new-wave-px=%d x[%d..%d] (col@x=%d)" % (d, x0, x1, label_col_x(2)))
 # ---- toggle (enabled then disabled) must match the control: no residue ----
 for tag, c, g in (("s_2_1 cursor1 marker", COL_S21, g_s21_c1),
                   ("Zin     cursor1 marker", COL_ZIN, g_s11_c1),
@@ -392,8 +433,8 @@ for tag, c, g in (("s_2_1 cursor1 marker", COL_S21, g_s21_c1),
     check("toggle: %s absent" % tag, d < 15,
           "new=%d boxtot=%d at P=(%.1f,%.1f)" % (d, tot, px, py))
 mt = (near(tgl, COL_GRID, 14) & ~near(off, COL_GRID, 14))
-nt = int(mt[fy:fy+40, fx:fx+240].sum())
-check("toggle: f-labels absent", nt < 15, "top-left new-GRID-px=%d" % nt)
+nt = int(mt[FL_Y0:FL_Y1, FL_X0:FL_X1].sum())
+check("toggle: (A)/(B) f-labels absent", nt < 15, "bottom-left new-GRID-px=%d" % nt)
 
 if bad:
     print("%d check(s) FAILED" % bad)
@@ -409,7 +450,7 @@ echo
 
 # ================= summary ================
 if [ "$pyrc" -eq 0 ]; then
-  echo "ALL PASS (cursor markers dot/cross at shared frequency, readouts, f labels, no-cursor + toggle controls)"
+  echo "ALL PASS (zoom-scaled cursor markers at shared frequency, label-column readouts, (A)/(B) bottom-left f-labels, no-cursor + toggle controls)"
   exit 0
 else
   echo "FAIL (analysis rc=$pyrc)"
