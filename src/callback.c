@@ -514,7 +514,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
             if(gr->ss > 0.0) {
               u = (X_TO_SCREEN(xctx->mousex) - gr->ssx0) / gr->ss;
               v = (gr->ssy0 - Y_TO_SCREEN(xctx->mousey)) / gr->ss;
-              smith_closest_point(i, u, v, &f, &wcnt);
+               smith_closest_point(i, u, v, &f, &wcnt, NULL);
             }
             if(gr->hilight_wave >= 0) {
               gr->hilight_wave = -1;
@@ -659,7 +659,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(gr->ss > 0.0) {
           u = (X_TO_SCREEN(xctx->mousex) - gr->ssx0) / gr->ss;
           v = (gr->ssy0 - Y_TO_SCREEN(xctx->mousey)) / gr->ss;
-          if(smith_closest_point(i, u, v, &f, &wave) == 0) {
+          if(smith_closest_point(i, u, v, &f, &wave, NULL) == 0) {
             c = f;
             changed = 1;
           }
@@ -693,7 +693,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         if(gr->ss > 0.0) {
           u = (X_TO_SCREEN(xctx->mousex) - gr->ssx0) / gr->ss;
           v = (gr->ssy0 - Y_TO_SCREEN(xctx->mousey)) / gr->ss;
-          if(smith_closest_point(i, u, v, &f, &wave) == 0) {
+          if(smith_closest_point(i, u, v, &f, &wave, NULL) == 0) {
             c = f;
             changed = 1;
           }
@@ -961,7 +961,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           if(gr->ss > 0.0) {
             u = (X_TO_SCREEN(xctx->mousex) - gr->ssx0) / gr->ss;
             v = (gr->ssy0 - Y_TO_SCREEN(xctx->mousey)) / gr->ss;
-            if(smith_closest_point(i, u, v, &f, &wave) == 0) {
+            if(smith_closest_point(i, u, v, &f, &wave, NULL) == 0) {
               c = f;
               changed = 1;
             }
@@ -999,7 +999,7 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
           if(gr->ss > 0.0) {
             u = (X_TO_SCREEN(xctx->mousex) - gr->ssx0) / gr->ss;
             v = (gr->ssy0 - Y_TO_SCREEN(xctx->mousey)) / gr->ss;
-            if(smith_closest_point(i, u, v, &f, &wave) == 0) {
+            if(smith_closest_point(i, u, v, &f, &wave, NULL) == 0) {
               c = f;
               changed = 1;
             }
@@ -1099,12 +1099,26 @@ static int waves_callback(int event, int mx, int my, KeySym key, int button, int
         }
         if(track_dset < 0) {
           int tmp;
+          int dset = -1;
+          double f = 0.0, u = 0.0, v = 0.0;
           if(gr->mode == 3) {
-            /* Smith: the sweep-axis nearest-wave search is inapplicable on
-             * the plane; select the dataset the traces are currently drawn
-             * from (the one the hilighted wave was picked from), or
-             * dataset 0 when all datasets are plotted */
-            track_dset = (gr->dataset >= 0) ? gr->dataset : 0;
+            /* Smith: the sweep-axis nearest-wave search is inapplicable on the
+             * plane. When a specific dataset is selected use it; when all
+             * datasets are plotted use the dataset of the plane-closest point
+             * under the mouse (the one the hilighted wave was picked from),
+             * falling back to dataset 0 when no plotted point is found */
+            if(gr->dataset >= 0) {
+              track_dset = gr->dataset;
+            } else {
+              if(gr->ss > 0.0) {
+                u = (X_TO_SCREEN(xctx->mousex) - gr->ssx0) / gr->ss;
+                v = (gr->ssy0 - Y_TO_SCREEN(xctx->mousey)) / gr->ss;
+                if(smith_closest_point(i, u, v, &f, &tmp, &dset) == 0 && dset >= 0) {
+                  track_dset = dset;
+                }
+              }
+              if(track_dset < 0) track_dset = 0;
+            }
           } else {
             track_dset = find_closest_wave(i, gr, &tmp);
           }

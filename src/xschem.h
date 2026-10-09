@@ -1342,12 +1342,14 @@ extern int draw_smith_expr_points(const smx_prog *prog, int first, int last, XPo
  * enumerates all waves of graph rect i (same wave-attribute parsing, per-wave
  * raw override and validation as the draw path), all points of the selected
  * dataset, skipping points with |Gamma| > 1.05 (outside the visible plane).
- * Returns 0 and sets *freq_ret (sweep value, values[sweep_idx]) and *wave_ret
- * (0-based wave index) on success, or -1 if no plotted point. *freq_ret and
- * *wave_ret are set to 0.0 and -1 at entry, so they are defined on every
- * failure path as well (i out of range, not a graph, no raw, not Smith mode,
- * digital graph, no plotted point). */
-extern int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave_ret);
+ * Returns 0 and sets *freq_ret (sweep value, values[sweep_idx]), *wave_ret
+ * (0-based wave index) and *dset_ret (dataset index of the winning point) on
+ * success, or -1 if no plotted point. *freq_ret and *wave_ret are set to 0.0
+ * and -1 at entry, so they are defined on every failure path as well (i out
+ * of range, not a graph, no raw, not Smith mode, digital graph, no plotted
+ * point). dset_ret may be NULL; when non-NULL it is set to -1 at entry, so it
+ * is defined on every failure path as well. */
+extern int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave_ret, int *dset_ret);
 /* Screen-px positions of every wave's cursor marker at frequency f on the
  * Smith plane of graph rect i: Gamma(f) linearly interpolated between the
  * bracketing sweep points, coords CLIP(SM_X/SM_Y, -30000, 30000). Same wave

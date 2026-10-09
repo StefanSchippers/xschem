@@ -5029,11 +5029,14 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
  * Enumerates all waves of the graph (same wave-attribute parsing, per-wave raw
  * override and validation as the draw path), all points of the selected
  * dataset, skipping points with |Gamma| > 1.05 (outside the visible plane).
- * Returns 0 and sets *freq_ret (sweep value, values[sweep_idx]) and
- * *wave_ret (0-based wave index) on success, or -1 if no plotted point.
+ * Returns 0 and sets *freq_ret (sweep value, values[sweep_idx]),
+ * *wave_ret (0-based wave index) and *dset_ret (dataset index of the winning
+ * point) on success, or -1 if no plotted point. dset_ret may be NULL; when
+ * non-NULL it is set to -1 at entry (the uniform -1 contract of the other
+ * out-params), so it is defined on every failure path as well.
  * Leaves xctx->raw in the state it found it: the per-wave raw switching is
  * restored after each wave (same save/restore as the draw path). */
-int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave_ret)
+int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave_ret, int *dset_ret)
 {
   char *node = NULL, *sweep = NULL;
   int sweep_idx = 0;
@@ -5054,12 +5057,14 @@ int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave
   double min = -1.0; /* squared plane distance; -1: no plotted point found yet */
   double best_freq = 0.0;
   int best_wave = -1;
+  int best_dset = -1;
   int save_extra_idx = -1;
   char str_extra_idx[30];
 
   /* leave the return values defined on every path (also all the -1 paths below) */
   *freq_ret = 0.0;
   *wave_ret = -1;
+  if(dset_ret) *dset_ret = -1;
 
   if(i < 0 || i >= xctx->rects[GRIDLAYER]) return -1;
   r = &xctx->rect[GRIDLAYER][i];
@@ -5237,6 +5242,7 @@ int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave
               min = d2;
               best_freq = gvx[p];
               best_wave = wcnt;
+              best_dset = dset;
               dbg(1, ("smith_closest_point(): dset=%d expression=%d idx=%d wcnt=%d p=%d dist=%g\n",
                   dset, expression, idx, wcnt, p, d2));
             }
@@ -5265,6 +5271,7 @@ int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave
   if(best_wave >= 0) {
     *freq_ret = best_freq;
     *wave_ret = best_wave;
+    if(dset_ret) *dset_ret = best_dset;
     dbg(1, ("smith_closest_point(): wave=%d freq=%g dist=%g\n", best_wave, best_freq, min));
     return 0;
   }
