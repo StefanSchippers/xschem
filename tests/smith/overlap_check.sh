@@ -49,11 +49,11 @@ mkdir -p "$RES"
 rm -f "$RES"/overlap_*.png "$RES"/overlap_*.stderr "$RES"/overlap_*.stdout \
       "$RES"/overlap_*.log "$RES"/overlap_cap.tcl "$RES"/overlap.log "$RES"/xauth.$$
 
-# pointer-warp helper (reused from the sweep_expression test)
-WARP="$REPO/tests/sweep_expression/warp"
+# self-contained pointer-warp helper (tests/smith/warp.c)
+WARP="$REPO/tests/smith/warp"
 if [ ! -x "$WARP" ]; then
   if command -v gcc >/dev/null && \
-     gcc -o "$WARP" "$REPO/tests/sweep_expression/warp.c" -lX11 2>/dev/null; then
+     gcc -o "$WARP" "$REPO/tests/smith/warp.c" -lX11 2>/dev/null; then
     :
   else
     echo "SKIP: pointer-warp helper unavailable (need $WARP or gcc + X11 libs)"

@@ -37,13 +37,13 @@
 #  The expression-validation path runs inside the graph node-draw loop, which
 #  only executes when a (virtual) X display drives drawing. A pure "-q -x -r"
 #  run with no display emits no info() lines, so a display is required; this
-#  script reuses the repo's Xvfb machinery (as trace_check.sh and
-#  sweep_expression/run.sh do). -r (no_readline) is used so xschem does not
+#  script reuses the repo's Xvfb machinery (as trace_check.sh does).
+#  -r (no_readline) is used so xschem does not
 #  detach and discard its own stderr.
 #
 #  Usage:  ./expr_checks.sh [xschem-binary]
 #          default binary: <repo>/src/xschem
-#  Needs:   Xvfb + the pointer-warp helper (reused from tests/sweep_expression/)
+#  Needs:   Xvfb + the self-contained pointer-warp helper (tests/smith/warp.c)
 #  Overrides: SMITH_DISP  X display to use (default: first free of :99..)
 #  Exit:     0 = PASS, 1 = FAIL, 2 = setup error.
 
@@ -62,11 +62,11 @@ RES="$DIR/results"
 mkdir -p "$RES"
 rm -f "$RES"/expr_checks.* "$RES"/xauth.$$
 
-# --- pointer-warp helper (reused from the sweep_expression test) ---
-WARP="$REPO/tests/sweep_expression/warp"
+# --- self-contained pointer-warp helper (tests/smith/warp.c) ---
+WARP="$REPO/tests/smith/warp"
 if [ ! -x "$WARP" ]; then
   if command -v gcc >/dev/null && \
-     gcc -o "$WARP" "$REPO/tests/sweep_expression/warp.c" -lX11 2>/dev/null; then
+     gcc -o "$WARP" "$REPO/tests/smith/warp.c" -lX11 2>/dev/null; then
     :
   else
     echo "SKIP: pointer-warp helper unavailable (need $WARP or gcc + X11 libs)"
