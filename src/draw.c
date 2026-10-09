@@ -3602,6 +3602,25 @@ static double smith_label_font(Graph_ctx *gr)
   return sm_font_px / (52.0 * cairo_font_scale * xctx->mooz);
 }
 
+/* device-pixel height + ascent of text drawn by draw_string() at the given
+ * font scale (same estimation approach as the Z0 readout in
+ * draw_smith_labels()) */
+static void smith_font_metrics(double scale, double *h_px, double *asc_px)
+{
+#if HAS_CAIRO==1
+  cairo_font_extents_t fext;
+  cairo_set_font_size(xctx->cairo_ctx, scale*52.*cairo_font_scale*xctx->mooz);
+  cairo_font_extents(xctx->cairo_ctx, &fext);
+  *h_px = fext.height;
+  *asc_px = fext.ascent;
+#else
+  *h_px = (FONTHEIGHT + FONTDESCENT + FONTWHITESPACE) * scale *
+          tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale * xctx->mooz;
+  *asc_px = FONTHEIGHT * scale *
+            tclgetdoublevar("nocairo_font_yscale") * cairo_font_scale * xctx->mooz;
+#endif
+}
+
 static void draw_smith_grid(Graph_ctx *gr, void *ct)
 {
   const int n_r = 7;
@@ -3782,19 +3801,43 @@ static void draw_smith_labels(Graph_ctx *gr)
   bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
-/* pixel width of a string drawn by draw_string() at the given font scale
- * (same estimation approach as the Z0 readout in draw_smith_labels()) */
-static double smith_text_width(const char *str, double font_scale)
+/* Smith chart: bottom-left cursor frequency labels, one per active cursor,
+ * stacked near the container bottom-left corner (A = cursor1 on the bottom
+ * line, B = cursor2 directly above it), mirroring the bottom-right Z0 readout
+ * anchoring in draw_smith_labels().  Color = GRIDLAYER, font =
+ * smith_label_font().  Drawn once per graph (not per wave). */
+static void draw_smith_cursor_freq_labels(Graph_ctx *gr, int flags,
+        double cursor1, double cursor2)
 {
-#if HAS_CAIRO==1
-  cairo_text_extents_t ext;
-  cairo_set_font_size(xctx->cairo_ctx, font_scale*52.*cairo_font_scale*xctx->mooz);
-  cairo_text_extents(xctx->cairo_ctx, str, &ext);
-  return (ext.x_advance > ext.width) ? ext.x_advance : ext.width;
-#else
-  return (double)strlen(str) * (FONTWIDTH + FONTWHITESPACE) * font_scale *
-         tclgetdoublevar("nocairo_font_xscale") * cairo_font_scale * xctx->mooz;
-#endif
+  char fstr[96];
+  double sm_font = smith_label_font(gr);
+  double h_px, asc_px;
+  double x_scr, y_bottom, y_above;
+
+  /* container clip, same as draw_smith_labels() */
+  bbox(START, 0.0, 0.0, 0.0, 0.0);
+  bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
+  bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
+
+  smith_font_metrics(sm_font, &h_px, &asc_px);
+  x_scr = gr->sx1 + 8.0; /* ~8 px in from the left edge */
+  /* A (cursor1) is the bottom line: its top sits h_px + 3 px above the
+   * container bottom edge (mirrors the Z0 readout); B (cursor2) is drawn
+   * directly above A, or on the bottom line when cursor1 is not active */
+  y_bottom = gr->sy2 - h_px - 3.0 - asc_px + cairo_vert_correct * xctx->mooz;
+  y_above = y_bottom - (h_px + 3.0);
+  if(flags & 2) {
+    my_snprintf(fstr, S(fstr), "(A) Frequency = %s", dtoa_eng(cursor1, 5));
+    draw_string(GRIDLAYER, NOW, fstr, 0, 0, 0, 0,
+        X_TO_XSCHEM(x_scr), Y_TO_XSCHEM(y_bottom), sm_font, sm_font);
+  }
+  if(flags & 4) {
+    my_snprintf(fstr, S(fstr), "(B) Frequency = %s", dtoa_eng(cursor2, 5));
+    draw_string(GRIDLAYER, NOW, fstr, 0, 0, 0, 0,
+        X_TO_XSCHEM(x_scr), Y_TO_XSCHEM((flags & 2) ? y_above : y_bottom),
+        sm_font, sm_font);
+  }
+  bbox(END, 0.0, 0.0, 0.0, 0.0);
 }
 
 /* |Gamma| limit of the fixed visible Smith plane (+epsilon): a marker, grab
@@ -3802,68 +3845,62 @@ static double smith_text_width(const char *str, double font_scale)
  * plane and is skipped everywhere (draw, grab, snap) */
 #define SMITH_GAMMA_LIM (1.05 + 1e-9)
 
-/* Smith chart: cursor markers, per-wave readouts and the cursor frequency
- * labels.  Called from draw_graph() right after a wave trace has been
- * drawn (per selected dataset), only when a cursor flag is set.
+/* Smith chart: cursor markers + per-wave readouts.  Called from draw_graph()
+ * right after a wave trace has been drawn (per selected dataset), only when a
+ * cursor flag is set.  The markers scale with the global zoom (mooz).
  *
- * For each active cursor (cursor1: filled dot, cursor2: cross), one
- * marker is drawn on this wave's trace at the common cursor frequency
- * f_c: Gamma(f_c) with re/im linearly interpolated between the two
- * bracketing sweep points - the very points the trace is built from -
- * so all markers of one cursor sit at one frequency and land on the
- * trace.  No marker/readout is drawn for a wave whose sweep span does
- * not cover f_c.  The readout is placed next to each marker, in the
- * wave color:
- *   scattering wave:  NAME = |G| @thdeg [Z = R+jX Ohm] @ f
- *   expression wave:  NAME = R+jX Ohm [Gamma = |G| @thdeg] @ f
- * (ASCII stand-ins for angle/degree/Gamma: the vector font has no
- * such glyphs, and the cairo build renders the Z0-readout-style
- * Ohm glyph used here already).  A small "f = ..." label is drawn
- * once per active cursor at the top-left of the plot square; the
- * f_lab1/f_lab2 guards live in draw_graph(). */
+ * For each active cursor (cursor1: filled dot, cursor2: cross), one marker is
+ * drawn on this wave's trace at the common cursor frequency f_c: Gamma(f_c)
+ * with re/im linearly interpolated between the two bracketing sweep points -
+ * the very points the trace is built from - so all markers of one cursor sit
+ * at one frequency and land on the trace.  No marker/readout is drawn for a
+ * wave whose sweep span does not cover f_c or whose |Gamma| lies outside the
+ * visible plane.
+ *
+ * The per-wave readouts are drawn under the top wave-label row, in this wave's
+ * label column (same x anchor + row geometry as the horizontal-legend path in
+ * draw_graph_variables()): cursor1's two lines first, then cursor2's two lines
+ * below cursor1's, each line advanced by the label font height + a small gap,
+ * in the wave color (no wave-name prefix, no "@frequency" suffix):
+ *   scattering wave: line 1 = |G| @thdeg, line 2 = Z = R+jX Ohm
+ *   expression wave: line 1 = R+jX Ohm, line 2 = Gamma = |G| @thdeg
+ * (ASCII stand-ins for angle/degree/Gamma: the vector font has no such
+ * glyphs, and the cairo build renders the Z0-readout-style Ohm glyph already).
+ * The bottom-left "(A)/(B) Frequency = ..." labels are drawn once per graph
+ * by draw_smith_cursor_freq_labels(). */
 static void draw_smith_cursor_markers(int sweep_idx, int first, int last,
         int wave_color, int expression, int idx, const smx_prog *prog,
-        const char *name, int flags, double cursor1, double cursor2,
-        int *f_lab1, int *f_lab2, Graph_ctx *gr)
+        int wcnt, int n_nodes, int flags, double cursor1, double cursor2,
+        Graph_ctx *gr)
 {
   SPICE_DATA *sv;
   Raw *raw = xctx->raw;
   double sm_font;
-  int c, i, p, w;
+  double lab_h_px, ro_h_px, asc_px;
+  double label_x, ro_y0_dev, line_adv;
+  int line_idx, c, i, p, w;
 
   if(!raw) return;
   sv = raw->values[sweep_idx];
   sm_font = smith_label_font(gr);
 
-  /* "f = ..." labels: once per active cursor per graph, top-left inside
-   * the plot square; the second cursor's label starts 12 px past the
-   * first one's width */
-  {
-    char fstr1[80], fstr2[80];
-    double fx, fy, fw1 = 0.0;
-
-    fx = SM_X(-1.05) + 8.0;
-    fy = SM_Y(1.05) + 4.0;
-    if((flags & 2) && !*f_lab1) {
-      my_snprintf(fstr1, S(fstr1), "f = %s", dtoa_eng(cursor1, 5));
-      fw1 = smith_text_width(fstr1, sm_font);
-      draw_string(GRIDLAYER, NOW, fstr1, 0, 0, 0, 0,
-          X_TO_XSCHEM(fx), Y_TO_XSCHEM(fy), sm_font, sm_font);
-      *f_lab1 = 1;
-    }
-    if((flags & 4) && !*f_lab2) {
-      double x2 = fx;
-      my_snprintf(fstr2, S(fstr2), "f = %s", dtoa_eng(cursor2, 5));
-      if((flags & 2) && *f_lab1) x2 += fw1 + 12.0;
-      draw_string(GRIDLAYER, NOW, fstr2, 0, 0, 0, 0,
-          X_TO_XSCHEM(x2), Y_TO_XSCHEM(fy), sm_font, sm_font);
-      *f_lab2 = 1;
-    }
-  }
+  /* readout column: same x anchor + label-row position as the horizontal-
+   * legend path in draw_graph_variables() (x = rx1 + 2 + rw/n_nodes*wcnt,
+   * row at the container top ry1, wave-label font gr->txtsizelab).  The
+   * readouts sit directly below the label row, in the wave color, stacked
+   * cursor1 first then cursor2, each line advanced by its font height +
+   * a small gap */
+  label_x = gr->rx1 + 2 + gr->rw / n_nodes * wcnt;
+  smith_font_metrics((double)gr->txtsizelab, &lab_h_px, &asc_px);
+  smith_font_metrics(sm_font, &ro_h_px, &asc_px);
+  ro_y0_dev = Y_TO_SCREEN(gr->ry1) + lab_h_px + 3.0; /* top of cursor1 line 1 */
+  line_adv = ro_h_px + 3.0;                          /* line-to-line advance */
+  line_idx = 0;                                      /* running readout slot  */
 
   for(c = 0; c < 2; c++) {
     double f_c, t, re, im, sx, sy;
     int active;
+    double mr;
 
     if(c == 0) {
       active = (flags & 2);
@@ -3904,31 +3941,41 @@ static void draw_smith_cursor_markers(int sweep_idx, int first, int last,
     sx = CLIP(SM_X(re), -30000, 30000);
     sy = CLIP(SM_Y(im), -30000, 30000);
 
-    /* marker: cursor1 = filled dot (radius 3), cursor2 = cross, 4-px arms */
+    /* marker: cursor1 = filled dot, cursor2 = cross; size scales with the
+     * global zoom (mooz), clamped to [2,200]; cross line width = lw */
+    mr = 4.0 * xctx->mooz;
+    if(mr < 2.0) mr = 2.0;
+    if(mr > 200.0) mr = 200.0;
     for(w = 0; w < 2; w++) {
       Drawable d;
       if(w == 0 && xctx->draw_window) d = xctx->window;
       else if(w == 1 && xctx->draw_pixmap) d = xctx->save_pixmap;
       else continue;
       if(c == 0) {
-        XFillArc(display, d, xctx->gc[wave_color], (int)sx - 3, (int)sy - 3, 7, 7, 0, 360 * 64);
+        XFillArc(display, d, xctx->gc[wave_color], (int)(sx - mr), (int)(sy - mr),
+            (int)(2.0 * mr), (int)(2.0 * mr), 0, 360 * 64);
       } else {
+        XSetLineAttributes(display, xctx->gc[wave_color],
+            XLINEWIDTH(xctx->lw), LineSolid, LINECAP, LINEJOIN);
         XDrawLine(display, d, xctx->gc[wave_color],
-            (int)sx - 4, (int)sy - 4, (int)sx + 4, (int)sy + 4);
+            (int)(sx - mr), (int)(sy - mr), (int)(sx + mr), (int)(sy + mr));
         XDrawLine(display, d, xctx->gc[wave_color],
-            (int)sx - 4, (int)sy + 4, (int)sx + 4, (int)sy - 4);
+            (int)(sx - mr), (int)(sy + mr), (int)(sx + mr), (int)(sy - mr));
       }
     }
 
     /* readout: |G| = hypot(re, im), theta in degrees,
-     * Z = z0 * (1 + G) / (1 - G) (guard |1 - G|^2 < 1e-300 -> Z = inf) */
+     * Z = z0 * (1 + G) / (1 - G) (guard |1 - G|^2 < 1e-300 -> Z = inf).
+     * Two lines in this wave's label column below the label row, in the wave
+     * color, no wave-name prefix, no "@frequency" suffix */
     {
-      char rstr[256];
+      char l1[80];
+      char l2[80];
       char zstr[64];
-      double rx, ry, w_px;
       double abs_g, theta_deg;
       double den_re, den_im, den;
       double z_re, z_im;
+      double y1_dev, y2_dev;
 
       abs_g = sqrt(re * re + im * im);
       theta_deg = atan2(im, re) * 180.0 / XSCH_PI;
@@ -3944,19 +3991,20 @@ static void draw_smith_cursor_markers(int sweep_idx, int first, int last,
         if(z_im >= 0.0) my_snprintf(zstr, S(zstr), "%g+j%g Ω", z_re, z_im);
         else my_snprintf(zstr, S(zstr), "%g-j%g Ω", z_re, -z_im);
       }
-      if(expression)
-        my_snprintf(rstr, S(rstr), "%s = %s [Gamma = %g @%.1fdeg] @ %s",
-            name, zstr, abs_g, theta_deg, dtoa_eng(f_c, 5));
-      else
-        my_snprintf(rstr, S(rstr), "%s = %g @%.1fdeg [Z = %s] @ %s",
-            name, abs_g, theta_deg, zstr, dtoa_eng(f_c, 5));
-      w_px = smith_text_width(rstr, sm_font);
-      /* keep the text inside the container: text + width <= right edge - 4 */
-      rx = sx + 8.0;
-      if(rx + w_px > gr->sx2 - 4.0) rx = gr->sx2 - 4.0 - w_px;
-      ry = (c == 0) ? sy - 16.0 : sy + 8.0;
-      draw_string(wave_color, NOW, rstr, 0, 0, 0, 0,
-          X_TO_XSCHEM(rx), Y_TO_XSCHEM(ry), sm_font, sm_font);
+      if(expression) {
+        my_snprintf(l1, S(l1), "%s", zstr);
+        my_snprintf(l2, S(l2), "Gamma = %g @%.1fdeg", abs_g, theta_deg);
+      } else {
+        my_snprintf(l1, S(l1), "%g @%.1fdeg", abs_g, theta_deg);
+        my_snprintf(l2, S(l2), "Z = %s", zstr);
+      }
+      y1_dev = ro_y0_dev + line_idx * line_adv;
+      y2_dev = y1_dev + line_adv;
+      line_idx += 2;
+      draw_string(wave_color, NOW, l1, 0, 0, 0, 0,
+          label_x, Y_TO_XSCHEM(y1_dev), sm_font, sm_font);
+      draw_string(wave_color, NOW, l2, 0, 0, 0, 0,
+          label_x, Y_TO_XSCHEM(y2_dev), sm_font, sm_font);
     }
   }
 }
@@ -5579,7 +5627,6 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
   char *sim_type = NULL;
   int save_extra_idx = -1;
   double cursor1, cursor2;
-  int f_lab1 = 0, f_lab2 = 0; /* Smith chart: "f = ..." labels drawn once per graph */
 
   xctx->ev_precision = tclgetintvar("ev_precision");
   if(xctx->only_probes) return;
@@ -5862,9 +5909,6 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
           if(gr->mode == 3) {
             if(dataset == -1 || dataset == sweepvar_wrap) {
               int rc;
-              char name[1024];
-              char name_tmp[1024];
-              char *alias_ptr = NULL;
               if(gr->rainbow) wave_color = 4 + (wc - 4 + sweepvar_wrap) % (cadlayers - 4);
               else wave_color = wc;
               if(expression) {
@@ -5874,33 +5918,12 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
               } else {
                 draw_smith_points(idx, ofs, ofs_end - 1, point, wave_color, wcnt, n_nodes, gr, ct);
               }
-              /* Smith chart: cursor markers + per-wave readouts at the cursor
-               * frequencies (only when a cursor flag is set) */
+              /* Smith chart: cursor markers + per-wave readouts under the
+               * wave-label row (only when a cursor flag is set) */
               if((flags & 2) || (flags & 4)) {
-                /* legend label of this wave: identical logic as
-                 * draw_graph_variables() (alias part of ntok if present,
-                 * else the variable/expression base) */
-                if(bus_msb) {
-                  my_snprintf(name, S(name), "%s", find_nth(ntok, ";,", "\"", 0, 1));
-                } else if(strstr(ntok, ";")) {
-                  yyparse_error = -1;
-                  my_strdup2(_ALLOC_ID_, &alias_ptr, find_nth(ntok, ";", "\"", 0, 1));
-                  yyparse_error = 0;
-                  my_snprintf(name, S(name), "%s", alias_ptr);
-                } else {
-                  my_snprintf(name, S(name), "%s", ntok);
-                }
-                /* copy through a tmp buffer: my_snprintf with overlapping
-                 * src/dst (name -> name) is implementation-defined */
-                if(gr->unity != 1.0) {
-                  my_snprintf(name_tmp, S(name_tmp), "%s[%c]", name, gr->unity_suffix);
-                  my_snprintf(name, S(name), "%s", name_tmp);
-                }
-                my_snprintf(name, S(name), "%s", str_replace(name, "\\ ", " ", 0, -1));
                 draw_smith_cursor_markers(sweep_idx, ofs, ofs_end - 1, wave_color,
-                    expression, idx, &smith_prog, name, flags, cursor1, cursor2,
-                    &f_lab1, &f_lab2, gr);
-                if(alias_ptr) my_free(_ALLOC_ID_, &alias_ptr);
+                    expression, idx, &smith_prog, wcnt, n_nodes, flags,
+                    cursor1, cursor2, gr);
               }
             }
             goto done;
@@ -6043,7 +6066,12 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
   
   if(flags & 8) {
     /* Smith chart: labels/Z0 readout go on top, drawn after the traces */
-    if(gr->mode == 3) draw_smith_labels(gr);
+    if(gr->mode == 3) {
+      draw_smith_labels(gr);
+      /* bottom-left cursor frequency labels: once per graph */
+      if((flags & 2) || (flags & 4))
+        draw_smith_cursor_freq_labels(gr, flags, cursor1, cursor2);
+    }
     bbox(START, 0.0, 0.0, 0.0, 0.0);
     bbox(ADD, gr->rx1, gr->ry1, gr->rx2, gr->ry2);
     bbox(SET_INSIDE, 0.0, 0.0, 0.0, 0.0);
