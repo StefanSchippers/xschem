@@ -362,6 +362,33 @@ The following syntax:
    <img src="smith01.png"><br>
   </p>
 
+  <a id="smith_create"></a>
+  <h3>Creating a Smith plot</h3>
+  <p>
+   The menu <kbd>Graph -&gt; Add waveform graph</kbd> adds a Smith plot just like any
+   other graph: the box is placed in the schematic and works like the other graphs;
+   placement, resizing, moving and selecting are covered in the
+   "Using XSCHEM's internal graph functions" section above.<br>
+   Double-clicking the graph opens the properties dialog, the same dialog described
+   in the sections above. It is a regular waveform graph until the <kbd>Mode</kbd>
+   combobox at the top of the dialog is set to <kbd>Smith</kbd>.
+  </p>
+  <p>
+   The <kbd>Z0</kbd> entry, next to the <kbd>Mode</kbd> selector, sets the reference
+   impedance of the chart in ohms; it defaults to <kbd>50</kbd>. All values shown on
+   the chart and in the cursor readouts are normalized to this impedance.
+  </p>
+  <!-- TODO: insert smith06.png (graph properties dialog, Mode=Smith, Z0=50) here -->
+  <p>
+   In Smith mode the fields that set the X/Y view range (min/max X and Y values),
+   the <kbd>Log X</kbd> / <kbd>Log Y</kbd> checkboxes, the axis units and the
+   div/subdiv counts are ignored: the chart always shows the fixed plane described
+   in the Smith plots section above, centered on the graph rectangle.<br>
+   The simulation data loading (menu <kbd>Waves -&gt; Ac | Sp | ...</kbd>) works
+   exactly as for a regular graph; nothing else needs to be configured for the
+   chart to appear.
+  </p>
+
  <!-- end of slide -->
  <div class="filler"></div>
 </div>
