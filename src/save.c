@@ -2548,28 +2548,25 @@ char *read_line(FILE *fp, int dbg_level)
 
 /* */
 
-/* return "/<prefix><random string of random_size characters>"
+/* return "/<prefix><prefix2><random string of random_size characters>"
  * example: "/xschem_undo_dj5hcG38T2"
+ * Caller must free returned string
  */
 static const char *random_string(const char *prefix, const char *prefix2)
 {
   static const char charset[]="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   static const int random_size=10;
-  static char str[PATH_MAX]; /* safe even with multiple schematics, if immediately copied */
-  size_t prefix_size, prefix_size2, i;
+  static char str[PATH_MAX]; /* safe even with multiple schematics, copy after use */
   static unsigned short once=1; /* safe even with multiple schematics, set once and never changed */
   int idx;
+  size_t i, len;
   if(once) {
     srand((unsigned short) time(NULL));
     once=0;
   }
-  prefix_size = strlen(prefix);
-  prefix_size2 = strlen(prefix2);
-  str[0]='/';
-  memcpy(str + 1, prefix, prefix_size);
-  memcpy(str + 1 + prefix_size, prefix2, prefix_size2);
+  len = my_snprintf(str, S(str), "/%s%s", prefix, prefix2);
   
-  for(i=prefix_size + prefix_size2 + 1; i < prefix_size + prefix_size2 + random_size+1; ++i) {
+  for(i=len; i < len + random_size; ++i) {
     idx = rand()%(sizeof(charset)-1);
     str[i] = charset[idx];
   }
@@ -2590,8 +2587,10 @@ const char *create_tmpdir(const char *prefix, const char *prefix2)
   static char str[PATH_MAX]; /* safe even with multiple schematics if immediately copied */
   int i;
   struct stat buf;
+  const char *tmpdir;
   for(i=0; i<5; ++i) {
-    my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), random_string(prefix, prefix2));
+    tmpdir =  random_string(prefix, prefix2);
+    my_snprintf(str, S(str), "%s%s", tclgetvar("XSCHEM_TMP_DIR"), tmpdir);
     if(stat(str, &buf) && !mkdir(str, 0700) ) { /* dir must not exist */
       dbg(1, ("create_tmpdir(): created dir: %s\n", str));
       return str;
@@ -3893,7 +3892,7 @@ static void init_undo(void)
   if(xctx->no_undo == 0 && !xctx->undo_initialized) {
     /* create undo directory */
     if( !my_strdup(_ALLOC_ID_, &xctx->undo_dirname,
-         create_tmpdir("", "xschem_undo_") )) {
+         create_tmpdir("xschem_undo_", "") )) {
       info("init_undo(): problems creating tmp undo dir, Undo will be disabled\n");
       info("init_undo(): Check permissions in %s\n", tclgetvar("XSCHEM_TMP_DIR"));
       xctx->no_undo = 1; /* disable undo */
