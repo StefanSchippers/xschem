@@ -29,38 +29,56 @@ typedef struct undo_save {
   int head_undo_ptr;
   int cur_undo_ptr;
   int tail_undo_ptr;
+  int modified;
   char *undo_dirname;
 } undo_save;
 
 
 void save_undo_freefunc(void *ptr)
 {
+  int i;
+  char diff_name[PATH_MAX];
   undo_save *undo_item_ptr = (undo_save *)ptr;
+
+  for(i=0; i<MAX_UNDO; ++i) {
+    my_snprintf(diff_name, S(diff_name), "%s/undo%d",undo_item_ptr->undo_dirname, i);
+    xunlink(diff_name);
+  }
+  rmdir(undo_item_ptr->undo_dirname);
   my_free(_ALLOC_ID_, &undo_item_ptr->undo_dirname);
 }
 
-int save_undo_table(Xschem_ctx *ctx, char *sch_name, char *undo_dirname, int what) {
+int save_undo_table(char *sch_name, char *undo_dirname, int what) {
   undo_save *undo_item = NULL;
   Ptr_hashentry *entry;
   static Ptr_hashtable undo_dir_hash = {NULL, 0};
   int res = 0;
   if(what == XLOOKUP) {
     if(undo_dir_hash.table) {
+      dbg(1, ("save_undo_table(): XLOOKUP, %s\n", sch_name));
       entry = ptr_hash_lookup(&undo_dir_hash, sch_name, NULL, XLOOKUP);
-      undo_item = entry->value;
-      ctx->head_undo_ptr = undo_item->head_undo_ptr;
-      ctx->cur_undo_ptr = undo_item->cur_undo_ptr;
-      ctx->tail_undo_ptr = undo_item->tail_undo_ptr;
-      my_strdup2(_ALLOC_ID_, &ctx->undo_dirname, undo_item->undo_dirname);
-      res = 1;
+      if(entry) {
+        dbg(1, ("save_undo_table(): XLOOKUP found\n"));
+        undo_item = entry->value;
+        xctx->head_undo_ptr = undo_item->head_undo_ptr;
+        xctx->cur_undo_ptr = undo_item->cur_undo_ptr;
+        xctx->tail_undo_ptr = undo_item->tail_undo_ptr;
+        xctx->modified = undo_item->modified;
+        set_modify(xctx->modified);
+        my_strdup2(_ALLOC_ID_, &xctx->undo_dirname, undo_item->undo_dirname);
+        xctx->undo_initialized = 1;
+        res = 1;
+      }
     }
   } else if(what == XINSERT_NOREPLACE || what == XINSERT) {
+    dbg(1, ("save_undo_table(): XINSERT, %s\n", sch_name));
     if(!undo_dir_hash.table) ptr_hash_init(&undo_dir_hash, 4177);
     undo_item = my_calloc(_ALLOC_ID_, 1, sizeof(undo_save));
-    my_strdup2(_ALLOC_ID_, &undo_item->undo_dirname, ctx->undo_dirname);
-    undo_item->head_undo_ptr = ctx->head_undo_ptr;
-    undo_item->cur_undo_ptr = ctx->cur_undo_ptr;
-    undo_item->tail_undo_ptr = ctx->tail_undo_ptr;
+    my_strdup2(_ALLOC_ID_, &undo_item->undo_dirname, xctx->undo_dirname);
+    undo_item->head_undo_ptr = xctx->head_undo_ptr;
+    undo_item->cur_undo_ptr = xctx->cur_undo_ptr;
+    undo_item->tail_undo_ptr = xctx->tail_undo_ptr;
+    undo_item->modified = xctx->modified;
     ptr_hash_lookup(&undo_dir_hash, sch_name, (void *)undo_item, what);
     res = 1;
   } else if(what == XDELETE) {
@@ -3657,10 +3675,12 @@ int save_schematic(const char *schname, int fast) /* 20171020 added return value
   if(!xctx->sch[xctx->currsch]) { /* no current schematic name -> assign new name */
     my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
     set_modify(-1); /* set title to new filename */
+    delete_undo();
   }
   else if(strcmp(schname, xctx->sch[xctx->currsch])) { /* user asks to save to a different filename */
     my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
     set_modify(-1); /* set title to new filename */
+    delete_undo();
   }
   else { /* user asks to save to same filename */
     if(has_x && !stat(xctx->sch[xctx->currsch], &buf)) {
@@ -3906,7 +3926,9 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     drc_check(-1);
   }
   my_free(_ALLOC_ID_, &ffname);
-  if(reset_undo == 1) tcleval("eval_load_file_postprocess");
+  if(reset_undo == 1) {
+     tcleval("eval_load_file_postprocess");
+  }
   return ret;
 }
 
@@ -3919,23 +3941,33 @@ void clear_undo(void)
 
 void delete_undo(void)
 {
+  #ifndef PRESERVE_UNDO
   int i;
   char diff_name[PATH_MAX];
+  #endif
 
-  dbg(1, ("delete_undo() called...\n"));
   if(!xctx->undo_initialized) return;
+  dbg(1, ("delete_undo() called...\n"));
+
+  #ifdef PRESERVE_UNDO
+  /* update undo pointers in save table */
+  save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+  #endif
+
+
   clear_undo();
   xctx->undo_initialized = 0;
 
-  #if 1
+  /* if save undo is used do not delete directory */
+  #ifndef PRESERVE_UNDO
   dbg(1, ("delete_undo(): %s, deleting %s\n", xctx->current_name, xctx->undo_dirname));
   for(i=0; i<MAX_UNDO; ++i) {
     my_snprintf(diff_name, S(diff_name), "%s/undo%d",xctx->undo_dirname, i);
     xunlink(diff_name);
   }
   rmdir(xctx->undo_dirname);
-  my_free(_ALLOC_ID_, &xctx->undo_dirname);
   #endif
+  my_free(_ALLOC_ID_, &xctx->undo_dirname);
 }
 
 
@@ -3954,6 +3986,10 @@ static void init_undo(void)
     xctx->cur_undo_ptr = 0; 
     xctx->head_undo_ptr = 0; 
     xctx->tail_undo_ptr = 0; 
+    /* create entry in undo save table */
+    #ifdef PRESERVE_UNDO
+    save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+    #endif
   }
 }
 
@@ -5421,6 +5457,12 @@ int descend_symbol(void)
   if(xctx->lastsel > 1)  return 0;
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
     n =xctx->sel_array[0].n;
+
+    #ifdef PRESERVE_UNDO
+    push_undo(); /* save_undo_table() */
+    #endif
+
+    #ifndef PRESERVE_UNDO
     if(xctx->modified)
     {
       int ret;
@@ -5435,6 +5477,8 @@ int descend_symbol(void)
       if(ret == 0) clear_all_hilights();
       if(ret == -1) return 0; /* user cancel */
     }
+    #endif
+
     my_snprintf(name, S(name), "%s", translate(n, xctx->inst[n].name, &res));
     my_free(_ALLOC_ID_, &res);
     /* dont allow descend in the default missing symbol */
@@ -5528,6 +5572,12 @@ int descend_symbol(void)
   xctx->loaded_symbol = 1;
   xctx->netlist_type = CAD_SYMBOL_ATTRS;
   set_tcl_netlist_type(xctx);
+
+  #ifdef PRESERVE_UNDO
+  save_undo_table(xctx->current_name, NULL, XLOOKUP);
+  pop_undo(4, 0);
+  #endif
+ 
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   return 1;
 }

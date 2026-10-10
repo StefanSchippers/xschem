@@ -2510,7 +2510,6 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
  char *str = NULL;
  char filename[PATH_MAX];
  int inst_mult, inst_number;
- int save_ok = 0;
  int i, n = 0;
  int descend_ok = 1;
 
@@ -2527,6 +2526,8 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    return 0;
  }
  else {
+   #ifndef PRESERVE_UNDO
+   int save_ok = 0;
 
    /* no name set for current schematic: save it before descending */
    if(!strcmp(xctx->sch[xctx->currsch],""))
@@ -2543,6 +2544,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
      save_ok = save_schematic(res, 0);
      if(save_ok==0) return 0;
    }
+   #endif
 
    n = xctx->sel_array[0].n;
 
@@ -2552,12 +2554,17 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
        strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "primitive")
    ) return 0;
 
+   #ifdef PRESERVE_UNDO
+   push_undo(); /* save_undo_table() */
+   #endif
+
    /* get schematic to descend into */
    get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym, n, fallback);
    if(!filename[0]) return 0; /* no filename returned from get_sch_from_sym() --> abort */
    dbg(1, ("descend_schematic(): selected:%s\n", xctx->inst[n].name));
    dbg(1, ("descend_schematic(): inst type: %s\n", (xctx->inst[n].ptr+ xctx->sym)->type));
 
+   #ifndef PRESERVE_UNDO
    /* circuit is in modified state. Ask user to save (save()) */
    if(xctx->modified) {
      int ret;
@@ -2573,6 +2580,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
      if(ret == 0) clear_all_hilights();
      if(ret == -1) return 0; /* user cancel */
    }
+   #endif
 
    /* analyze instance name, expand if vector instance (like xinv[3:0]) */
    dbg(1, ("descend_schematic(): selected instname=%s\n", xctx->inst[n].instname));
@@ -2713,6 +2721,12 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
        }
      }
    }
+
+   #ifdef PRESERVE_UNDO
+   save_undo_table(xctx->current_name, NULL, XLOOKUP);
+   pop_undo(4, 0);
+   #endif
+
    zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
  }
  return descend_ok;
@@ -2725,22 +2739,23 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
  */
 void go_back(int what)
 {
- int save_ok;
  int from_embedded_sym;
  int save_modified;
  char filename[PATH_MAX];
  int prev_sch_type;
- int confirm = what & 1;
  int set_title = !(what & 2);
 
- save_ok=1;
  dbg(1,("go_back(): sch[xctx->currsch]=%s\n", xctx->sch[xctx->currsch]));
  prev_sch_type = xctx->netlist_type; /* if CAD_SYMBOL_ATTRS do not hilight_parent_pins */
  if(xctx->currsch>0)
  {
+  #ifndef PRESERVE_UNDO
   /* if current sym/schematic is changed ask save before going up */
+  int save_ok = 1;
   if(xctx->modified)
   {
+    int confirm = what & 1;
+
     if(has_x && confirm) {
       tcleval("ask_save");
       if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
@@ -2757,6 +2772,12 @@ void go_back(int what)
     info("go_back(): file opening for write failed! %s \n", xctx->current_name);
     tclvareval("alert_ {file opening for write failed! ", xctx->current_name, "} {}", NULL);
   }
+  #endif
+
+  #ifdef PRESERVE_UNDO
+  push_undo(); /* save_undo_table() */
+  #endif
+
   unselect_all(1);
   if(!tclgetboolvar("keep_symbols")) remove_symbols();
   from_embedded_sym=0;
@@ -2797,6 +2818,12 @@ void go_back(int what)
   xctx->mooz=1/xctx->zoom;
 
   change_linewidth(-1.);
+
+  #ifdef PRESERVE_UNDO
+  save_undo_table(xctx->current_name, NULL, XLOOKUP);
+  pop_undo(4, 0);
+  #endif
+
   draw();
 
   dbg(1, ("go_back(): current path: %s\n", xctx->sch_path[xctx->currsch]));

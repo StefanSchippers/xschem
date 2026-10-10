@@ -1026,6 +1026,11 @@ static void xwin_exit(void)
  spice_get_node(NULL); /* clear static data in function */
  save_ascii_string(NULL, NULL, 0); /* clear static data in function */
  eval_expr_clear_table(); /* clear expression parser data */
+
+ #ifdef PRESERVE_UNDO
+ save_undo_table(NULL, NULL, XDELETE_ALL);
+ #endif
+
  dbg(1, ("xwin_exit(): removing font\n"));
  for(i=0;i<127; ++i) my_free(_ALLOC_ID_, &character[i]);
  dbg(1, ("xwin_exit(): closed display\n"));
@@ -3106,7 +3111,13 @@ void resetwin(int create_pixmap, int clear_pixmap, int force, int w, int h)
 
 void tclmainloop(void)
 {
-  while(1) Tcl_DoOneEvent(TCL_ALL_EVENTS);
+  while(1) {
+    Tcl_Channel inChannel = Tcl_GetStdChannel(TCL_STDIN);
+    if (inChannel && Tcl_Eof(inChannel)) {
+        Tcl_Exit(0);
+    }
+    Tcl_DoOneEvent(TCL_ALL_EVENTS);
+  }
 }
 
 int Tcl_AppInit(Tcl_Interp *inter)
