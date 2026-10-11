@@ -140,7 +140,7 @@ extern char win_temp_dir[PATH_MAX];
 #include <tcl.h>
 #include <tk.h>
 
-#if 0 
+#if 0
 #define PRESERVE_UNDO 1
 #endif
 
