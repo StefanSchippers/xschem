@@ -3916,7 +3916,7 @@ int Tcl_AppInit(Tcl_Interp *inter)
  /* necessary if the dialog to allow tcl scripts in schematics is shown. 
   * the dialog sets semaphore to 3 to avoid nested calls, so some ConfigureNotify events and resetwindow 
   * calls are lost */
- resetwin(1, 0, 0, 0, 0);
+ resetwin(1, 1, 1, 0, 0);
  if(has_x) tclvareval("set_geom . [xschem get current_name]", NULL);
 
  if(cli_opt_do_netlist) {
