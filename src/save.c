@@ -34,18 +34,19 @@ typedef struct undo_save {
 } undo_save;
 
 
-void save_undo_freefunc(void *ptr)
+void save_undo_freefunc(void **ptr)
 {
   int i;
   char diff_name[PATH_MAX];
-  undo_save *undo_item_ptr = (undo_save *)ptr;
+  undo_save **undo_item_ptr = (undo_save **)ptr;
 
   for(i=0; i<MAX_UNDO; ++i) {
-    my_snprintf(diff_name, S(diff_name), "%s/undo%d",undo_item_ptr->undo_dirname, i);
+    my_snprintf(diff_name, S(diff_name), "%s/undo%d",(*undo_item_ptr)->undo_dirname, i);
     xunlink(diff_name);
   }
-  rmdir(undo_item_ptr->undo_dirname);
-  my_free(_ALLOC_ID_, &undo_item_ptr->undo_dirname);
+  rmdir((*undo_item_ptr)->undo_dirname);
+  my_free(_ALLOC_ID_, &(*undo_item_ptr)->undo_dirname);
+  my_free(_ALLOC_ID_, undo_item_ptr);
 }
 
 int save_undo_table(char *sch_name, char *undo_dirname, int what) {

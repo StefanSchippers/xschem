@@ -1721,7 +1721,7 @@ extern Int_hashentry *int_hash_lookup(Int_hashtable *hashtable,
 extern int int_hash_copy(Int_hashtable *dest, Int_hashtable *source);
 
 extern void ptr_hash_init(Ptr_hashtable *hashtable, int size);
-extern void ptr_hash_free(Ptr_hashtable *hashtable, void(*freefunc)(void *));
+extern void ptr_hash_free(Ptr_hashtable *hashtable, void(*freefunc)(void **));
 extern Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable,
        const char *token,  void * const value, int what);
 extern int ptr_hash_copy(Ptr_hashtable *dest, Ptr_hashtable *source);

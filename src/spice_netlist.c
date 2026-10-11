@@ -1063,14 +1063,14 @@ int ptr_hash_copy(Ptr_hashtable *dest, Ptr_hashtable *source)
   return 0;
 }
 
-static void ptr_hash_free_entry(Ptr_hashentry *entry, void(*freefunc)(void *))
+static void ptr_hash_free_entry(Ptr_hashentry *entry, void(*freefunc)(void **))
 {
   Ptr_hashentry *tmp;
   while( entry ) {
     tmp = entry -> next;
     my_free(_ALLOC_ID_, &(entry->token));
     if(freefunc) {
-      (*freefunc)(entry->value);
+      (*freefunc)(&entry->value);
     }
     my_free(_ALLOC_ID_, &entry);
     entry = tmp;
@@ -1078,7 +1078,7 @@ static void ptr_hash_free_entry(Ptr_hashentry *entry, void(*freefunc)(void *))
 }
 
 
-void ptr_hash_free(Ptr_hashtable *hashtable, void(*freefunc)(void *))
+void ptr_hash_free(Ptr_hashtable *hashtable, void(*freefunc)(void **))
 {
   if(hashtable->table) {
     int i;
