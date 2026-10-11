@@ -5152,6 +5152,49 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
+    /* save_undo_table what [sch_name] [undo_dirname]
+     *   debug hook to test the save_undo_table() undo hash table wrapper function.
+     *   what:
+     *      list: 
+     *      lookup:
+     *      delete:
+     *      delete_all:
+     *      insert:
+     *      insert_noreplace:
+     *   sch_name:
+     *      use the provided schematic name, if not provided use current xctx->current_name.
+     *   undo_dirname:
+     *      use the provided undo directory name, if not provided use xctx->undo_dirname
+     */
+    else if(!strcmp(argv[1], "save_undo_table"))
+    {
+      int what = XLIST;
+      char sch_name[PATH_MAX];
+      char undo_dirname[PATH_MAX];
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      my_strncpy(sch_name, xctx->current_name, S(sch_name));
+      my_strncpy(undo_dirname, xctx->undo_dirname ? xctx->undo_dirname : "", S(undo_dirname));
+      if(argc < 3) {
+        Tcl_SetResult(interp, "xschem save_undo_table: missing arguments.", TCL_STATIC);
+        return TCL_ERROR;
+      }
+      else if(argc > 2) {
+        if(!strcmp(argv[2], "list")) what = XLIST;
+        else if(!strcmp(argv[2], "lookup")) what = XLOOKUP;
+        else if(!strcmp(argv[2], "delete")) what = XDELETE;
+        else if(!strcmp(argv[2], "delete_all")) what = XDELETE_ALL;
+        else if(!strcmp(argv[2], "insert")) what = XINSERT;
+        else if(!strcmp(argv[2], "insert_noreplace")) what = XINSERT_NOREPLACE;
+      }
+      if(argc > 3) {
+        my_strncpy(sch_name, argv[3], S(sch_name));
+      }
+      if(argc > 4) {
+        my_strncpy(undo_dirname, argv[4], S(undo_dirname));
+      }
+      save_undo_table(sch_name, undo_dirname, what);
+    }
+ 
     /* saveas [file] [type]
      *   save current schematic as 'file'
      *   if file is empty ({}) use current schematic name

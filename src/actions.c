@@ -2555,7 +2555,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    ) return 0;
 
    #ifdef PRESERVE_UNDO
-   push_undo(); /* save_undo_table() */
+   push_undo();
    #endif
 
    /* get schematic to descend into */
@@ -2775,7 +2775,7 @@ void go_back(int what)
   #endif
 
   #ifdef PRESERVE_UNDO
-  push_undo(); /* save_undo_table() */
+  push_undo();
   #endif
 
   unselect_all(1);

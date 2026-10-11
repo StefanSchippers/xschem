@@ -320,6 +320,7 @@ extern char win_temp_dir[PATH_MAX];
 #define XDELETE 2
 #define XINSERT_NOREPLACE 3 /* do not replace token value in hash if already present */
 #define XDELETE_ALL 4
+#define XLIST 5
 
 /* Cairo text flags (.flags field) */
 #define TEXT_BOLD 1

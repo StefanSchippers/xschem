@@ -73,7 +73,9 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
   } else if(what == XINSERT_NOREPLACE || what == XINSERT) {
     dbg(1, ("save_undo_table(): XINSERT, %s\n", sch_name));
     if(!undo_dir_hash.table) ptr_hash_init(&undo_dir_hash, 4177);
-    undo_item = my_calloc(_ALLOC_ID_, 1, sizeof(undo_save));
+    entry = ptr_hash_lookup(&undo_dir_hash, sch_name, NULL, XLOOKUP);
+    if(entry) undo_item = entry->value;
+    else undo_item = my_calloc(_ALLOC_ID_, 1, sizeof(undo_save));
     my_strdup2(_ALLOC_ID_, &undo_item->undo_dirname, xctx->undo_dirname);
     undo_item->head_undo_ptr = xctx->head_undo_ptr;
     undo_item->cur_undo_ptr = xctx->cur_undo_ptr;
@@ -95,6 +97,25 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
     if(undo_dir_hash.table) {
       ptr_hash_free(&undo_dir_hash, save_undo_freefunc);
       res = 1;
+    }
+  } else if(what == XLIST) {
+    if(undo_dir_hash.table) {
+      int i;
+      Ptr_hashentry *tmp;
+      undo_save *undo_item;
+      for(i = 0; i < undo_dir_hash.size; ++i)
+      {
+        entry = undo_dir_hash.table[i];
+        while( entry ) {
+          undo_item = entry->value;
+          tmp = entry -> next;
+          info("%s --> %s\n", entry->token, undo_item->undo_dirname);
+          info("     head_undo_ptr = %d\n", undo_item->head_undo_ptr);
+          info("     cur_undo_ptr = %d\n", undo_item->cur_undo_ptr);
+          info("     tail_undo_ptr = %d\n", undo_item->tail_undo_ptr);
+          entry = tmp;
+        }
+      }
     }
   }
   return res;
@@ -2622,7 +2643,7 @@ char *read_line(FILE *fp, int dbg_level)
 
 /* */
 
-/* return "/<prefix><prefix2><random string of random_size characters>"
+/* return "/<prefix><prefix2>_<random string of random_size characters>"
  * example: "/xschem_undo_dj5hcG38T2"
  * Caller must free returned string
  */
@@ -2638,7 +2659,7 @@ static const char *random_string(const char *prefix, const char *prefix2)
     srand((unsigned short) time(NULL));
     once=0;
   }
-  len = my_snprintf(str, S(str), "/%s%s", prefix, prefix2);
+  len = my_snprintf(str, S(str), "/%s%s_", prefix, prefix2);
   
   for(i=len; i < len + random_size; ++i) {
     idx = rand()%(sizeof(charset)-1);
@@ -2652,7 +2673,7 @@ static const char *random_string(const char *prefix, const char *prefix2)
 /* */
 
 /* try to create a tmp directory in XSCHEM_TMP_DIR */
-/* XSCHEM_TMP_DIR/<prefix><trailing random chars> */
+/* XSCHEM_TMP_DIR/<prefix><prefix2>_<trailing random chars> */
 /* after 5 unsuccessfull attemps give up */
 /* and return NULL */
 /* */
@@ -3977,7 +3998,7 @@ static void init_undo(void)
   if(xctx->no_undo == 0 && !xctx->undo_initialized) {
     /* create undo directory */
     if( !my_strdup(_ALLOC_ID_, &xctx->undo_dirname,
-         create_tmpdir("xschem_undo_", "") )) {
+         create_tmpdir("xschem_undo_", xctx->current_name) )) {
       info("init_undo(): problems creating tmp undo dir, Undo will be disabled\n");
       info("init_undo(): Check permissions in %s\n", tclgetvar("XSCHEM_TMP_DIR"));
       xctx->no_undo = 1; /* disable undo */
@@ -3993,6 +4014,7 @@ static void init_undo(void)
   }
 }
 
+/* save state, then increment cur_undo_ptr */
 void push_undo(void)
 {
     #if HAS_PIPE==1
@@ -4065,9 +4087,14 @@ void push_undo(void)
     #else
     fclose(fd);
     #endif
+    #ifdef PRESERVE_UNDO
+    /* update head, cur, tail pointers */
+    save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+    #endif
 }
 
-/* redo:
+/* decrement cur_undo_ptr, then fetch state
+ * redo:
  * 0: undo (with push current state for allowing following redo)
  * 4: undo, do not push state for redo
  * 1: redo
@@ -4109,7 +4136,7 @@ void pop_undo(int redo, int set_modify_status)
     xctx->cur_undo_ptr--;
   } else { /* redo == 2, get data without changing undo stack */
     if(xctx->cur_undo_ptr<=0) return; /* check undo tail */
-    xctx->cur_undo_ptr--; /* will be restored after building file name */
+    xctx->cur_undo_ptr--; /* will be restored after building file name and fetching data*/
   }
   clear_drawing();
   unselect_all(1);
@@ -4178,6 +4205,10 @@ void pop_undo(int redo, int set_modify_status)
   if(xctx->hilight_nets) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
+  #ifdef PRESERVE_UNDO
+  /* update head, cur, tail pointers */
+  save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+  #endif
   dbg(2, ("pop_undo(): returning\n"));
 }
 
