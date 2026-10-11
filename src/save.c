@@ -4003,7 +4003,7 @@ static void init_undo(void)
   if(xctx->no_undo == 0 && !xctx->undo_initialized) {
     /* create undo directory */
     if( !my_strdup(_ALLOC_ID_, &xctx->undo_dirname,
-         create_tmpdir("xschem_undo_", xctx->current_name) )) {
+         create_tmpdir("xschem_undo_", get_cell_w_ext(xctx->current_name, 0)) )) {
       info("init_undo(): problems creating tmp undo dir, Undo will be disabled\n");
       info("init_undo(): Check permissions in %s\n", tclgetvar("XSCHEM_TMP_DIR"));
       xctx->no_undo = 1; /* disable undo */

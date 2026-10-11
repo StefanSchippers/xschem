@@ -784,7 +784,7 @@ void set_unique_sch_name(Xschem_ctx *ctx, const char *name)
 
   my_strncpy(basename, get_cell(name, 0), S(basename));
   if(strstr(basename, "untitled") == basename) {
-    char *tmp;
+    const char *tmp;
     if((tmp = strstr(name, ".sym")) && tmp[4] == '\0') ctx->netlist_type = CAD_SYMBOL_ATTRS;
     else ctx->netlist_type = CAD_SPICE_NETLIST;
     set_tcl_netlist_type(ctx); 
