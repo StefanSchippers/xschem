@@ -4083,7 +4083,7 @@ void delete_undo(void)
   int i;
   char diff_name[PATH_MAX];
 
-  if(!xctx->undo_initialized) return;
+  if(!xctx->undo_initialized) goto done;
   dbg(1, ("delete_undo() called...\n"));
 
   if(tclgetboolvar("preserve_undo")) {
@@ -4103,8 +4103,8 @@ void delete_undo(void)
     }
     rmdir(xctx->undo_dirname);
   }
-
-  my_free(_ALLOC_ID_, &xctx->undo_dirname);
+  done:
+  if(xctx->undo_dirname) my_free(_ALLOC_ID_, &xctx->undo_dirname);
 }
 
 
