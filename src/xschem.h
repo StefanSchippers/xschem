@@ -319,8 +319,10 @@ extern char win_temp_dir[PATH_MAX];
 #define XLOOKUP 1
 #define XDELETE 2
 #define XINSERT_NOREPLACE 3 /* do not replace token value in hash if already present */
+/* used in save_undo_table() */
 #define XDELETE_ALL 4
 #define XLIST 5
+#define XGET 6
 
 /* Cairo text flags (.flags field) */
 #define TEXT_BOLD 1

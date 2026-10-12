@@ -40,10 +40,11 @@ void save_undo_freefunc(void **ptr)
   char diff_name[PATH_MAX];
   undo_save **undo_item_ptr = (undo_save **)ptr;
 
-  for(i=0; i<MAX_UNDO; ++i) {
+  for(i = 0; i < MAX_UNDO; ++i) {
     my_snprintf(diff_name, S(diff_name), "%s/undo%d",(*undo_item_ptr)->undo_dirname, i);
     xunlink(diff_name);
   }
+  dbg(1, ("save_undo_freefunc(): removing %s\n", (*undo_item_ptr)->undo_dirname));
   rmdir((*undo_item_ptr)->undo_dirname);
   my_free(_ALLOC_ID_, &(*undo_item_ptr)->undo_dirname);
   my_free(_ALLOC_ID_, undo_item_ptr);
@@ -58,22 +59,24 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
   if(xctx && xctx->current_win_path && sch_name) {
     my_mstrcat(_ALLOC_ID_, &sch_winpath, xctx->current_win_path, "_", sch_name, NULL);
   }
-  if(what == XLOOKUP) {
+  if(what == XLOOKUP || what == XGET) {
     if(undo_dir_hash.table) {
-      dbg(1, ("save_undo_table(): XLOOKUP, %s\n", sch_winpath));
+      dbg(1, ("save_undo_table(): XLOOKUP|XGET, %s\n", sch_winpath));
       entry = ptr_hash_lookup(&undo_dir_hash, sch_winpath, NULL, XLOOKUP);
-      if(entry) {
-        dbg(1, ("save_undo_table(): XLOOKUP found\n"));
-        undo_item = entry->value;
-        xctx->head_undo_ptr = undo_item->head_undo_ptr;
-        xctx->cur_undo_ptr = undo_item->cur_undo_ptr;
-        xctx->tail_undo_ptr = undo_item->tail_undo_ptr;
-        xctx->modified = undo_item->modified;
-        set_modify(xctx->modified);
-        my_strdup2(_ALLOC_ID_, &xctx->undo_dirname, undo_item->undo_dirname);
-        xctx->undo_initialized = 1;
+      if(entry ) {
+        dbg(1, ("save_undo_table(): XLOOKUP|XGET found item\n"));
+        if(what == XGET) {
+          undo_item = entry->value;
+          xctx->head_undo_ptr = undo_item->head_undo_ptr;
+          xctx->cur_undo_ptr = undo_item->cur_undo_ptr;
+          xctx->tail_undo_ptr = undo_item->tail_undo_ptr;
+          xctx->modified = undo_item->modified;
+          set_modify(xctx->modified);
+          my_strdup2(_ALLOC_ID_, &xctx->undo_dirname, undo_item->undo_dirname);
+          xctx->undo_initialized = 1;
+        }
         res = 1;
-      }
+      } 
     }
   } else if(what == XINSERT_NOREPLACE || what == XINSERT) {
     dbg(1, ("save_undo_table(): XINSERT, %s\n", sch_winpath));
@@ -90,11 +93,13 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
     res = 1;
   } else if(what == XDELETE) {
     if(undo_dir_hash.table) {
-      entry = ptr_hash_lookup(&undo_dir_hash, sch_winpath, NULL, XDELETE);
+      dbg(1, ("save_undo_table(): XDELETE, %s\n", sch_winpath));
+      entry = ptr_hash_lookup(&undo_dir_hash, sch_winpath, NULL, XLOOKUP);
       if(entry) {
-        undo_item = entry->value;
-        my_free(_ALLOC_ID_, &undo_item->undo_dirname);
-        my_free(_ALLOC_ID_, &undo_item);
+        undo_save **undo_item_ptr = (undo_save **)&entry->value;
+        dbg(1, ("save_undo_table(): found %s\n", entry->token));
+        save_undo_freefunc((void **)undo_item_ptr);
+        ptr_hash_lookup(&undo_dir_hash, sch_winpath, NULL, XDELETE);
       }
       res = 1;
     }
@@ -3951,11 +3956,9 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
   if(reset_undo) {
     set_netlist_dir(2, NULL);
     drc_check(-1);
+    tcleval("eval_load_file_postprocess");
   }
   my_free(_ALLOC_ID_, &ffname);
-  if(reset_undo == 1) {
-     tcleval("eval_load_file_postprocess");
-  }
   return ret;
 }
 
@@ -4001,6 +4004,10 @@ void delete_undo(void)
 static void init_undo(void)
 {
   if(xctx->no_undo == 0 && !xctx->undo_initialized) {
+    /* delete previous if any */
+    #ifdef PRESERVE_UNDO
+    save_undo_table(xctx->current_name, NULL, XDELETE);
+    #endif
     /* create undo directory */
     if( !my_strdup(_ALLOC_ID_, &xctx->undo_dirname,
          create_tmpdir("xschem_undo_", get_cell_w_ext(xctx->current_name, 0)) )) {
@@ -5618,7 +5625,7 @@ int descend_symbol(void)
   set_tcl_netlist_type(xctx);
 
   #ifdef PRESERVE_UNDO
-  save_undo_table(xctx->current_name, NULL, XLOOKUP);
+  save_undo_table(xctx->current_name, NULL, XGET);
   pop_undo(4, 0);
   #endif
  

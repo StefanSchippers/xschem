@@ -783,6 +783,7 @@ Str_hashentry *str_hash_lookup(Str_hashtable *hashtable, const char *token, cons
         my_free(_ALLOC_ID_, &(*preventry)->value);
         my_free(_ALLOC_ID_, &(*preventry));
         *preventry=saveptr;
+        return NULL;
       }
       else if(value && what == XINSERT ) {
         my_strdup2(_ALLOC_ID_, &(*preventry)->value, value);
@@ -902,6 +903,7 @@ Int_hashentry *int_hash_lookup(Int_hashtable *hashtable, const char *token, cons
         my_free(_ALLOC_ID_, &(*preventry)->token);
         my_free(_ALLOC_ID_, &(*preventry));
         *preventry=saveptr;
+        return NULL;
       }
       else if(what == XINSERT ) {
         (*preventry)->value = value;
@@ -1021,6 +1023,7 @@ Ptr_hashentry *ptr_hash_lookup(Ptr_hashtable *hashtable, const char *token, void
         my_free(_ALLOC_ID_, &(*preventry)->token);
         my_free(_ALLOC_ID_, &(*preventry));
         *preventry=saveptr;
+        return NULL;
       }
       else if(what == XINSERT ) {
         (*preventry)->value = value;

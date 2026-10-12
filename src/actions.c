@@ -2705,6 +2705,12 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
    descend_ok = load_schematic(1, filename, (set_title & 1), alert);
    if(descend_ok) {
+
+     #ifdef PRESERVE_UNDO
+     save_undo_table(xctx->current_name, NULL, XGET);
+     pop_undo(4, 0);
+     #endif
+
      if(xctx->hilight_nets) {
        prepare_netlist_structs(0);
        propagate_hilights(1, 0, XINSERT_NOREPLACE);
@@ -2721,12 +2727,6 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
        }
      }
    }
-
-   #ifdef PRESERVE_UNDO
-   save_undo_table(xctx->current_name, NULL, XLOOKUP);
-   pop_undo(4, 0);
-   #endif
-
    zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
  }
  return descend_ok;
@@ -2801,9 +2801,14 @@ void go_back(int what)
   load_schematic(1, filename, set_title, 1);
   /* if we are returning from a symbol created from a generator don't set modified flag on parent
    * as these symbols can not be edited / saved as embedded
-   * xctx->sch_inst_number[xctx->currsch + 1] == -1 --> we came from an inst with no embed flag set */
+   * xctx->sch_inst_number[xctx->currsch] == -1 --> we came from an inst with no embed flag set */
   if(from_embedded_sym && xctx->sch_inst_number[xctx->currsch] != -1)
     xctx->modified=save_modified; /* to force ask save embedded sym in parent schematic */
+
+  #ifdef PRESERVE_UNDO
+  save_undo_table(xctx->current_name, NULL, XGET);
+  pop_undo(4, 0);
+  #endif
 
   if(xctx->hilight_nets) {
     if(prev_sch_type != CAD_SYMBOL_ATTRS) hilight_parent_pins();
@@ -2816,16 +2821,8 @@ void go_back(int what)
   xctx->yorigin=xctx->zoom_array[xctx->currsch].y;
   xctx->zoom=xctx->zoom_array[xctx->currsch].zoom;
   xctx->mooz=1/xctx->zoom;
-
   change_linewidth(-1.);
-
-  #ifdef PRESERVE_UNDO
-  save_undo_table(xctx->current_name, NULL, XLOOKUP);
-  pop_undo(4, 0);
-  #endif
-
   draw();
-
   dbg(1, ("go_back(): current path: %s\n", xctx->sch_path[xctx->currsch]));
  }
 }

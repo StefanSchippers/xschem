@@ -5181,6 +5181,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       else if(argc > 2) {
         if(!strcmp(argv[2], "list")) what = XLIST;
         else if(!strcmp(argv[2], "lookup")) what = XLOOKUP;
+        else if(!strcmp(argv[2], "get")) what = XGET;
         else if(!strcmp(argv[2], "delete")) what = XDELETE;
         else if(!strcmp(argv[2], "delete_all")) what = XDELETE_ALL;
         else if(!strcmp(argv[2], "insert")) what = XINSERT;
