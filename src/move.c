@@ -639,7 +639,7 @@ void copy_objects(int what)
    draw_selection(xctx->gctiled,0);
 
    if(xctx->kissing) {
-     pop_undo(0, 0);
+     xctx->pop_undo(0, 0);
      if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
    }
 
@@ -1186,7 +1186,7 @@ void move_objects(int what, int merge, double dx, double dy)
    xctx->paste_from = 0;
    draw_selection(xctx->gctiled,0);
    if(xctx->kissing) {
-     pop_undo(0, 0);
+     xctx->pop_undo(0, 0);
      if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
    }
 

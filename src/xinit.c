@@ -376,7 +376,7 @@ void init_pixdata()/* populate xctx->fill_type array that is used in create_gc()
  }
 }
 
-static void free_xschem_data()
+void free_xschem_data()
 {
   int i;
   xctx->delete_undo();
@@ -460,7 +460,7 @@ void free_gc()
   }
 }
 
-static void alloc_xschem_data(const char *top_path, const char *win_path)
+void alloc_xschem_data(const char *top_path, const char *win_path)
 {
   int i, j;
 
@@ -725,7 +725,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->warn_disk_file_modified = 1; /* if 1 warn user if underlying file has been changed */
 }
 
-static void delete_schematic_data(int delete_pixmap)
+void delete_schematic_data(int delete_pixmap)
 {
   dbg(1, ("delete_schematic_data: %p %s\n", xctx, xctx->current_name));
   unselect_all(1);
@@ -1330,7 +1330,7 @@ static void inherit_graphic_context(Xschem_ctx *new, Xschem_ctx *old)
  *   8: do not uniquify name
  *  16: copy undo pointers and undo directory
  */
-static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_name, int flags)
+void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_name, int flags)
 {
   int i, c;
   /* Xschem_ctx *save_xctx = xctx; */

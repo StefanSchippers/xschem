@@ -2556,7 +2556,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
 
    if(tclgetboolvar("preserve_undo")) {
      /* do not push state for undo if at bottom of stack */
-     if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) push_undo(); 
+     if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) xctx->push_undo(); 
    }
 
    /* get schematic to descend into */
@@ -2709,7 +2709,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
 
      if(tclgetboolvar("preserve_undo")) {
        save_undo_table(xctx->current_name, NULL, XGET);
-       if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) pop_undo(4, 0);
+       if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) xctx->pop_undo(4, 0);
      }
 
      if(xctx->hilight_nets) {
@@ -2777,7 +2777,7 @@ void go_back(int what)
 
   if(tclgetboolvar("preserve_undo")) {
     /* do not push state for undo if at bottom of stack */
-    if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) push_undo(); 
+    if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) xctx->push_undo(); 
   }
 
   unselect_all(1);
@@ -2809,7 +2809,7 @@ void go_back(int what)
 
   if(tclgetboolvar("preserve_undo")) {
     save_undo_table(xctx->current_name, NULL, XGET);
-    if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) pop_undo(4, 0);
+    if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) xctx->pop_undo(4, 0);
   }
 
   if(xctx->hilight_nets) {

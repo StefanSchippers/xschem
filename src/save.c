@@ -198,7 +198,29 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
                 tcleval(cmd);
                 my_free(_ALLOC_ID_, &cmd);
                 if(!strcmp(tclresult(), "yes") ) {
-                   /* <<<< */
+                  Xschem_ctx *xctx_save = xctx;
+                  xctx = NULL;
+                  alloc_xschem_data(xctx_save->top_path, xctx_save->current_win_path);
+                  sch_deep_copy(xctx, xctx_save, "", 2 ); /* 2 flag: don't copy schematic data */
+
+                  xctx->head_undo_ptr = undo_item->head_undo_ptr;
+                  xctx->cur_undo_ptr = undo_item->cur_undo_ptr;
+                  xctx->tail_undo_ptr = undo_item->tail_undo_ptr;
+                  /* xctx->saved_cur_undo_ptr should not be updated from undo_item->saved_cur_undo_ptr! */
+                  xctx->modified = undo_item->modified;
+                  my_strdup2(_ALLOC_ID_, &xctx->undo_dirname, undo_item->undo_dirname);
+
+                  my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], undo_item->sch);
+                  my_strncpy(xctx->current_name, get_cell_w_ext(undo_item->sch, 0), S(xctx->current_name));
+                  tclvareval("get_directory {", undo_item->sch, "}", NULL);
+                  my_strncpy(xctx->current_dirname, tclresult(), S(xctx->current_dirname));
+
+                  xctx->pop_undo(4, 0);
+                  save_schematic(undo_item->sch, 1);
+
+                  delete_schematic_data(0);
+                  xctx = xctx_save;
+
                 }
               }
 
@@ -5600,7 +5622,7 @@ int descend_symbol(void)
 
     if(tclgetboolvar("preserve_undo")) {
       /* do not push state for undo if at bottom of stack */
-      if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) push_undo();
+      if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) xctx->push_undo();
     }
 
     if(!tclgetboolvar("preserve_undo")) {
@@ -5716,7 +5738,7 @@ int descend_symbol(void)
 
   if(tclgetboolvar("preserve_undo")) {
     save_undo_table(xctx->current_name, NULL, XGET);
-    if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) pop_undo(4, 0);
+    if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) xctx->pop_undo(4, 0);
   }
  
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
