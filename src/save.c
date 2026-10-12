@@ -3971,31 +3971,30 @@ void clear_undo(void)
 
 void delete_undo(void)
 {
-  #ifndef PRESERVE_UNDO
   int i;
   char diff_name[PATH_MAX];
-  #endif
 
   if(!xctx->undo_initialized) return;
   dbg(1, ("delete_undo() called...\n"));
 
-  #ifdef PRESERVE_UNDO
-  /* update undo pointers in save table */
-  save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
-  #endif
+  if(tclgetboolvar("preserve_undo")) {
+    /* update undo pointers in save table */
+    save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+  }
 
   clear_undo();
   xctx->undo_initialized = 0;
 
   /* if save undo is used do not delete directory */
-  #ifndef PRESERVE_UNDO
-  dbg(1, ("delete_undo(): %s, deleting %s\n", xctx->current_name, xctx->undo_dirname));
-  for(i=0; i<MAX_UNDO; ++i) {
-    my_snprintf(diff_name, S(diff_name), "%s/undo%d",xctx->undo_dirname, i);
-    xunlink(diff_name);
+  if(!tclgetboolvar("preserve_undo")) {
+    dbg(1, ("delete_undo(): %s, deleting %s\n", xctx->current_name, xctx->undo_dirname));
+    for(i=0; i<MAX_UNDO; ++i) {
+      my_snprintf(diff_name, S(diff_name), "%s/undo%d",xctx->undo_dirname, i);
+      xunlink(diff_name);
+    }
+    rmdir(xctx->undo_dirname);
   }
-  rmdir(xctx->undo_dirname);
-  #endif
+
   my_free(_ALLOC_ID_, &xctx->undo_dirname);
 }
 
@@ -4005,9 +4004,9 @@ static void init_undo(void)
 {
   if(xctx->no_undo == 0 && !xctx->undo_initialized) {
     /* delete previous if any */
-    #ifdef PRESERVE_UNDO
-    save_undo_table(xctx->current_name, NULL, XDELETE);
-    #endif
+    if(tclgetboolvar("preserve_undo")) {
+      save_undo_table(xctx->current_name, NULL, XDELETE);
+    }
     /* create undo directory */
     if( !my_strdup(_ALLOC_ID_, &xctx->undo_dirname,
          create_tmpdir("xschem_undo_", get_cell_w_ext(xctx->current_name, 0)) )) {
@@ -4020,9 +4019,9 @@ static void init_undo(void)
     xctx->head_undo_ptr = 0; 
     xctx->tail_undo_ptr = 0; 
     /* create entry in undo save table */
-    #ifdef PRESERVE_UNDO
-    save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
-    #endif
+    if(tclgetboolvar("preserve_undo")) {
+      save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+    }
   }
 }
 
@@ -4099,10 +4098,10 @@ void push_undo(void)
     #else
     fclose(fd);
     #endif
-    #ifdef PRESERVE_UNDO
-    /* update head, cur, tail pointers */
-    save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
-    #endif
+    if(tclgetboolvar("preserve_undo")) {
+      /* update head, cur, tail pointers */
+      save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+    }
 }
 
 /* decrement cur_undo_ptr, then fetch state
@@ -4225,12 +4224,12 @@ void pop_undo(int redo, int set_modify_status)
   if(xctx->hilight_nets) {
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
-  #ifdef PRESERVE_UNDO
-  if(redo != 2) {
-    /* update head, cur, tail pointers */
-    save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+  if(tclgetboolvar("preserve_undo")) {
+    if(redo != 2) {
+      /* update head, cur, tail pointers */
+      save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+    }
   }
-  #endif
   dbg(2, ("pop_undo(): returning\n"));
 }
 
@@ -5511,27 +5510,27 @@ int descend_symbol(void)
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
     n =xctx->sel_array[0].n;
 
-    #ifdef PRESERVE_UNDO
-    /* do not push state for undo if at bottom of stack */
-    if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) push_undo();
-    #endif
-
-    #ifndef PRESERVE_UNDO
-    if(xctx->modified)
-    {
-      int ret;
-      ret = save(1, 1);
-      /* if circuit is changed but not saved before descending
-       * state will be inconsistent when returning, can not propagare hilights
-       * save() return value:
-       *  1 : file saved
-       * -1 : user cancel
-       *  0 : file not saved due to errors or per user request
-       */
-      if(ret == 0) clear_all_hilights();
-      if(ret == -1) return 0; /* user cancel */
+    if(tclgetboolvar("preserve_undo")) {
+      /* do not push state for undo if at bottom of stack */
+      if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) push_undo();
     }
-    #endif
+
+    if(!tclgetboolvar("preserve_undo")) {
+      if(xctx->modified)
+      {
+        int ret;
+        ret = save(1, 1);
+        /* if circuit is changed but not saved before descending
+         * state will be inconsistent when returning, can not propagare hilights
+         * save() return value:
+         *  1 : file saved
+         * -1 : user cancel
+         *  0 : file not saved due to errors or per user request
+         */
+        if(ret == 0) clear_all_hilights();
+        if(ret == -1) return 0; /* user cancel */
+      }
+    }
 
     my_snprintf(name, S(name), "%s", translate(n, xctx->inst[n].name, &res));
     my_free(_ALLOC_ID_, &res);
@@ -5627,10 +5626,10 @@ int descend_symbol(void)
   xctx->netlist_type = CAD_SYMBOL_ATTRS;
   set_tcl_netlist_type(xctx);
 
-  #ifdef PRESERVE_UNDO
-  save_undo_table(xctx->current_name, NULL, XGET);
-  if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) pop_undo(4, 0);
-  #endif
+  if(tclgetboolvar("preserve_undo")) {
+    save_undo_table(xctx->current_name, NULL, XGET);
+    if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) pop_undo(4, 0);
+  }
  
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   return 1;

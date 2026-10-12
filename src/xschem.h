@@ -140,10 +140,6 @@ extern char win_temp_dir[PATH_MAX];
 #include <tcl.h>
 #include <tk.h>
 
-#if 0
-#define PRESERVE_UNDO 1
-#endif
-
 #define _ALLOC_ID_ 0 /* to be replaced with unique IDs in my_*() allocations for memory tracking
                       * see create_alloc_ids.awk */
 

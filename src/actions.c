@@ -2526,25 +2526,25 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    return 0;
  }
  else {
-   #ifndef PRESERVE_UNDO
-   int save_ok = 0;
+   if(!tclgetboolvar("preserve_undo")) {
+     int save_ok = 0;
 
-   /* no name set for current schematic: save it before descending */
-   if(!strcmp(xctx->sch[xctx->currsch],""))
-   {
-     char cmd[PATH_MAX+1000];
-     char res[PATH_MAX];
+     /* no name set for current schematic: save it before descending */
+     if(!strcmp(xctx->sch[xctx->currsch],""))
+     {
+       char cmd[PATH_MAX+1000];
+       char res[PATH_MAX];
 
-     my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
-     my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} * INITIALLOADDIR {%s}", filename);
-     tcleval(cmd);
-     my_strncpy(res, tclresult(), S(res));
-     if(!res[0]) return 0;
-     dbg(1, ("descend_schematic(): saving: %s\n",res));
-     save_ok = save_schematic(res, 0);
-     if(save_ok==0) return 0;
+       my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
+       my_snprintf(cmd, S(cmd), "save_file_dialog {Save file} * INITIALLOADDIR {%s}", filename);
+       tcleval(cmd);
+       my_strncpy(res, tclresult(), S(res));
+       if(!res[0]) return 0;
+       dbg(1, ("descend_schematic(): saving: %s\n",res));
+       save_ok = save_schematic(res, 0);
+       if(save_ok==0) return 0;
+     }
    }
-   #endif
 
    n = xctx->sel_array[0].n;
 
@@ -2554,10 +2554,10 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
        strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "primitive")
    ) return 0;
 
-   #ifdef PRESERVE_UNDO
-   /* do not push state for undo if at bottom of stack */
-   if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) push_undo(); 
-   #endif
+   if(tclgetboolvar("preserve_undo")) {
+     /* do not push state for undo if at bottom of stack */
+     if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) push_undo(); 
+   }
 
    /* get schematic to descend into */
    get_sch_from_sym(filename, xctx->inst[n].ptr+ xctx->sym, n, fallback);
@@ -2565,23 +2565,23 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    dbg(1, ("descend_schematic(): selected:%s\n", xctx->inst[n].name));
    dbg(1, ("descend_schematic(): inst type: %s\n", (xctx->inst[n].ptr+ xctx->sym)->type));
 
-   #ifndef PRESERVE_UNDO
-   /* circuit is in modified state. Ask user to save (save()) */
-   if(xctx->modified) {
-     int ret;
+   if(!tclgetboolvar("preserve_undo")) {
+     /* circuit is in modified state. Ask user to save (save()) */
+     if(xctx->modified) {
+       int ret;
 
-     ret = save(1, 0);
-     /* if circuit is changed but not saved before descending
-      * state will be inconsistent when returning, can not propagare hilights
-      * save() return value:
-      *  1 : file saved
-      * -1 : user cancel
-      *  0 : file not saved due to errors or per user request
-      */
-     if(ret == 0) clear_all_hilights();
-     if(ret == -1) return 0; /* user cancel */
+       ret = save(1, 0);
+       /* if circuit is changed but not saved before descending
+        * state will be inconsistent when returning, can not propagare hilights
+        * save() return value:
+        *  1 : file saved
+        * -1 : user cancel
+        *  0 : file not saved due to errors or per user request
+        */
+       if(ret == 0) clear_all_hilights();
+       if(ret == -1) return 0; /* user cancel */
+     }
    }
-   #endif
 
    /* analyze instance name, expand if vector instance (like xinv[3:0]) */
    dbg(1, ("descend_schematic(): selected instname=%s\n", xctx->inst[n].instname));
@@ -2707,10 +2707,10 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    descend_ok = load_schematic(1, filename, (set_title & 1), alert);
    if(descend_ok) {
 
-     #ifdef PRESERVE_UNDO
-     save_undo_table(xctx->current_name, NULL, XGET);
-     if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) pop_undo(4, 0);
-     #endif
+     if(tclgetboolvar("preserve_undo")) {
+       save_undo_table(xctx->current_name, NULL, XGET);
+       if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) pop_undo(4, 0);
+     }
 
      if(xctx->hilight_nets) {
        prepare_netlist_structs(0);
@@ -2750,35 +2750,35 @@ void go_back(int what)
  prev_sch_type = xctx->netlist_type; /* if CAD_SYMBOL_ATTRS do not hilight_parent_pins */
  if(xctx->currsch>0)
  {
-  #ifndef PRESERVE_UNDO
-  /* if current sym/schematic is changed ask save before going up */
-  int save_ok = 1;
-  if(xctx->modified)
-  {
-    int confirm = what & 1;
+  if(!tclgetboolvar("preserve_undo")) {
+    /* if current sym/schematic is changed ask save before going up */
+    int save_ok = 1;
+    if(xctx->modified)
+    {
+      int confirm = what & 1;
 
-    if(has_x && confirm) {
-      tcleval("ask_save");
-      if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
-      else if(!strcmp(tclresult(), "") ) return;
+      if(has_x && confirm) {
+        tcleval("ask_save");
+        if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
+        else if(!strcmp(tclresult(), "") ) return;
+      }
+      /* do not automatically save if confirm==0. Script developers should take care of this */
+      /*
+       * else {
+       *   save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
+       * }
+       */
     }
-    /* do not automatically save if confirm==0. Script developers should take care of this */
-    /*
-     * else {
-     *   save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
-     * }
-     */
+    if(save_ok==0) {
+      info("go_back(): file opening for write failed! %s \n", xctx->current_name);
+      tclvareval("alert_ {file opening for write failed! ", xctx->current_name, "} {}", NULL);
+    }
   }
-  if(save_ok==0) {
-    info("go_back(): file opening for write failed! %s \n", xctx->current_name);
-    tclvareval("alert_ {file opening for write failed! ", xctx->current_name, "} {}", NULL);
-  }
-  #endif
 
-  #ifdef PRESERVE_UNDO
-  /* do not push state for undo if at bottom of stack */
-  if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) push_undo(); 
-  #endif
+  if(tclgetboolvar("preserve_undo")) {
+    /* do not push state for undo if at bottom of stack */
+    if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) push_undo(); 
+  }
 
   unselect_all(1);
   if(!tclgetboolvar("keep_symbols")) remove_symbols();
@@ -2807,10 +2807,10 @@ void go_back(int what)
   if(from_embedded_sym && xctx->sch_inst_number[xctx->currsch] != -1)
     xctx->modified=save_modified; /* to force ask save embedded sym in parent schematic */
 
-  #ifdef PRESERVE_UNDO
-  save_undo_table(xctx->current_name, NULL, XGET);
-  if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) pop_undo(4, 0);
-  #endif
+  if(tclgetboolvar("preserve_undo")) {
+    save_undo_table(xctx->current_name, NULL, XGET);
+    if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) pop_undo(4, 0);
+  }
 
   if(xctx->hilight_nets) {
     if(prev_sch_type != CAD_SYMBOL_ATTRS) hilight_parent_pins();

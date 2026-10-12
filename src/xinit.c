@@ -1027,9 +1027,9 @@ static void xwin_exit(void)
  save_ascii_string(NULL, NULL, 0); /* clear static data in function */
  eval_expr_clear_table(); /* clear expression parser data */
 
- #ifdef PRESERVE_UNDO
- save_undo_table(NULL, NULL, XDELETE_ALL);
- #endif
+ if(tclgetboolvar("preserve_undo")) {
+   save_undo_table(NULL, NULL, XDELETE_ALL);
+ }
 
  dbg(1, ("xwin_exit(): removing font\n"));
  for(i=0;i<127; ++i) my_free(_ALLOC_ID_, &character[i]);

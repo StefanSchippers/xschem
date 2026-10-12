@@ -427,6 +427,14 @@
 # set undo_type disk
 
 ###########################################################################
+#### UNDO: PRESERVE UNDO BUFFERS ACROSS HIERARCHIES
+###########################################################################
+#### preserve undo buffers across hierarchies if set to 1
+#### currently works only if undo_type is set to disk.
+#### default: not set (0)
+# set_ne preserve_undo 1 
+
+###########################################################################
 #### CUSTOM GRID / SNAP VALUE SETTINGS
 ###########################################################################
 #### Warning: changing these values will likely break compatibility

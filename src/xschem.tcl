@@ -10088,6 +10088,7 @@ proc no_open_dialogs {} {
 ## "file_dialog_*" only one load_file_dialog window is allowed
 ## some file_chooser(...) vars
 ## close_ctxmenu_on_leave
+## preserve_undo
 
 set tctx::global_list {
  INITIALINSTDIR INITIALLOADDIR INITIALPROPDIR INITIALTEXTDIR PDK PDK_ROOT SKYWATER_MODELS
@@ -12017,6 +12018,10 @@ set_ne graph_sel_wave {}
 set_ne tclstop 0
 ## undo_type: disk or memory
 set_ne undo_type disk
+
+## preserve undo buffers across hierarchies if set to 1
+## currently works only if undo_type is set to disk.
+set_ne preserve_undo 0
 
 ## show tab bar (tabbed interface)
 set_ne tabbed_interface 1
