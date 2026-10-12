@@ -58,14 +58,14 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
   Ptr_hashentry *entry;
   static Ptr_hashtable undo_dir_hash = {NULL, 0};
   int res = 0;
-  char *sch_winpath = NULL;
+  char *winpath_sch = NULL;
   if(xctx && xctx->current_win_path && sch_name) {
-    my_mstrcat(_ALLOC_ID_, &sch_winpath, xctx->current_win_path, "_", sch_name, NULL);
+    my_mstrcat(_ALLOC_ID_, &winpath_sch, xctx->current_win_path, "_", sch_name, NULL);
   }
-  if(what == XLOOKUP || what == XGET) {
+  if((what == XLOOKUP || what == XGET) && winpath_sch) {
     if(undo_dir_hash.table) {
-      dbg(1, ("save_undo_table(): XLOOKUP|XGET, %s\n", sch_winpath));
-      entry = ptr_hash_lookup(&undo_dir_hash, sch_winpath, NULL, XLOOKUP);
+      dbg(1, ("save_undo_table(): XLOOKUP|XGET, %s\n", winpath_sch));
+      entry = ptr_hash_lookup(&undo_dir_hash, winpath_sch, NULL, XLOOKUP);
       if(entry ) {
         dbg(1, ("save_undo_table(): XLOOKUP|XGET found item\n"));
         if(what == XGET) {
@@ -83,10 +83,10 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
         res = 1;
       } 
     }
-  } else if(what == XINSERT_NOREPLACE || what == XINSERT) {
-    dbg(1, ("save_undo_table(): XINSERT, %s\n", sch_winpath));
+  } else if((what == XINSERT_NOREPLACE || what == XINSERT) && winpath_sch) {
+    dbg(1, ("save_undo_table(): XINSERT, %s\n", winpath_sch));
     if(!undo_dir_hash.table) ptr_hash_init(&undo_dir_hash, 4177);
-    entry = ptr_hash_lookup(&undo_dir_hash, sch_winpath, NULL, XLOOKUP);
+    entry = ptr_hash_lookup(&undo_dir_hash, winpath_sch, NULL, XLOOKUP);
     if(entry) {
       undo_item = entry->value;
     } else {
@@ -100,17 +100,17 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
     undo_item->saved_cur_undo_ptr = xctx->saved_cur_undo_ptr;
     undo_item->tail_undo_ptr = xctx->tail_undo_ptr;
     undo_item->modified = xctx->modified;
-    ptr_hash_lookup(&undo_dir_hash, sch_winpath, (void *)undo_item, what);
+    ptr_hash_lookup(&undo_dir_hash, winpath_sch, (void *)undo_item, what);
     res = 1;
-  } else if(what == XDELETE) {
+  } else if(what == XDELETE && winpath_sch) {
     if(undo_dir_hash.table) {
-      dbg(1, ("save_undo_table(): XDELETE, %s\n", sch_winpath));
-      entry = ptr_hash_lookup(&undo_dir_hash, sch_winpath, NULL, XLOOKUP);
+      dbg(1, ("save_undo_table(): XDELETE, %s\n", winpath_sch));
+      entry = ptr_hash_lookup(&undo_dir_hash, winpath_sch, NULL, XLOOKUP);
       if(entry) {
         undo_save **undo_item_ptr = (undo_save **)&entry->value;
         dbg(1, ("save_undo_table(): found %s\n", entry->token));
         save_undo_freefunc((void **)undo_item_ptr);
-        ptr_hash_lookup(&undo_dir_hash, sch_winpath, NULL, XDELETE);
+        ptr_hash_lookup(&undo_dir_hash, winpath_sch, NULL, XDELETE);
       }
       res = 1;
     }
@@ -137,24 +137,81 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
         }
       }
     }
+    res = 1;
   } else if(what == XASK_SAVE) {
-       if(undo_dir_hash.table) {
+      if(undo_dir_hash.table) {
       int i;
       undo_save *undo_item;
+      Xschem_ctx **save_xctx;
+      save_xctx = get_save_xctx();
       for(i = 0; i < undo_dir_hash.size; ++i)
       {
         entry = undo_dir_hash.table[i];
         while( entry ) {
+          int j, found;
           undo_item = entry->value;
+          /* skip hierarchy schematics of other tabs/window */
+          if(strstr(entry->token, xctx->current_win_path) != entry->token) goto cont;
+          /* not fully undone: needs saving */
           if(undo_item->cur_undo_ptr != undo_item->saved_cur_undo_ptr) {
-            info("WARNING: %s (%s ) needs to be saved\n", entry->token, undo_item->sch);
-          }
+            found = 0;
+            /* check if it is currently displayed, in this case saving modified schematics 
+             * is already handled. Skip here */
+            for(j = 0; j < MAX_NEW_WINDOWS; ++j) {
+              char *wp = NULL; /*window path, like .drw, .x1.drw etc */
+              char *wp_sch = NULL; /* window path followed by _ and schematic name */
+              Xschem_ctx * ctx;
+              ctx = save_xctx[j];
+              /* if only one schematic it is not yet saved in save_xctx */
+              if(get_window_count() == 0 && j == 0)  {
+                ctx = xctx;
+              }
+              if(ctx) {
+                if(j == 0 ) {
+                  my_strdup2(_ALLOC_ID_, &wp, ".drw");
+                }
+                else {
+                  my_strdup2(_ALLOC_ID_, &wp, get_window_path(j));
+                }
+                my_mstrcat(_ALLOC_ID_, &wp_sch, wp, "_", ctx->current_name, NULL);
+                dbg(1, ("save_undo_table() XASK_SAVE: compare %s with %s\n", wp_sch, entry->token));
+                /* schematic is displayed in current tab/window, so do not ask to save,
+                 * handled already elsewhere */
+                if(!strcmp(wp_sch, entry->token)) {
+                   found = 1;
+                   my_free(_ALLOC_ID_, &wp_sch);
+                   my_free(_ALLOC_ID_, &wp);
+                   break;
+                }
+              }
+              if(wp_sch) my_free(_ALLOC_ID_, &wp_sch);
+              if(wp) my_free(_ALLOC_ID_, &wp);
+            } /* for(j = 0; j < MAX_NEW_WINDOWS; ++j) */
+            /* ok, this is a schematic down or up in hierarchy that is modified and that is not
+             * currently displayed in window / tab. Need to handle save here */
+            if(!found) {
+              info("WARNING:  %s\n  %s\n  needs to be saved\n", entry->token, undo_item->sch);
+
+              if(has_x) {
+                char *cmd = NULL;
+                my_mstrcat(_ALLOC_ID_, &cmd, "ask_save {Save schematic: ", entry->token, " ?} 0", NULL);
+                tcleval(cmd);
+                my_free(_ALLOC_ID_, &cmd);
+                if(!strcmp(tclresult(), "yes") ) {
+                   /* <<<< */
+                }
+              }
+
+
+            }
+          } /* if(undo_item->cur_undo_ptr != undo_item->saved_cur_undo_ptr) */
+          cont:
           entry = entry->next;
-        }
+        } /* while( entry ) */
       }
     }
   }
-  if(sch_winpath) my_free(_ALLOC_ID_, &sch_winpath);
+  if(winpath_sch) my_free(_ALLOC_ID_, &winpath_sch);
   return res;
 }
 

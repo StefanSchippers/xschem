@@ -7351,7 +7351,7 @@ proc attach_labels_to_inst {} {
 }
 
 # if no_ask_save is set to 1 just return yes (always save)
-proc ask_save_optional { {ask {save file?}} {cancel 1}} {
+proc ask_save_optional { {ask {Save file?}} {cancel 1}} {
   global no_ask_save
 
   if { $no_ask_save } {

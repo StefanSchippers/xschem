@@ -1131,7 +1131,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!force && xctx->modified) {
               tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                         "[get_cell [xschem get schname] 0]"
-                        ": UNSAVED data: want to exit?\"");
+                        ": UNSAVED data: want to close?\"");
             }
             if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
               char *win_path_copy = NULL;
@@ -1171,7 +1171,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(has_x && !force && xctx->modified) {
               tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                         "[get_cell [xschem get schname] 0]"
-                        ": UNSAVED data: want to exit?\"");
+                        ": UNSAVED data: want to close?\"");
             }
             if(!has_x || force || !xctx->modified || !strcmp(tclresult(), "ok")) {
               char *win_path_copy = NULL;
@@ -5169,6 +5169,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "save_undo_table"))
     {
       int what = XLIST;
+      int res = 0;
       char sch_name[PATH_MAX];
       char undo_dirname[PATH_MAX];
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
@@ -5194,7 +5195,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 4) {
         my_strncpy(undo_dirname, argv[4], S(undo_dirname));
       }
-      save_undo_table(sch_name, undo_dirname, what);
+      res = save_undo_table(sch_name, undo_dirname, what);
+      Tcl_SetResult(interp, my_itoa(res), TCL_VOLATILE);
     }
  
     /* saveas [file] [type]
