@@ -5510,7 +5510,8 @@ int descend_symbol(void)
     n =xctx->sel_array[0].n;
 
     #ifdef PRESERVE_UNDO
-    push_undo(); /* save_undo_table() */
+    /* do not push state for undo if at bottom of stack */
+    if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) push_undo();
     #endif
 
     #ifndef PRESERVE_UNDO
@@ -5626,7 +5627,7 @@ int descend_symbol(void)
 
   #ifdef PRESERVE_UNDO
   save_undo_table(xctx->current_name, NULL, XGET);
-  pop_undo(4, 0);
+  if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) pop_undo(4, 0);
   #endif
  
   zoom_full(1, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);

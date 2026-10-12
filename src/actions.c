@@ -2555,7 +2555,8 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    ) return 0;
 
    #ifdef PRESERVE_UNDO
-   push_undo();
+   /* do not push state for undo if at bottom of stack */
+   if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) push_undo(); 
    #endif
 
    /* get schematic to descend into */
@@ -2708,7 +2709,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
 
      #ifdef PRESERVE_UNDO
      save_undo_table(xctx->current_name, NULL, XGET);
-     pop_undo(4, 0);
+     if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) pop_undo(4, 0);
      #endif
 
      if(xctx->hilight_nets) {
@@ -2775,7 +2776,8 @@ void go_back(int what)
   #endif
 
   #ifdef PRESERVE_UNDO
-  push_undo();
+  /* do not push state for undo if at bottom of stack */
+  if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) push_undo(); 
   #endif
 
   unselect_all(1);
@@ -2807,7 +2809,7 @@ void go_back(int what)
 
   #ifdef PRESERVE_UNDO
   save_undo_table(xctx->current_name, NULL, XGET);
-  pop_undo(4, 0);
+  if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) pop_undo(4, 0);
   #endif
 
   if(xctx->hilight_nets) {
