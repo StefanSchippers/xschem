@@ -30,7 +30,8 @@ typedef struct undo_save {
   int cur_undo_ptr;
   int tail_undo_ptr;
   int modified;
-  char *undo_dirname;
+  char *undo_dirname; /* directory containing undo states */
+  char *sch; /* full path of schematic */
 } undo_save;
 
 
@@ -47,6 +48,7 @@ void save_undo_freefunc(void **ptr)
   dbg(1, ("save_undo_freefunc(): removing %s\n", (*undo_item_ptr)->undo_dirname));
   rmdir((*undo_item_ptr)->undo_dirname);
   my_free(_ALLOC_ID_, &(*undo_item_ptr)->undo_dirname);
+  my_free(_ALLOC_ID_, &(*undo_item_ptr)->sch);
   my_free(_ALLOC_ID_, undo_item_ptr);
 }
 
@@ -73,6 +75,7 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
           xctx->modified = undo_item->modified;
           set_modify(xctx->modified);
           my_strdup2(_ALLOC_ID_, &xctx->undo_dirname, undo_item->undo_dirname);
+          /* no need to set xctx->sch[xctx->currsch] */
           xctx->undo_initialized = 1;
         }
         res = 1;
@@ -85,6 +88,7 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
     if(entry) undo_item = entry->value;
     else undo_item = my_calloc(_ALLOC_ID_, 1, sizeof(undo_save));
     my_strdup2(_ALLOC_ID_, &undo_item->undo_dirname, xctx->undo_dirname);
+    my_strdup2(_ALLOC_ID_, &undo_item->sch, xctx->sch[xctx->currsch]);
     undo_item->head_undo_ptr = xctx->head_undo_ptr;
     undo_item->cur_undo_ptr = xctx->cur_undo_ptr;
     undo_item->tail_undo_ptr = xctx->tail_undo_ptr;
@@ -120,6 +124,7 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
           undo_item = entry->value;
           tmp = entry -> next;
           info("%s --> %s\n", entry->token, undo_item->undo_dirname);
+          info("     full path: %s\n", undo_item->sch);
           info("     head_undo_ptr = %d\n", undo_item->head_undo_ptr);
           info("     cur_undo_ptr = %d\n", undo_item->cur_undo_ptr);
           info("     tail_undo_ptr = %d\n", undo_item->tail_undo_ptr);
