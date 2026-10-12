@@ -85,8 +85,11 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
     dbg(1, ("save_undo_table(): XINSERT, %s\n", sch_winpath));
     if(!undo_dir_hash.table) ptr_hash_init(&undo_dir_hash, 4177);
     entry = ptr_hash_lookup(&undo_dir_hash, sch_winpath, NULL, XLOOKUP);
-    if(entry) undo_item = entry->value;
-    else undo_item = my_calloc(_ALLOC_ID_, 1, sizeof(undo_save));
+    if(entry) {
+      undo_item = entry->value;
+    } else {
+      undo_item = my_calloc(_ALLOC_ID_, 1, sizeof(undo_save));
+    }
     my_strdup2(_ALLOC_ID_, &undo_item->undo_dirname, xctx->undo_dirname);
     my_strdup2(_ALLOC_ID_, &undo_item->sch, xctx->sch[xctx->currsch]);
     undo_item->head_undo_ptr = xctx->head_undo_ptr;
@@ -115,20 +118,36 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
   } else if(what == XLIST) {
     if(undo_dir_hash.table) {
       int i;
-      Ptr_hashentry *tmp;
       undo_save *undo_item;
       for(i = 0; i < undo_dir_hash.size; ++i)
       {
         entry = undo_dir_hash.table[i];
         while( entry ) {
           undo_item = entry->value;
-          tmp = entry -> next;
           info("%s --> %s\n", entry->token, undo_item->undo_dirname);
           info("     full path: %s\n", undo_item->sch);
           info("     head_undo_ptr = %d\n", undo_item->head_undo_ptr);
           info("     cur_undo_ptr = %d\n", undo_item->cur_undo_ptr);
           info("     tail_undo_ptr = %d\n", undo_item->tail_undo_ptr);
-          entry = tmp;
+          entry = entry->next;
+        }
+      }
+    }
+  } else if(what == XASK_SAVE) {
+       if(undo_dir_hash.table) {
+      int i;
+      undo_save *undo_item;
+      for(i = 0; i < undo_dir_hash.size; ++i)
+      {
+        entry = undo_dir_hash.table[i];
+        while( entry ) {
+          undo_item = entry->value;
+          info("%s --> %s\n", entry->token, undo_item->undo_dirname);
+          info("     full path: %s\n", undo_item->sch);
+          info("     head_undo_ptr = %d\n", undo_item->head_undo_ptr);
+          info("     cur_undo_ptr = %d\n", undo_item->cur_undo_ptr);
+          info("     tail_undo_ptr = %d\n", undo_item->tail_undo_ptr);
+          entry = entry->next;
         }
       }
     }
@@ -3764,6 +3783,10 @@ int save_schematic(const char *schname, int fast) /* 20171020 added return value
   tclvareval("catch {unset tctx::", xctx->current_win_path, "_simulate_id}", NULL);
   /* set local simulation directory if local_netlist_dir is set*/
   set_netlist_dir(2, NULL);
+
+  /* update saved_cur_undo_ptr */
+  xctx->saved_cur_undo_ptr = xctx->cur_undo_ptr;
+
   return 1;
 }
 
@@ -4212,8 +4235,9 @@ void pop_undo(int redo, int set_modify_status)
   #endif
   dbg(2, ("pop_undo(): loaded file:wire=%d inst=%d\n",xctx->wires , xctx->instances));
 
+
   if(set_modify_status) {
-    if(xctx->cur_undo_ptr == xctx->tail_undo_ptr && xctx->cur_undo_ptr == 0) {
+    if(xctx->cur_undo_ptr == xctx->saved_cur_undo_ptr) {
       set_modify(0);
     } else {
       set_modify(1);

@@ -466,6 +466,7 @@ static void alloc_xschem_data(const char *top_path, const char *win_path)
 
   xctx = my_calloc(_ALLOC_ID_, 1, sizeof(Xschem_ctx));
   xctx->cur_undo_ptr = 0;
+  xctx->saved_cur_undo_ptr = 0;
   xctx->head_undo_ptr = 0;
   xctx->tail_undo_ptr = 0;
   xctx->undo_dirname = NULL;
@@ -1400,6 +1401,7 @@ static void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_
   /* copy undo data */
   if(flags & 16) {
     dest->cur_undo_ptr = source->cur_undo_ptr;
+    dest->saved_cur_undo_ptr = source->saved_cur_undo_ptr;
     dest->head_undo_ptr = source->head_undo_ptr;
     dest->tail_undo_ptr = source->tail_undo_ptr;
     dest->undo_initialized = source->undo_initialized;

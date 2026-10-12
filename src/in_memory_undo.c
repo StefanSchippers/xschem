@@ -577,7 +577,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   if(redo == 2) xctx->cur_undo_ptr++; /* restore undo stack pointer */
 
   if(set_modify_status) {
-    if(xctx->cur_undo_ptr == xctx->tail_undo_ptr && xctx->cur_undo_ptr == 0) {
+    if(xctx->cur_undo_ptr == xctx->saved_cur_undo_ptr) {
       set_modify(0);
     } else {
       set_modify(1);
