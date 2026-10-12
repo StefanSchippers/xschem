@@ -702,9 +702,10 @@ static void print_wires(void)
  */
 int record_global_node(int what, FILE *fp, const char *node)
 {
- int i;
-
- if( what == 1 || what == 3 || what == 4) {
+  
+ if(what == 3) {
+  
+  int i;
     if(!node) return 0;
     if(!strcmp(node, "0")) return 2;
     for(i = 0;i < xctx->max_globals; ++i) {
@@ -713,18 +714,45 @@ int record_global_node(int what, FILE *fp, const char *node)
          else return 1; /* node is a global */
       }
     }
-    if(what == 3) return 0; /* node is not a global */
-    if(xctx->max_globals >= xctx->size_globals) {
-       xctx->size_globals+=CADCHUNKALLOC;
-       my_realloc(_ALLOC_ID_, &xctx->globals, xctx->size_globals*sizeof(char *) );
-       my_realloc(_ALLOC_ID_, &xctx->global_type, xctx->size_globals*sizeof(int) );
+    return 0;
+ }
+ else if( what == 1 || what == 4) { /* insert global node */
+    char *node_exp = NULL;
+    char *n;
+    int i, mult;
+
+    if(!node) return 0;
+    /* if a bus is given expand into single bits */
+    my_strdup2(_ALLOC_ID_, &node_exp, expandlabel(node, &mult));
+    for(i = 1; i <= mult; i++) {
+      int j;
+      int found = 0;
+
+      n = find_nth(node_exp, ",", "", 0, i);
+      if(!strcmp(n, "0")) continue;
+      for(j = 0; j < xctx->max_globals; ++j) {
+        if( !strcmp(n, xctx->globals[j] )) {
+          found = 1;
+          break;
+        }
+      }
+      if(!found) {
+        dbg(1, ("record_global_node(): inserting %s\n", n));
+        if(xctx->max_globals >= xctx->size_globals) {
+           xctx->size_globals+=CADCHUNKALLOC;
+           my_realloc(_ALLOC_ID_, &xctx->globals, xctx->size_globals*sizeof(char *) );
+           my_realloc(_ALLOC_ID_, &xctx->global_type, xctx->size_globals*sizeof(int) );
+        }
+        xctx->globals[xctx->max_globals] = NULL;
+        if(what == 4) xctx->global_type[xctx->max_globals] = 1; /* ground and global (for Spectre) */
+        else xctx->global_type[xctx->max_globals] = 0; /* global */
+        my_strdup(_ALLOC_ID_, &xctx->globals[xctx->max_globals], n);
+        xctx->max_globals++;
+      }
     }
-    xctx->globals[xctx->max_globals] = NULL;
-    if(what == 4) xctx->global_type[xctx->max_globals] = 1; /* ground and global (for Spectre) */
-    else xctx->global_type[xctx->max_globals] = 0; /* global */
-    my_strdup(_ALLOC_ID_, &xctx->globals[xctx->max_globals], node);
-    xctx->max_globals++;
+    my_free(_ALLOC_ID_, &node_exp);
  } else if(what == 0) {
+    int i;
     for(i = 0;i < xctx->max_globals; ++i) {
        if(xctx->netlist_type == CAD_SPICE_NETLIST) fprintf(fp, ".GLOBAL %s\n", xctx->globals[i]);
        if(xctx->netlist_type == CAD_SPECTRE_NETLIST) {
@@ -734,6 +762,7 @@ int record_global_node(int what, FILE *fp, const char *node)
        if(xctx->netlist_type == CAD_TEDAX_NETLIST) fprintf(fp, "__GLOBAL__ %s\n", xctx->globals[i]);
     }
  } else if(what == 2) {
+    int i;
     for(i=0;i<xctx->max_globals; ++i) {
        my_free(_ALLOC_ID_, &xctx->globals[i]);
     }
