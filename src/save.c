@@ -4226,8 +4226,10 @@ void pop_undo(int redo, int set_modify_status)
     propagate_hilights(1, 1, XINSERT_NOREPLACE);
   }
   #ifdef PRESERVE_UNDO
-  /* update head, cur, tail pointers */
-  save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+  if(redo != 2) {
+    /* update head, cur, tail pointers */
+    save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+  }
   #endif
   dbg(2, ("pop_undo(): returning\n"));
 }
