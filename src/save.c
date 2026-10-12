@@ -29,6 +29,7 @@ typedef struct undo_save {
   int head_undo_ptr;
   int cur_undo_ptr;
   int tail_undo_ptr;
+  int saved_cur_undo_ptr; /* copy of xctx->currsch */
   int modified;
   char *undo_dirname; /* directory containing undo states */
   char *sch; /* full path of schematic */
@@ -72,6 +73,7 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
           xctx->head_undo_ptr = undo_item->head_undo_ptr;
           xctx->cur_undo_ptr = undo_item->cur_undo_ptr;
           xctx->tail_undo_ptr = undo_item->tail_undo_ptr;
+          /* xctx->saved_cur_undo_ptr should not be updated from undo_item->saved_cur_undo_ptr! */
           xctx->modified = undo_item->modified;
           set_modify(xctx->modified);
           my_strdup2(_ALLOC_ID_, &xctx->undo_dirname, undo_item->undo_dirname);
@@ -89,11 +91,13 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
       undo_item = entry->value;
     } else {
       undo_item = my_calloc(_ALLOC_ID_, 1, sizeof(undo_save));
+      /* these will not change so assign only at creation time */
+      my_strdup2(_ALLOC_ID_, &undo_item->sch, xctx->sch[xctx->currsch]);
+      my_strdup2(_ALLOC_ID_, &undo_item->undo_dirname, xctx->undo_dirname);
     }
-    my_strdup2(_ALLOC_ID_, &undo_item->undo_dirname, xctx->undo_dirname);
-    my_strdup2(_ALLOC_ID_, &undo_item->sch, xctx->sch[xctx->currsch]);
     undo_item->head_undo_ptr = xctx->head_undo_ptr;
     undo_item->cur_undo_ptr = xctx->cur_undo_ptr;
+    undo_item->saved_cur_undo_ptr = xctx->saved_cur_undo_ptr;
     undo_item->tail_undo_ptr = xctx->tail_undo_ptr;
     undo_item->modified = xctx->modified;
     ptr_hash_lookup(&undo_dir_hash, sch_winpath, (void *)undo_item, what);
@@ -142,11 +146,9 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
         entry = undo_dir_hash.table[i];
         while( entry ) {
           undo_item = entry->value;
-          info("%s --> %s\n", entry->token, undo_item->undo_dirname);
-          info("     full path: %s\n", undo_item->sch);
-          info("     head_undo_ptr = %d\n", undo_item->head_undo_ptr);
-          info("     cur_undo_ptr = %d\n", undo_item->cur_undo_ptr);
-          info("     tail_undo_ptr = %d\n", undo_item->tail_undo_ptr);
+          if(undo_item->cur_undo_ptr != undo_item->saved_cur_undo_ptr) {
+            info("WARNING: %s (%s ) needs to be saved\n", entry->token, undo_item->sch);
+          }
           entry = entry->next;
         }
       }

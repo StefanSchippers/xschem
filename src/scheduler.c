@@ -5186,6 +5186,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         else if(!strcmp(argv[2], "delete_all")) what = XDELETE_ALL;
         else if(!strcmp(argv[2], "insert")) what = XINSERT;
         else if(!strcmp(argv[2], "insert_noreplace")) what = XINSERT_NOREPLACE;
+        else if(!strcmp(argv[2], "ask_save")) what = XASK_SAVE;
       }
       if(argc > 3) {
         my_strncpy(sch_name, argv[3], S(sch_name));
