@@ -1122,12 +1122,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(!strcmp(argv[i], "force")) force = 1;
         if(strpbrk(argv[i], "0123456789-")) exit_status = argv[i];
       }
-      if(!strcmp(xctx->current_win_path, ".drw")) {
+      if(!strcmp(xctx->current_win_path, ".drw")) { /* main (first) window / tab */
         /* non tabbed interface */
         if(!tclgetboolvar("tabbed_interface")) {
           int wc = get_window_count();
           dbg(1, ("wc=%d\n", wc));
-          if(wc > 0 ) {
+
+          if(wc > 0 ) { /* more windows. Delete additional windows */
             if(!force && xctx->modified) {
               tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                         "[get_cell [xschem get schname] 0]"
@@ -1135,6 +1136,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
             if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
               char *win_path_copy = NULL;
+
               if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
               swap_windows(0);
               /* make a copy since xctx is about to be destroyed */
@@ -1151,15 +1153,21 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                         ": UNSAVED data: want to exit?\"");
             }
             if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
-               if(closewindow) {
-                 char s[40];
-                 my_snprintf(s, S(s), "exit %s", exit_status); /* xwin_exit() saves window geometry */
-                 tcleval(s);
-               }
-               else {
-                 if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
-                 clear_schematic(0, 0);
-               }
+
+              /* ask to save modified hierarchy schematics not displayed */
+              if(tclgetboolvar("preserve_undo")) {
+                save_undo_table(NULL, NULL, XASK_SAVE);
+              }
+
+              if(closewindow) {
+                char s[40];
+                my_snprintf(s, S(s), "exit %s", exit_status); /* xwin_exit() saves window geometry */
+                tcleval(s);
+              }
+              else {
+                if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
+                clear_schematic(0, 0);
+              }
             }
           }
         }
@@ -1167,7 +1175,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         else {
           int wc = get_window_count();
           dbg(1, ("wc=%d\n", wc));
-          if(wc > 0 ) {
+          if(wc > 0 ) { /* more tabs. Delete additional tabs */
             if(has_x && !force && xctx->modified) {
               tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
                         "[get_cell [xschem get schname] 0]"
@@ -1175,6 +1183,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
             if(!has_x || force || !xctx->modified || !strcmp(tclresult(), "ok")) {
               char *win_path_copy = NULL;
+
               if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
               swap_tabs();
               /* make a copy since xctx is about to be destroyed */
@@ -1190,6 +1199,12 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                         ": UNSAVED data: want to exit?\"");
             }
             if(!has_x || force || !xctx->modified || !strcmp(tclresult(), "ok")) {
+
+                /* ask to save modified hierarchy schematics not displayed */
+                if(tclgetboolvar("preserve_undo")) {
+                  save_undo_table(NULL, NULL, XASK_SAVE);
+                }
+
                if(closewindow) {
                  char s[40];
                  my_snprintf(s, S(s), "exit %s", exit_status); /* xwin_exit() saves window geometry */
@@ -1202,7 +1217,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
           }
         }
-      } else {
+      } else { /* additional windows / tabs (.x1.drw, .x2.drw, ...) */
         char *win_path_copy = NULL;
         if(force) set_modify(0); /* avoid ask to save downstream */
         if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
@@ -3163,7 +3178,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       }
     }
 
-    /* load [-nosymbols|-gui|-noundoreset|-nofullzoom|-nodraw|-keep_symbols] f
+    /* load [-nosymbols|-gui|-noundoreset|-nofullzoom|-nodraw|-keep_symbols] f1 f2 ... 
      *   Load a new file 'f'.
      *   '-gui': ask to save modified file or warn if opening an already
      *       open file or opening a new(not existing) file.
@@ -3210,6 +3225,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       first = i;
+      /* xschem load called with no file argument. Get file from dialog box ... */
       if(argc==first && !(lastclosed || lastopened)) {
         if(tclgetboolvar("new_file_browser")) {
           tcleval("file_chooser");
@@ -3217,8 +3233,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           ask_new_file(0, NULL);
           tcleval("load_additional_files");
         }
-      } else
-      for(i = first; i < argc || lastclosed || lastopened; i++) {
+      }
+      /* ... else process file args */
+      else for(i = first; i < argc || lastclosed || lastopened; i++) {
         char f[PATH_MAX + 100];
 
         if(lastclosed) {
@@ -3235,6 +3252,10 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         if(force || !has_x || !xctx->modified  || save(1, 0) != -1 ) { /* save(1)==-1 --> user cancel */
           int skip = 0;
+          if(tclgetboolvar("preserve_undo")) { /* ask to save modified hierarchy schematics not displayed */
+            save_undo_table(NULL, NULL, XASK_SAVE);
+          }
+
           if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
           dbg(1, ("scheduler(): load: filename=%s\n", f));
           my_strncpy(f,  abs_sym_path(f, ""), S(f));
@@ -3292,7 +3313,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
           }
         }
-      }
+      } /* for(i = first; i < argc || lastclosed || lastopened; i++) */
       Tcl_SetResult(interp, xctx->sch[xctx->currsch], TCL_STATIC);
     }
 
@@ -5188,6 +5209,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         else if(!strcmp(argv[2], "insert")) what = XINSERT;
         else if(!strcmp(argv[2], "insert_noreplace")) what = XINSERT_NOREPLACE;
         else if(!strcmp(argv[2], "ask_save")) what = XASK_SAVE;
+        else if(!strcmp(argv[2], "replace_winpath")) what = XREPLACE_WINPATH;
       }
       if(argc > 3) {
         my_strncpy(sch_name, argv[3], S(sch_name));
@@ -6348,6 +6370,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(floaters) set_modify(-2); /* update floater caches to reflect actual backannotation */
           }
         }
+      }
+    }
+
+    /* swap_tabs
+     *   swap first and second tab in tabs interface (internal command)
+     */
+    else if(!strcmp(argv[1], "swap_tabs"))
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(tclgetboolvar("tabbed_interface") && get_window_count()) {
+        swap_tabs();
       }
     }
 

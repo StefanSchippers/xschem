@@ -623,6 +623,9 @@ void ask_new_file(int in_new_window, char *filename)
     if(!(in_new_window || tclgetboolvar("open_in_new_window")) && xctx->modified) {
       if(save(1, 0) == -1 ) return; /*  user cancels save, so do nothing. */
     }
+    if(tclgetboolvar("preserve_undo")) { /* ask to save modified hierarchy schematics not displayed */
+      save_undo_table(NULL, NULL, XASK_SAVE);
+    }
     if(!filename || !filename[0]) {
       tcleval("load_file_dialog {Load file} *.\\{sch,sym,tcl\\} INITIALLOADDIR");
       my_snprintf(f, S(f),"%s", tclresult());

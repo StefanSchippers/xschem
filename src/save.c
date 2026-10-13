@@ -54,21 +54,75 @@ void save_undo_freefunc(void **ptr)
 }
 
 int save_undo_table(char *sch_name, char *undo_dirname, int what) {
-  undo_save *undo_item = NULL;
-  Ptr_hashentry *entry;
   static Ptr_hashtable undo_dir_hash = {NULL, 0};
   int res = 0;
   char *winpath_sch = NULL;
   if(xctx && xctx->current_win_path && sch_name) {
-    my_mstrcat(_ALLOC_ID_, &winpath_sch, xctx->current_win_path, "_", sch_name, NULL);
+    my_mstrcat(_ALLOC_ID_, &winpath_sch, xctx->current_win_path, "/", sch_name, NULL);
   }
-  if((what == XLOOKUP || what == XGET) && winpath_sch) {
+  /* old current_win_path is in sch_name, new current_win_path is given in undo_dirname */
+  if(what == XREPLACE_WINPATH && winpath_sch) {
+    int i;
+    size_t l1 = strlen(sch_name); /* size of old prefix */
+    size_t l2 = strlen(undo_dirname); /* size of old prefix */
+    Ptr_hashentry **preventry;
+    Ptr_hashentry *entry, *extract_list = NULL;
+    dbg(1, ("save_undo_table(... , XREPLACE_WINPATH): enter: %s %s\n", sch_name, undo_dirname));
+    /* Remove matching elements from hash table and store into a linked list ... */
+    for(i = 0; i < undo_dir_hash.size; ++i)
+    {
+      preventry = &undo_dir_hash.table[i];
+      while( *preventry ) {
+        /* process only elements in current_win_path */
+        if(strstr((*preventry)->token, sch_name) == (*preventry)->token ||
+           strstr((*preventry)->token, undo_dirname) == (*preventry)->token) {
+          
+          dbg(1, ("save_undo_table(... , XREPLACE_WINPATH): removing %s\n", (*preventry)->token));
+          /* remove node from list */
+          entry = *preventry;
+          *preventry = entry->next;
+          /* prepend to extract_list */
+          entry->next = extract_list;
+          extract_list = entry;
+        } else {
+          preventry = &(*preventry)->next;
+        }
+      }
+    }
+    /* ... modify token and insert elements in hash table */
+    entry = extract_list;
+    while(entry) {
+      Ptr_hashentry *next = entry->next;
+      char *new_token = NULL;
+      unsigned int idx, hashcode;
+      /* build new key with new prefix
+       * l1, l2 is guaranteed to be smaller than strlen(entry->token) as per previous strstr match */
+      if(strstr(entry->token, sch_name) == entry->token) {
+        my_mstrcat(_ALLOC_ID_, &new_token, undo_dirname, entry->token + l1, NULL);
+      } else {
+        my_mstrcat(_ALLOC_ID_, &new_token, sch_name, entry->token + l2, NULL);
+      }
+      dbg(1, ("save_undo_table(... , XREPLACE_WINPATH): inserting %s\n", new_token));
+      my_free(_ALLOC_ID_, &entry->token);
+      entry->token = new_token;
+      hashcode = str_hash(entry->token);
+      idx = hashcode % undo_dir_hash.size;
+      entry->hash = hashcode;
+      entry->next = undo_dir_hash.table[idx];
+      undo_dir_hash.table[idx] = entry;
+      entry = next;
+    }
+
+
+  } else if((what == XLOOKUP || what == XGET) && winpath_sch) {
     if(undo_dir_hash.table) {
+      Ptr_hashentry *entry;
       dbg(1, ("save_undo_table(): XLOOKUP|XGET, %s\n", winpath_sch));
       entry = ptr_hash_lookup(&undo_dir_hash, winpath_sch, NULL, XLOOKUP);
       if(entry ) {
-        dbg(1, ("save_undo_table(): XLOOKUP|XGET found item\n"));
+        dbg(1, ("  save_undo_table(): XLOOKUP|XGET found item\n"));
         if(what == XGET) {
+          undo_save *undo_item = NULL;
           undo_item = entry->value;
           xctx->head_undo_ptr = undo_item->head_undo_ptr;
           xctx->cur_undo_ptr = undo_item->cur_undo_ptr;
@@ -84,6 +138,8 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
       } 
     }
   } else if((what == XINSERT_NOREPLACE || what == XINSERT) && winpath_sch) {
+    Ptr_hashentry *entry;
+    undo_save *undo_item = NULL;
     dbg(1, ("save_undo_table(): XINSERT, %s\n", winpath_sch));
     if(!undo_dir_hash.table) ptr_hash_init(&undo_dir_hash, 4177);
     entry = ptr_hash_lookup(&undo_dir_hash, winpath_sch, NULL, XLOOKUP);
@@ -104,11 +160,12 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
     res = 1;
   } else if(what == XDELETE && winpath_sch) {
     if(undo_dir_hash.table) {
+      Ptr_hashentry *entry;
       dbg(1, ("save_undo_table(): XDELETE, %s\n", winpath_sch));
       entry = ptr_hash_lookup(&undo_dir_hash, winpath_sch, NULL, XLOOKUP);
       if(entry) {
         undo_save **undo_item_ptr = (undo_save **)&entry->value;
-        dbg(1, ("save_undo_table(): found %s\n", entry->token));
+        dbg(1, ("  save_undo_table(): found %s\n", entry->token));
         save_undo_freefunc((void **)undo_item_ptr);
         ptr_hash_lookup(&undo_dir_hash, winpath_sch, NULL, XDELETE);
       }
@@ -116,12 +173,14 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
     }
   } else if(what == XDELETE_ALL) {
     if(undo_dir_hash.table) {
+      dbg(1, ("save_undo_table(): XDELETE_ALL\n", winpath_sch));
       ptr_hash_free(&undo_dir_hash, save_undo_freefunc);
       res = 1;
     }
   } else if(what == XLIST) {
     if(undo_dir_hash.table) {
       int i;
+      Ptr_hashentry *entry;
       undo_save *undo_item;
       for(i = 0; i < undo_dir_hash.size; ++i)
       {
@@ -141,8 +200,11 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
   } else if(what == XASK_SAVE) {
       if(undo_dir_hash.table) {
       int i;
+      Ptr_hashentry *entry, *tmp;
       undo_save *undo_item;
       Xschem_ctx **save_xctx;
+
+      dbg(1, ("save_undo_table(): XASK_SAVE\n"));
       save_xctx = get_save_xctx();
       for(i = 0; i < undo_dir_hash.size; ++i)
       {
@@ -151,7 +213,10 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
           int j, found;
           undo_item = entry->value;
           /* skip hierarchy schematics of other tabs/window */
-          if(strstr(entry->token, xctx->current_win_path) != entry->token) goto cont;
+          if(strstr(entry->token, xctx->current_win_path) != entry->token) {
+            entry = entry->next;
+            continue;
+          }
           /* not fully undone: needs saving */
           if(undo_item->cur_undo_ptr != undo_item->saved_cur_undo_ptr) {
             found = 0;
@@ -173,7 +238,7 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
                 else {
                   my_strdup2(_ALLOC_ID_, &wp, get_window_path(j));
                 }
-                my_mstrcat(_ALLOC_ID_, &wp_sch, wp, "_", ctx->current_name, NULL);
+                my_mstrcat(_ALLOC_ID_, &wp_sch, wp, "/", ctx->current_name, NULL);
                 dbg(1, ("save_undo_table() XASK_SAVE: compare %s with %s\n", wp_sch, entry->token));
                 /* schematic is displayed in current tab/window, so do not ask to save,
                  * handled already elsewhere */
@@ -223,12 +288,16 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
 
                 }
               }
-
-
             }
           } /* if(undo_item->cur_undo_ptr != undo_item->saved_cur_undo_ptr) */
-          cont:
-          entry = entry->next;
+
+          tmp = entry->next;
+          /* delete entries, already used no more necessary */
+          dbg(1, ("save_undo_table(..., XASK_SAVE): deleting %s\n", entry->token));
+          save_undo_freefunc((void **)&entry->value);
+          ptr_hash_lookup(&undo_dir_hash, entry->token, NULL, XDELETE);
+          xctx->undo_initialized = 0;
+          entry = tmp;
         } /* while( entry ) */
       }
     }

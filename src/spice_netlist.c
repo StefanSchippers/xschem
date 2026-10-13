@@ -1066,6 +1066,47 @@ int ptr_hash_copy(Ptr_hashtable *dest, Ptr_hashtable *source)
   return 0;
 }
 
+
+
+#if 0
+/* Moves an entry from old_token to new_token */
+static int ptr_hash_move(Ptr_hashtable *hashtable, const char *old_token, const char *new_token) {
+
+
+  unsigned int old_hashcode, old_idx, new_hashcode, new_idx;
+  int size = hashtable->size;
+  Ptr_hashentry **preventry, *entry;
+  
+  old_hashcode=str_hash(old_token);
+  old_idx=old_hashcode % size;
+  new_hashcode=str_hash(new_token);
+  new_idx=new_hashcode % size;
+  
+  preventry = &hashtable->table[old_idx];
+  /* 1. Find and extract the node from the old bucket */
+  while ((*preventry) && (*preventry)->hash != old_hashcode && strcmp((*preventry)->token, old_token) != 0) {
+      preventry = &(*preventry)->next;
+  }
+  if (*preventry == NULL) {
+      return 0; /* old_token not found */
+  }
+  entry = *preventry;
+  *preventry = entry->next;
+
+  /* Update the key */
+  my_strdup2(_ALLOC_ID_, &entry->token, new_token);
+
+  /* Insert the node at head of chain */
+  entry->next = hashtable->table[new_idx];
+  hashtable->table[new_idx] = entry;
+
+  return 1; /* Success */
+}
+#endif
+
+
+
+
 static void ptr_hash_free_entry(Ptr_hashentry *entry, void(*freefunc)(void **))
 {
   Ptr_hashentry *tmp;

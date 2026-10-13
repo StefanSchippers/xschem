@@ -779,10 +779,14 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    4: free data
    5: get info
    6: free indicated `sch_name`
+   7: lookup sch_name, return 1 if found, 0 if not
        flags: 
    1: set window title [default]
    2: copy only metadata (yields an empty schematic)
    4: draw schematic when switching [default]
+   8: do not uniquify name when copying (what == 2)
+  16: copy undo pointers and undo directory
+  32: for fork_sch(6, ...): only delete hash table entry, do not delete schematic data
        dbglev: 
    0: print informations, ask user to save a modified schematic [default]
   &gt;0: print info only if debug_var &gt;-dbglev, do not prompt user</pre>
@@ -852,6 +856,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
      <li><kbd> textlayer </kbd> layer number for texts </li>
      <li><kbd> top_path </kbd> get top hier path of current window (always "" for tabbed if) </li>
      <li><kbd> topwindow </kbd> same as top_path but main window returned as "." </li>
+     <li><kbd> undo_dirname </kbd> return undo directory path </li>
      <li><kbd> ui_state </kbd> return UI state </li>
      <li><kbd> version </kbd> return xschem version </li>
      <li><kbd> wirelayer </kbd> layer used for wires </li>
@@ -1077,7 +1082,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    0: eat non escaped quotes (")
    1: return unescaped quotes as part of the token value if they are present
    2: eat backslashes </pre>
-   <li><kbd>       load [-nosymbols|-gui|-noundoreset|-nofullzoom|-nodraw|-keep_symbols] f</kbd></li><pre>
+   <li><kbd>       load [-nosymbols|-gui|-noundoreset|-nofullzoom|-nodraw|-keep_symbols] f1 f2 ... </kbd></li><pre>
    Load a new file 'f'.
    '-gui': ask to save modified file or warn if opening an already
        open file or opening a new(not existing) file.
@@ -1458,6 +1463,19 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Save schematic if modified. Does not ask confirmation!
    if 'fast' is given it is passed to save_schematic() to avoid
    updating window/tab/sim button states </pre>
+   <li><kbd>       save_undo_table what [sch_name] [undo_dirname]</kbd></li><pre>
+   debug hook to test the save_undo_table() undo hash table wrapper function.
+   what:
+      list: 
+      lookup:
+      delete:
+      delete_all:
+      insert:
+      insert_noreplace:
+   sch_name:
+      use the provided schematic name, if not provided use current xctx-&gt;current_name.
+   undo_dirname:
+      use the provided undo directory name, if not provided use xctx-&gt;undo_dirname</pre>
    <li><kbd>       saveas [file] [type]</kbd></li><pre>
    save current schematic as 'file'
    if file is empty ({}) use current schematic name
@@ -1652,6 +1670,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    if 'new_process' is given start a new xschem process </pre>
    <li><kbd>       swap_cursors</kbd></li><pre>
    swap cursor A (1)  and cursor B (2) positions.</pre>
+   <li><kbd>       swap_tabs</kbd></li><pre>
+   swap first and second tab in tabs interface (internal command)</pre>
    <li><kbd>       swap_windows</kbd></li><pre>
    swap first and second window in window interface (internal command)</pre>
    <li><kbd>       switch [window_path |schematic_name]</kbd></li><pre>

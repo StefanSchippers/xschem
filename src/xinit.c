@@ -2020,6 +2020,15 @@ void swap_tabs(void)
       info("swap_tabs(): no tab to swap from found\n");
       return;
     }
+    dbg(1, ("swap_tabs(): %s <--> %s\n", save_xctx[i]->current_win_path, save_xctx[j]->current_win_path));
+    if(tclgetboolvar("preserve_undo")) {
+      /* update undo pointers in save table, swap winpath in keys */
+      ctx = xctx;
+      xctx = save_xctx[j];
+      /* replace  xctx->current_win_path with save_xctx[i]->current_win_path in hash keys */
+      save_undo_table(xctx->current_win_path,  save_xctx[i]->current_win_path, XREPLACE_WINPATH);
+      xctx = ctx;
+    }
 
     tmp = save_xctx[i]->top_path;
     save_xctx[i]->top_path = save_xctx[j]->top_path;
@@ -2539,6 +2548,7 @@ static void destroy_window(int *window_count, const char *win_path)
     else close = 1;
     Tcl_ResetResult(interp);
     if(close) {
+
       if(has_x) {
         tkwin =  Tk_NameToWindow(interp, win_path, mainwindow); /* NULL if win_path not existing */
         if(!tkwin) info("new_schematic(\"destroy\", ...): Warning: %s has been destroyed\n", win_path);
@@ -2597,7 +2607,7 @@ static void destroy_tab(int *window_count, const char *win_path)
   int i, n, prev;
   if(*window_count) {
     int close = 0;
-    dbg(1, ("new_schematic() destroy_tab\n"));
+    dbg(1, ("new_schematic() destroy_tab %s\n", win_path));
 
     if(!win_path) {
       info("destroy_tab(): no window path given\n");
@@ -2617,6 +2627,12 @@ static void destroy_tab(int *window_count, const char *win_path)
     Tcl_ResetResult(interp);
     if(close) {
       char *new_path = NULL;
+
+      /* ask to save modified hierarchy schematics not displayed */
+      if(tclgetboolvar("preserve_undo")) {
+        save_undo_table(NULL, NULL, XASK_SAVE);
+      }
+
       n = -1;
       for(i = 1; i < MAX_NEW_WINDOWS; ++i) {
         if(save_xctx[i] && save_xctx[i]->current_win_path &&
@@ -2706,6 +2722,12 @@ static void destroy_all_windows(int *window_count, int force)
           Tcl_ResetResult(interp);
           if(close) {
             char *toplevel = NULL;
+
+            /* ask to save modified hierarchy schematics not displayed */
+            if(tclgetboolvar("preserve_undo")) {
+              save_undo_table(NULL, NULL, XASK_SAVE);
+            }
+
             if(has_x) {
               tclvareval("winfo toplevel ", window_path, NULL);
               my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
@@ -2792,6 +2814,12 @@ static void destroy_all_tabs(int *window_count, int force)
         else close = 1;
         Tcl_ResetResult(interp);
         if(close) {
+
+          /* ask to save modified hierarchy schematics not displayed */
+          if(tclgetboolvar("preserve_undo")) {
+            save_undo_table(NULL, NULL, XASK_SAVE);
+          }
+
           /* delete Tcl context of deleted schematic window */
           tclvareval("delete_ctx ", window_path, NULL);
           if(has_x) tclvareval("delete_tab ", window_path, NULL);
