@@ -4139,6 +4139,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
 
 void clear_undo(void)
 {
+  dbg(1, ("clear_undo(): %s undo_initialized=%d\n", xctx->current_name, xctx->undo_initialized));
   xctx->cur_undo_ptr = 0;
   xctx->tail_undo_ptr = 0;
   xctx->head_undo_ptr = 0;
@@ -4149,8 +4150,8 @@ void delete_undo(void)
   int i;
   char diff_name[PATH_MAX];
 
+  dbg(1, ("delete_undo(): %s undo_initialized=%d\n", xctx->current_name, xctx->undo_initialized));
   if(!xctx->undo_initialized) goto done;
-  dbg(1, ("delete_undo() called...\n"));
 
   if(tclgetboolvar("preserve_undo")) {
     /* update undo pointers in save table */
@@ -4177,6 +4178,7 @@ void delete_undo(void)
 /* create undo directory in XSCHEM_TEMP_DIR */
 static void init_undo(void)
 {
+  dbg(1, ("init_undo(): %s undo_initialized=%d\n", xctx->current_name, xctx->undo_initialized));
   if(xctx->no_undo == 0 && !xctx->undo_initialized) {
     /* delete previous if any */
     if(tclgetboolvar("preserve_undo")) {
@@ -4211,8 +4213,8 @@ void push_undo(void)
     FILE *fd;
     char diff_name[PATH_MAX+100]; /* overflow safe 20161122 */
 
-    dbg(1, ("push_undo(): cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
-       xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr));
+    dbg(1, ("push_undo(): %s cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
+       xctx->current_name, xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr));
     init_undo();
     if(xctx->no_undo)return;
     #if HAS_POPEN==1
@@ -4296,8 +4298,8 @@ void pop_undo(int redo, int set_modify_status)
   FILE *diff_fd;
   #endif
 
+  dbg(1, ("pop_undo(): %s redo=%d, set_modify_status=%d\n", xctx->current_name, redo, set_modify_status));
   if(xctx->no_undo) return;
-  dbg(1, ("pop_undo: redo=%d, set_modify_status=%d\n", redo, set_modify_status));
   if(redo == 1) {
     if(xctx->cur_undo_ptr < xctx->head_undo_ptr) {
       dbg(1, ("pop_undo(): redo; cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
