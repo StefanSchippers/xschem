@@ -1628,7 +1628,7 @@ extern int load_schematic(int load_symbol, const char *fname, int reset_undo, in
 /* check if filename already in an open window/tab */
 extern int get_tab_or_window_number(const char *win_path);
 extern void swap_tabs(void);
-extern void swap_windows(int dr);
+extern char *swap_windows(int dr);
 extern Xschem_ctx *check_loaded(Xschem_ctx *ctx, const char *f);
 extern char *get_last_created_window_path(void);
 extern int get_last_created_window(void);

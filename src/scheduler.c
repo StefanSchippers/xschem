@@ -1136,13 +1136,17 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             }
             if(force || !xctx->modified || !strcmp(tclresult(), "ok")) {
               char *win_path_copy = NULL;
+              char *geom;
 
               if(has_x) tcleval("store_geom [xschem get topwindow] [xschem get current_name]");
-              swap_windows(0);
+              geom = swap_windows(0);
               /* make a copy since xctx is about to be destroyed */
               my_strdup(_ALLOC_ID_, &win_path_copy, xctx->current_win_path);
               set_modify(0); /* set modified status to 0 to avoid another confirm in following line */
               new_schematic("destroy", win_path_copy, NULL, 0);
+              /* next window is now the main window. set it's original geometry,
+               * saved by swap_windows() */
+              tclvareval("wm withdraw .; update; wm geometry . ", geom, "; wm deiconify .", NULL);
               my_free(_ALLOC_ID_, &win_path_copy);
               draw();
             }

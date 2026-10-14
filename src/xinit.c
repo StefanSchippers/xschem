@@ -982,6 +982,7 @@ static void xwin_exit(void)
    info("xwin_exit() double call, doing nothing...\n");
    return;
  }
+ dbg(1, ("xwin_exit(): clearing drawing data structures\n"));
 
  if(has_x) tcleval("store_geom . [xschem get current_name]");
  fork_sch(4, NULL, 0, 1);
@@ -1006,7 +1007,6 @@ static void xwin_exit(void)
    #endif
    my_free(_ALLOC_ID_, &pixmap);
  }
- dbg(1, ("xwin_exit(): clearing drawing data structures\n"));
 
  /* global context - graphic preferences/settings */
  for(i=0;i<cadlayers; ++i) {
@@ -2007,6 +2007,7 @@ void swap_tabs(void)
   if(wc) {
     Xschem_ctx *ctx;
     char *tmp;
+    char *wp_i = NULL, *wp_j = NULL;
     int i = 0;
     int j;
     for(j = 1; j < MAX_NEW_WINDOWS; j++) {
@@ -2020,27 +2021,38 @@ void swap_tabs(void)
       info("swap_tabs(): no tab to swap from found\n");
       return;
     }
-    dbg(1, ("swap_tabs(): %s <--> %s\n", save_xctx[i]->current_win_path, save_xctx[j]->current_win_path));
+
+    my_strdup2(_ALLOC_ID_, &wp_i, save_xctx[i]->current_win_path);
+    my_strdup2(_ALLOC_ID_, &wp_j, save_xctx[j]->current_win_path);
+
+    dbg(1, ("swap_tabs(): %s <--> %s\n", wp_i, wp_j));
+
     if(tclgetboolvar("preserve_undo")) {
       /* update undo pointers in save table, swap winpath in keys */
-      ctx = xctx;
-      xctx = save_xctx[j];
       /* replace  xctx->current_win_path with save_xctx[i]->current_win_path in hash keys */
-      save_undo_table(xctx->current_win_path,  save_xctx[i]->current_win_path, XREPLACE_WINPATH);
-      xctx = ctx;
+      save_undo_table(save_xctx[j]->current_win_path,  save_xctx[i]->current_win_path, XREPLACE_WINPATH);
     }
 
-    tmp = save_xctx[i]->top_path;
-    save_xctx[i]->top_path = save_xctx[j]->top_path;
-    save_xctx[j]->top_path = tmp;
+    /* swap tcl contexts */
+    /* most general scenario is that we are swapping tab 'i' (0) with tab 'j' and we are in tab 'k' */
+    tclvareval("save_ctx ","_temp2", NULL);     /* save ctx tab 'k' */
+    tclvareval("restore_ctx ", wp_i, NULL);     /* swap ctx of tab 'i' with tab 'j' */
+    tclvareval("save_ctx ", "_temp", NULL);     /* swap ctx of tab 'i' with tab 'j' */
+    tclvareval("restore_ctx ", wp_j, NULL);     /* swap ctx of tab 'i' with tab 'j' */
+    tclvareval("save_ctx ", wp_i, NULL);        /* swap ctx of tab 'i' with tab 'j' */
+    tclvareval("restore_ctx ", "_temp", NULL);  /* swap ctx of tab 'i' with tab 'j' */
+    tclvareval("save_ctx ", wp_j, NULL);        /* swap ctx of tab 'i' with tab 'j' */
+    tclvareval("delete_ctx _temp", NULL);       /* delete temporary ctx */
+    tclvareval("restore_ctx ", "_temp2", NULL); /* restore ctx tab 'k' */
+    tclvareval("delete_ctx _temp2", NULL);      /* delete temporary ctx */
 
-    tmp = save_xctx[i]->current_win_path;
-    save_xctx[i]->current_win_path = save_xctx[j]->current_win_path;
-    save_xctx[j]->current_win_path = tmp;
-
+    /* swap xschem xctx structs */
     ctx = save_xctx[i];
     save_xctx[i] = save_xctx[j];
     save_xctx[j] = ctx;
+
+    /* re-swap window paths */
+    SWAP(save_xctx[i]->current_win_path, save_xctx[j]->current_win_path, tmp);
 
     /* update filenames on tab buttons */
     ctx = xctx;
@@ -2051,56 +2063,70 @@ void swap_tabs(void)
     xctx = ctx;
     set_modify(-1);
     /* set context to tab that is about to be deleted */
-    new_schematic("switch_tab", save_xctx[j]->current_win_path, NULL, 1);
+    new_schematic("switch", save_xctx[j]->current_win_path, NULL, 1);
+    my_free(_ALLOC_ID_, &wp_i);
+    my_free(_ALLOC_ID_, &wp_j);
   }
 }
 
 /* swap primary view (.drw) with first valid window (x1.drw, x2.drw, ...)
  * used for window close ('xschem exit' command)
  * if dr == 1 do draw and don't move following window onto first. This is used if
- * primary windows is about to be deleted */
-void swap_windows(int dr)
+ * primary windows is about to be deleted
+ * return:
+ *   the geometry of the next window that will become the main window after main window deletion */
+char *swap_windows(int dr)
 {
   int wc = window_count;
-  if(tclgetboolvar("tabbed_interface")) return;
+  if(tclgetboolvar("tabbed_interface")) return "";
   if(wc) {
     Xschem_ctx *ctx;
     char *tmp;
     char *wp_i = NULL, *wp_j = NULL;
     Window window;
     int i = 0, j;
-    char geometry[80];
+    static char next_win_geometry[80];
 
     for(j = 1; j < MAX_NEW_WINDOWS; j++) {
       if(save_xctx[j]) break;
     }
     if(j >= MAX_NEW_WINDOWS) {
       info("swap_windows(): no tab to swap to found\n");
-      return;
+      return "";
     }
     if(!save_xctx[i]) {
       info("swap_windows(): no tab to swap from found\n");
-      return;
+      return "";
     }
-    dbg(1, ("swap_windows(): i=%d, j=%d\n", i, j));
 
     my_strdup2(_ALLOC_ID_, &wp_i, save_xctx[i]->current_win_path);
     my_strdup2(_ALLOC_ID_, &wp_j, save_xctx[j]->current_win_path);
 
+    dbg(1, ("swap_windows(): %s <--> %s\n", wp_i, wp_j));
+
     /* get sub-window geometry and position. primary window wp_i will be sized and moved there. */
     tclvareval("wm geometry ", save_xctx[j]->top_path, NULL);
-    my_snprintf(geometry, S(geometry), "%s", tclresult());
-    dbg(1, ("geometry=%s\n", geometry));
+    my_snprintf(next_win_geometry, S(next_win_geometry), "%s", tclresult());
+    dbg(1, ("next_win_geometry=%s\n", next_win_geometry));
+
+    if(tclgetboolvar("preserve_undo")) {
+      /* update undo pointers in save table, swap winpath in keys */
+      /* replace  xctx->current_win_path with save_xctx[i]->current_win_path in hash keys */
+      save_undo_table(save_xctx[j]->current_win_path,  save_xctx[i]->current_win_path, XREPLACE_WINPATH);
+    } 
 
     /* swap tcl contexts */
-    tclvareval("save_ctx ", xctx->current_win_path, NULL);
-    tclvareval("restore_ctx ", wp_i, NULL);
-    tclvareval("save_ctx ", "_temp", NULL);
-    tclvareval("restore_ctx ", wp_j, NULL);
-    tclvareval("save_ctx ", wp_i, NULL);
-    tclvareval("restore_ctx ", "_temp", NULL);
-    tclvareval("save_ctx ", wp_j, NULL);
-    tclvareval("delete_ctx _temp", NULL);
+    /* most general scenario is that we are swapping tab 'i' (0) with tab 'j' and we are in tab 'k' */
+    tclvareval("save_ctx ","_temp2", NULL);     /* save ctx tab 'k' */
+    tclvareval("restore_ctx ", wp_i, NULL);     /* swap ctx of tab 'i' with tab 'j' */
+    tclvareval("save_ctx ", "_temp", NULL);     /* swap ctx of tab 'i' with tab 'j' */
+    tclvareval("restore_ctx ", wp_j, NULL);     /* swap ctx of tab 'i' with tab 'j' */
+    tclvareval("save_ctx ", wp_i, NULL);        /* swap ctx of tab 'i' with tab 'j' */
+    tclvareval("restore_ctx ", "_temp", NULL);  /* swap ctx of tab 'i' with tab 'j' */
+    tclvareval("save_ctx ", wp_j, NULL);        /* swap ctx of tab 'i' with tab 'j' */
+    tclvareval("delete_ctx _temp", NULL);       /* delete temporary ctx */
+    tclvareval("restore_ctx ", "_temp2", NULL); /* restore ctx tab 'k' */
+    tclvareval("delete_ctx _temp2", NULL);      /* delete temporary ctx */
 
     /* swap xschem xctx structs */
     ctx = save_xctx[i];
@@ -2115,9 +2141,7 @@ void swap_windows(int dr)
 
     new_schematic("switch", wp_i, "", 0);
     /* move primary window to location of deleted window */
-    if(!dr) tclvareval("wm withdraw .; update; wm geometry . ", geometry, "; wm deiconify .", NULL);
     resetwin(1, 1, 1, 0, 0);
-    if(dr) draw();
 
     new_schematic("switch", wp_j, "", 0);
     resetwin(1, 1, 1, 0, 0);
@@ -2126,7 +2150,9 @@ void swap_windows(int dr)
     my_free(_ALLOC_ID_, &wp_j);
     my_strdup2(_ALLOC_ID_, &old_win_path, "");
     if(dr) draw();
+    return next_win_geometry;
   }
+  return "";
 }
 
 /* check if filename is already loaded into a tab or window */
@@ -2549,6 +2575,11 @@ static void destroy_window(int *window_count, const char *win_path)
     Tcl_ResetResult(interp);
     if(close) {
 
+      /* ask to save modified hierarchy schematics not displayed */
+      if(tclgetboolvar("preserve_undo")) {
+        save_undo_table(NULL, NULL, XASK_SAVE);
+      }
+  
       if(has_x) {
         tkwin =  Tk_NameToWindow(interp, win_path, mainwindow); /* NULL if win_path not existing */
         if(!tkwin) info("new_schematic(\"destroy\", ...): Warning: %s has been destroyed\n", win_path);

@@ -61,7 +61,7 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
     my_mstrcat(_ALLOC_ID_, &winpath_sch, xctx->current_win_path, "/", sch_name, NULL);
   }
   /* old current_win_path is in sch_name, new current_win_path is given in undo_dirname */
-  if(what == XREPLACE_WINPATH && winpath_sch) {
+  if(what == XREPLACE_WINPATH) {
     int i;
     size_t l1 = strlen(sch_name); /* size of old prefix */
     size_t l2 = strlen(undo_dirname); /* size of old prefix */
@@ -112,8 +112,6 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
       undo_dir_hash.table[idx] = entry;
       entry = next;
     }
-
-
   } else if((what == XLOOKUP || what == XGET) && winpath_sch) {
     if(undo_dir_hash.table) {
       Ptr_hashentry *entry;
@@ -173,7 +171,7 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
     }
   } else if(what == XDELETE_ALL) {
     if(undo_dir_hash.table) {
-      dbg(1, ("save_undo_table(): XDELETE_ALL\n", winpath_sch));
+      dbg(1, ("save_undo_table(): XDELETE_ALL\n"));
       ptr_hash_free(&undo_dir_hash, save_undo_freefunc);
       res = 1;
     }
@@ -285,7 +283,6 @@ int save_undo_table(char *sch_name, char *undo_dirname, int what) {
 
                   delete_schematic_data(0);
                   xctx = xctx_save;
-
                 }
               }
             }
