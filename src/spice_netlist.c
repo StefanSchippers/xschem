@@ -52,11 +52,13 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   struct stat buf;
   Str_hashtable subckt_table = {NULL, 0};
   int save_prev_mod = xctx->prev_set_modify;
-
+  char *topschname = NULL;
+  
+  my_strdup2(_ALLOC_ID_, &topschname, xctx->current_name);
   save = xctx->do_copy_area;
   xctx->do_copy_area = 0;
   if((what & 1)  && !ps_draw(1, 1, 0)) return; /* prolog */
-  xctx->push_undo(6);
+  xctx->push_undo(6); /* use reserved slot 1 of undo stack */
   str_hash_init(&subckt_table, 367);
   zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   if(what & 1) ps_draw(2, 1, 0); /* page */
@@ -70,7 +72,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   unselect_all(1);
   remove_symbols(); /* ensure all unused symbols purged before descending hierarchy */
   /* reload data without popping undo stack, this populates embedded symbols if any */
-  xctx->pop_undo(6, 0);
+  xctx->pop_undo(6, 0); /* use reserved slot 1 of undo stack */
   my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
   xctx->sch_path_hash[xctx->currsch+1] = 0;
@@ -102,8 +104,14 @@ void hier_psprint(char **res, int what)  /* netlister driver */
         if(is_generator(filename) || !stat(filename, &buf)) {
           if(str_hash_lookup(&subckt_table, get_cell_w_ext(filename, 0), "", XINSERT_NOREPLACE)==NULL) {
             /* for printing we go down to bottom regardless of spice_stop attribute */
+            if(tclgetboolvar("preserve_undo")) xctx->delete_undo();
             dbg(1, ("hier_psprint(): loading file: |%s|\n", filename));
             load_schematic(1,filename, 0, 1);
+
+            if(tclgetboolvar("preserve_undo")) {
+              save_undo_table(xctx->current_name, NULL, XGET);
+            }
+
             get_additional_symbols(1);
             /* do a zoom with draw, this is needed to load embedded images into r->extraptr
              *        |   */
@@ -130,11 +138,18 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   xctx->currsch--;
   unselect_all(1);
   remove_symbols();
-  xctx->pop_undo(6, 0);
+
+  my_strncpy(xctx->current_name, topschname, S(xctx->current_name));
+  if(tclgetboolvar("preserve_undo")) {
+    save_undo_table(xctx->current_name, NULL, XGET);
+  }
+
+  xctx->pop_undo(6, 0); /* use reserved slot 1 of undo stack */
   xctx->prev_set_modify = save_prev_mod;
   my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
   xctx->do_copy_area = save;
   if(what & 1) ps_draw(4, 1, 0); /* trailer */
+  my_free(_ALLOC_ID_, &topschname);
 }
 
 static char *model_name_result = NULL; /* safe even with multiple schematics */
@@ -289,7 +304,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  exit_code = 0; /* reset exit code */
  split_f = tclgetboolvar("split_files");
  dbg(1, ("global_spice_netlist(): invoking push_undo()\n"));
- xctx->push_undo(6);
+ xctx->push_undo(6); /* use reserved slot 1 of undo stack */
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
  str_hash_init(&subckt_table, 367);
@@ -445,14 +460,15 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    int saved_hilight_nets = xctx->hilight_nets;
    int web_url = is_from_web(xctx->current_dirname);
    char *current_dirname_save = NULL;
+   char *topschname = NULL;
 
+   my_strdup2(_ALLOC_ID_, &topschname, xctx->current_name);
    my_strdup2(_ALLOC_ID_, &current_dirname_save, xctx->current_dirname);
    unselect_all(1);
    /* ensure all unused symbols purged before descending hierarchy */
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
    /* reload data without popping undo stack, this populates embedded symbols if any */
-   dbg(1, ("global_spice_netlist(): invoking pop_undo(6, 0)\n"));
-   xctx->pop_undo(6, 0);
+   xctx->pop_undo(6, 0); /* use reserved slot 1 of undo stack */
    my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;
@@ -524,7 +540,14 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    err |= sym_vs_sch_pins(-1);
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
-   xctx->pop_undo(6, 0); /* to re-populate only used symbols */
+
+   my_strncpy(xctx->current_name, topschname, S(xctx->current_name));
+   if(tclgetboolvar("preserve_undo")) {
+     save_undo_table(xctx->current_name, NULL, XGET);
+   }       
+
+   xctx->pop_undo(6, 0);  /* use reserved slot 1 of undo stack, to re-populate only used symbols */
+
    xctx->prev_set_modify = save_prev_mod;
    if(web_url) {
      my_strncpy(xctx->current_dirname, current_dirname_save, S(xctx->current_dirname));
@@ -537,6 +560,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    err |= prepare_netlist_structs(1); /* so 'lab=...' attributes for unnamed nets are set */
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
    my_free(_ALLOC_ID_, &current_dirname_save);
+   my_free(_ALLOC_ID_, &topschname);
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
  for(i=0;i<xctx->instances; ++i) if(!xctx->inst[i].color) xctx->inst[i].color = stored_flags[i];
@@ -697,7 +721,14 @@ int spice_block_netlist(FILE *fd, int i, int alert)
     my_free(_ALLOC_ID_, &extra);
     fprintf(fd, "\n");
 
+    if(tclgetboolvar("preserve_undo")) xctx->delete_undo();
     spice_stop ? load_schematic(0,filename, 0, alert) : load_schematic(1,filename, 0, alert);
+
+    if(tclgetboolvar("preserve_undo")) {
+      save_undo_table(xctx->current_name, NULL, XGET);
+      xctx->pop_undo(2, 0);
+    }
+
 
     get_additional_symbols(1);
     err |= spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */

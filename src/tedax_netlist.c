@@ -107,7 +107,14 @@ static int tedax_block_netlist(FILE *fd, int i, int alert)
   fprintf(fd, "%s", get_sym_template(xctx->sym[i].templ, extra));
   my_free(_ALLOC_ID_, &extra);
   fprintf(fd, "\n");
+
+  if(tclgetboolvar("preserve_undo")) xctx->delete_undo();
   load_schematic(1,filename, 0, alert);
+
+  if(tclgetboolvar("preserve_undo")) {
+    save_undo_table(xctx->current_name, NULL, XGET);
+  }
+
   get_additional_symbols(1);
   err |= tedax_netlist(fd, tedax_stop);
   xctx->netlist_count++;
@@ -138,7 +145,7 @@ int global_tedax_netlist(int global, int alert)  /* netlister driver */
  int save_prev_mod = xctx->prev_set_modify;
 
  exit_code = 0; /* reset exit code */
- xctx->push_undo(6);
+ xctx->push_undo(6); /* use reserved slot 1 of undo stack */
  statusmsg("",2);  /* clear infowindow */
  str_hash_init(&subckt_table, 367);
  record_global_node(2, NULL, NULL); /* delete list of global nodes */
@@ -198,12 +205,14 @@ int global_tedax_netlist(int global, int alert)  /* netlister driver */
    int saved_hilight_nets = xctx->hilight_nets;
    int web_url = is_from_web(xctx->current_dirname);
    char *current_dirname_save = NULL;
+   char *topschname = NULL;
 
+   my_strdup2(_ALLOC_ID_, &topschname, xctx->current_name);
    unselect_all(1);
    /* ensure all unused symbols purged before descending hierarchy */
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
    /* reload data without popping undo stack, this populates embedded symbols if any */
-   xctx->pop_undo(6, 0);
+   xctx->pop_undo(6, 0); /* use reserved slot 1 of undo stack */
    my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;
@@ -247,7 +256,13 @@ int global_tedax_netlist(int global, int alert)  /* netlister driver */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    err |= sym_vs_sch_pins(-1);
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
-   xctx->pop_undo(6, 0);
+
+   my_strncpy(xctx->current_name, topschname, S(xctx->current_name));
+   if(tclgetboolvar("preserve_undo")) {
+     save_undo_table(xctx->current_name, NULL, XGET);
+   }
+
+   xctx->pop_undo(6, 0); /* use reserved slot 1 of undo stack */
    xctx->prev_set_modify = save_prev_mod;
    if(web_url) {
      my_strncpy(xctx->current_dirname, current_dirname_save, S(xctx->current_dirname));
@@ -260,6 +275,7 @@ int global_tedax_netlist(int global, int alert)  /* netlister driver */
 
    if(!xctx->hilight_nets) xctx->hilight_nets = saved_hilight_nets;
    my_free(_ALLOC_ID_, &current_dirname_save);
+   my_free(_ALLOC_ID_, &topschname);
  }
  /* restore hilight flags from errors found analyzing top level before descending hierarchy */
  for(i=0;i<xctx->instances; ++i) if(!xctx->inst[i].color) xctx->inst[i].color = stored_flags[i];

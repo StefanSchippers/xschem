@@ -4007,7 +4007,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     }
     if(is_generator(ffname)) generator = 1;
     my_strncpy(name, ffname, S(name));
-    dbg(1, ("load_schematic(): name=%s generator=%d\n", name, generator));
+    dbg(1, ("load_schematic(): name=%s\n  reset_undo=%d\n  generator=%d\n", name, reset_undo, generator));
     /* remote web object specified */
     if(is_from_web(ffname) && xschem_web_dirname[0]) {
       /* download into ${XSCHEM_TMP_DIR}/xschem_web */
@@ -4316,7 +4316,7 @@ void pop_undo(int redo, int set_modify_status)
   #endif
   int undo_index;
 
-  dbg(1, ("pop_undo(): %s redo=%d, set_modify_status=%d\n", xctx->current_name, redo, set_modify_status));
+  dbg(1, ("pop_undo(%d, %d): %s\n", redo, set_modify_status, xctx->current_name));
   if(xctx->no_undo) return;
   if(!xctx->undo_initialized) return;
 
