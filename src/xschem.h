@@ -273,6 +273,8 @@ extern char win_temp_dir[PATH_MAX];
 #define BOXSIZE 400
 #define NBOXES 50
 
+/* first 2 slots (0, 1) are reserved. Undo will use slots from 2 and undo length is (MAX_UNDO - 2)
+ * never set to a value less than 3 */
 #define MAX_UNDO 80
 
 /* viewers xschem can generate plot commands for */
@@ -1184,7 +1186,7 @@ typedef struct {
   time_t time_last_modify;
   int warn_disk_file_modified;
   int undo_type; /* 0: on disk, 1: in memory */
-  void (*push_undo)(void);
+  void (*push_undo)(int);
   void (*pop_undo)(int, int);
   void (*delete_undo)(void);
   void (*clear_undo)(void);
@@ -1616,11 +1618,11 @@ extern int match_symbol(const char name[]);
 extern Sch_pin_record *sort_schematic_pins(int *npins);
 extern int save_schematic(const char *, int fast); /*  20171020 added return value */
 extern void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym);
-extern void push_undo(void);
+extern void push_undo(int);
 extern void pop_undo(int redo, int set_modify_status);
 extern void delete_undo(void);
 extern void clear_undo(void);
-extern void mem_push_undo(void);
+extern void mem_push_undo(int);
 extern void mem_pop_undo(int redo, int set_modify_status);
 extern void mem_delete_undo(void);
 extern void mem_clear_undo(void);

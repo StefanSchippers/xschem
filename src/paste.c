@@ -383,7 +383,7 @@ void merge_file(int selection_load, const char ext[])
      xctx->prep_hash_inst=0;
      xctx->prep_hash_wires=0;
      got_mouse = 0;
-     xctx->push_undo();
+     xctx->push_undo(0);
      unselect_all(1);
      old=xctx->instances;
      while(!endfile)

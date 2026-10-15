@@ -126,7 +126,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
 
  exit_code = 0; /* reset exit code */
  split_f = tclgetboolvar("split_files");
- xctx->push_undo();
+ xctx->push_undo(6);
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
  /* top sch properties used for library use declarations and type definitions */
@@ -188,8 +188,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
  unselect_all(1);
  if(!tclgetboolvar("keep_symbols")) remove_symbols();
  /* reload data without popping undo stack, this populates embedded symbols if any */
- xctx->pop_undo(2, 0);
- /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
+ xctx->pop_undo(6, 0);
 
  /* 20071009 print top level generics if defined in symbol */
  str_tmp = add_ext(xctx->sch[xctx->currsch], ".sym");
@@ -409,8 +408,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
    /* ensure all unused symbols purged before descending hierarchy */
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
    /* reload data without popping undo stack, this populates embedded symbols if any */
-   xctx->pop_undo(2, 0);
-   /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
+   xctx->pop_undo(6, 0);
    my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;
@@ -461,7 +459,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    err |= sym_vs_sch_pins(-1);
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
-   xctx->pop_undo(4, 0);
+   xctx->pop_undo(6, 0);
    xctx->prev_set_modify = save_prev_mod;
    if(web_url) {
      my_strncpy(xctx->current_dirname, current_dirname_save, S(xctx->current_dirname));

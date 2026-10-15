@@ -500,7 +500,7 @@ void break_wires_at_point(double x0, double y0, int align)
           (y0 != y1 && y0 != y2) ) {
         dbg(1, ("break_wires_at_point(): processing wire %d: %g %g %g %g\n",
             i, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2));
-        if(!changed) { xctx->push_undo(); changed=1;}
+        if(!changed) { xctx->push_undo(0); changed=1;}
         check_wire_storage();
         xctx->wire[xctx->wires].x1=xctx->wire[i].x1;
         xctx->wire[xctx->wires].y1=xctx->wire[i].y1;
@@ -571,7 +571,7 @@ void break_wires_at_pins(int remove)
                 (y0!=xctx->wire[i].y1 && y0!=xctx->wire[i].y2) ) {
               dbg(1, ("break_wires_at_pins(): processing wire %d: %g %g %g %g\n",
                   i, xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2));
-              if(!changed) { xctx->push_undo(); changed=1;}
+              if(!changed) { xctx->push_undo(0); changed=1;}
               check_wire_storage();
               if(!remove || !RECT_INSIDE(xctx->wire[i].x1, xctx->wire[i].y1, x0, y0,
                              xctx->inst[k].xx1, xctx->inst[k].yy1, xctx->inst[k].xx2, xctx->inst[k].yy2)
@@ -625,7 +625,7 @@ void break_wires_at_pins(int remove)
               dbg(1, ("i=%d, t1=%d, t2=%d, e1=%d, e2=%d\n", i, t1, t2, e1, e2));
               if(inside && ( (t1 && t2) || (t1 && e2 == 0) || (t2 && e1 == 0) )) {
                 xctx->wire[i].sel = SELECTED4;
-                if(!changed) { xctx->push_undo(); changed=1;}
+                if(!changed) { xctx->push_undo(0); changed=1;}
               }
             }
           } /* if( touch(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2, x0,y0) ) */
@@ -668,7 +668,7 @@ void break_wires_at_pins(int remove)
           if( (x0!=xctx->wire[i].x1 && x0!=xctx->wire[i].x2) ||
               (y0!=xctx->wire[i].y1 && y0!=xctx->wire[i].y2) ) {
             /* printf("touch in mid point: %d\n", l+1); */
-            if(!changed) { xctx->push_undo(); changed=1;}
+            if(!changed) { xctx->push_undo(0); changed=1;}
             check_wire_storage();
             xctx->wire[xctx->wires].x1=xctx->wire[i].x1;
             xctx->wire[xctx->wires].y1=xctx->wire[i].y1;

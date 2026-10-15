@@ -2166,7 +2166,7 @@ static int edit_line_point(int state)
     if(xctx->shape_point_selected) {
       /* move one line selected point */
       if(!(state & (ControlMask | ShiftMask))){
-        /* xctx->push_undo(); */
+        /* xctx->push_undo(0); */
         move_objects(START,0,0,0);
         return 1;
       }
@@ -2197,7 +2197,7 @@ static int edit_wire_point(int state)
     if(xctx->shape_point_selected) {
       /* move one wire selected point */
       if(!(state & (ControlMask | ShiftMask))){
-        /* xctx->push_undo(); */
+        /* xctx->push_undo(0); */
         move_objects(START,0,0,0);
         return 1;
       }
@@ -2238,7 +2238,7 @@ static int edit_rect_point(int state)
     if(xctx->shape_point_selected) {
       /* move one rectangle selected point */
       if(!(state & (ControlMask | ShiftMask))){
-        /* xctx->push_undo(); */
+        /* xctx->push_undo(0); */
         move_objects(START,0,0,0);
         return 1;
       }
@@ -2280,7 +2280,7 @@ static int edit_polygon_point(int state)
 
       /* add a new polygon/bezier point after selected one and start moving it*/
       if(state & ShiftMask) {
-        xctx->push_undo();
+        xctx->push_undo(0);
         points++;
         my_realloc(_ALLOC_ID_, &p->x, sizeof(double) * points);
         my_realloc(_ALLOC_ID_, &p->y, sizeof(double) * points);
@@ -2301,7 +2301,7 @@ static int edit_polygon_point(int state)
       }
       /* delete polygon/bezier selected point */
       else if(points > 2 && state & ControlMask) {
-        xctx->push_undo();
+        xctx->push_undo(0);
         points--;
         for(j = i ; j < points ; j++) {
            p->x[j] = p->x[j + 1];
@@ -2316,7 +2316,7 @@ static int edit_polygon_point(int state)
         return 1;
       /* move one polygon/bezier selected point */
       } else if(!(state & (ControlMask | ShiftMask))){
-        /* xctx->push_undo(); */
+        /* xctx->push_undo(0); */
         p->sel = SELECTED1;
         move_objects(START,0,0,0);
         return 1;
@@ -3543,7 +3543,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 
     case 'p':
       if(EQUAL_MODMASK) { /* add symbol pin */
-        xctx->push_undo();
+        xctx->push_undo(0);
         unselect_all(1);
         storeobject(-1, xctx->mousex_snap-2.5, xctx->mousey_snap-2.5, xctx->mousex_snap+2.5, xctx->mousey_snap+2.5,
                     xRECT, PINLAYER, SELECTED, "name=XXX\ndir=inout");
@@ -3796,7 +3796,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       }
       else if(EQUAL_MODMASK) { /* align to grid */
         if(xctx->semaphore >= 2) break;
-        xctx->push_undo();
+        xctx->push_undo(0);
         round_schematic_to_grid(c_snap);
         set_modify(1);
         if(tclgetboolvar("autotrim_wires")) trim_wires();
@@ -4310,7 +4310,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
 
     case '&':                               /* check wire connectivity */
       if(xctx->semaphore >= 2) break;
-      xctx->push_undo();
+      xctx->push_undo(0);
       trim_wires();
       draw();
       break;

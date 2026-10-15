@@ -56,7 +56,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   save = xctx->do_copy_area;
   xctx->do_copy_area = 0;
   if((what & 1)  && !ps_draw(1, 1, 0)) return; /* prolog */
-  xctx->push_undo();
+  xctx->push_undo(6);
   str_hash_init(&subckt_table, 367);
   zoom_full(0, 0, 1 + 2 * tclgetboolvar("zoom_full_center"), 0.97);
   if(what & 1) ps_draw(2, 1, 0); /* page */
@@ -70,8 +70,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   unselect_all(1);
   remove_symbols(); /* ensure all unused symbols purged before descending hierarchy */
   /* reload data without popping undo stack, this populates embedded symbols if any */
-  xctx->pop_undo(2, 0);
-  /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
+  xctx->pop_undo(6, 0);
   my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
   my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
   xctx->sch_path_hash[xctx->currsch+1] = 0;
@@ -131,7 +130,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   xctx->currsch--;
   unselect_all(1);
   remove_symbols();
-  xctx->pop_undo(4, 0);
+  xctx->pop_undo(6, 0);
   xctx->prev_set_modify = save_prev_mod;
   my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
   xctx->do_copy_area = save;
@@ -290,7 +289,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  exit_code = 0; /* reset exit code */
  split_f = tclgetboolvar("split_files");
  dbg(1, ("global_spice_netlist(): invoking push_undo()\n"));
- xctx->push_undo();
+ xctx->push_undo(6);
  xctx->netlist_unconn_cnt=0; /* unique count of unconnected pins while netlisting */
  statusmsg("",2);  /* clear infowindow */
  str_hash_init(&subckt_table, 367);
@@ -452,9 +451,8 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    /* ensure all unused symbols purged before descending hierarchy */
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
    /* reload data without popping undo stack, this populates embedded symbols if any */
-   dbg(1, ("global_spice_netlist(): invoking pop_undo(2, 0)\n"));
-   xctx->pop_undo(2, 0);
-   /* link_symbols_to_instances(-1); */ /* done in xctx->pop_undo() */
+   dbg(1, ("global_spice_netlist(): invoking pop_undo(6, 0)\n"));
+   xctx->pop_undo(6, 0);
    my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;
@@ -526,7 +524,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    err |= sym_vs_sch_pins(-1);
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
-   xctx->pop_undo(4, 0); /* to re-populate only used symbols */
+   xctx->pop_undo(6, 0); /* to re-populate only used symbols */
    xctx->prev_set_modify = save_prev_mod;
    if(web_url) {
      my_strncpy(xctx->current_dirname, current_dirname_save, S(xctx->current_dirname));
@@ -700,6 +698,7 @@ int spice_block_netlist(FILE *fd, int i, int alert)
     fprintf(fd, "\n");
 
     spice_stop ? load_schematic(0,filename, 0, alert) : load_schematic(1,filename, 0, alert);
+
     get_additional_symbols(1);
     err |= spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
     err |= warning_overlapped_symbols(0);

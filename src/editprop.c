@@ -1043,7 +1043,7 @@ static int edit_rect_property(int x)
   preserve = tclgetboolvar("preserve_unchanged_attrs");
   if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
-    xctx->push_undo();
+    xctx->push_undo(0);
     for(i=0; i<xctx->lastsel; ++i) {
       if(xctx->sel_array[i].type != xRECT) continue;
       c = xctx->sel_array[i].col;
@@ -1139,7 +1139,7 @@ static int edit_line_property(void)
   if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
     double y1, y2;
-    xctx->push_undo();
+    xctx->push_undo(0);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     for(i=0; i<xctx->lastsel; ++i) {
       if(xctx->sel_array[i].type != LINE) continue;
@@ -1201,7 +1201,7 @@ static int edit_wire_property(void)
   preserve = tclgetboolvar("preserve_unchanged_attrs");
   if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
-    xctx->push_undo();
+    xctx->push_undo(0);
     bbox(START, 0.0 , 0.0 , 0.0 , 0.0);
     for(i=0; i<xctx->lastsel; ++i) {
       double ov, y1, y2;
@@ -1260,7 +1260,7 @@ static int edit_arc_property(void)
   preserve = tclgetboolvar("preserve_unchanged_attrs");
   if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
-   xctx->push_undo();
+   xctx->push_undo(0);
    for(ii=0; ii<xctx->lastsel; ii++) {
      if(xctx->sel_array[ii].type != ARC) continue;
 
@@ -1340,7 +1340,7 @@ static int edit_polygon_property(void)
   preserve = tclgetboolvar("preserve_unchanged_attrs");
   if(strcmp(tclgetvar("tctx::rcode"),"") )
   {
-   xctx->push_undo();
+   xctx->push_undo(0);
    for(ii=0; ii<xctx->lastsel; ii++) {
      if(xctx->sel_array[ii].type != POLYGON) continue;
 
@@ -1462,7 +1462,7 @@ static int edit_text_property(int x)
     dbg(1, ("edit_text_property(): tctx::rcode !=\"\"\n"));
     if(text_changed || size_changed || props_changed) {
       modified = 1;
-      xctx->push_undo();
+      xctx->push_undo(0);
     }
     /* set_modify(-2); */ /* ? Not needed, overkill... clear text floater caches */
     for(k=0;k<xctx->lastsel; ++k)
@@ -1661,7 +1661,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
         char * ss=NULL;
         my_strdup(_ALLOC_ID_, &ss, xctx->inst[*ii].prop_ptr);
         if( set_different_token(&ss, new_prop, xctx->old_prop) ) {
-          if(!pushed) { xctx->push_undo(); pushed=1;}
+          if(!pushed) { xctx->push_undo(0); pushed=1;}
           my_strdup(_ALLOC_ID_, &xctx->inst[*ii].prop_ptr, ss);
         }
         my_free(_ALLOC_ID_, &ss);
@@ -1671,12 +1671,12 @@ static int update_symbol(const char *result, int x, int selected_inst)
           if(!xctx->inst[*ii].prop_ptr || strcmp(xctx->inst[*ii].prop_ptr, new_prop)) {
             dbg(1, ("update_symbol(): changing prop: |%s| -> |%s|\n",
                 xctx->inst[*ii].prop_ptr, new_prop));
-            if(!pushed) { xctx->push_undo(); pushed=1;}
+            if(!pushed) { xctx->push_undo(0); pushed=1;}
             dbg(1, ("update_symbol(): *ii=%d, new_prop=%s\n", *ii, new_prop ? new_prop : "<NULL>"));
             my_strdup(_ALLOC_ID_, &xctx->inst[*ii].prop_ptr, new_prop);
           }
         }  else {
-          if(!pushed) { xctx->push_undo(); pushed=1;}
+          if(!pushed) { xctx->push_undo(0); pushed=1;}
           my_strdup(_ALLOC_ID_, &xctx->inst[*ii].prop_ptr, "");
         }
       }
@@ -1699,7 +1699,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
 
     if(sym_number>=0) /* changing symbol ! */
     {
-      if(!pushed) { xctx->push_undo(); pushed=1;}
+      if(!pushed) { xctx->push_undo(0); pushed=1;}
       delete_inst_node(*ii); /* 20180208 fix crashing bug: delete node info if changing symbol */
                         /* if number of pins is different we must delete these data *before* */
                         /* changing ysmbol, otherwise *ii might end up deleting non allocated data. */
@@ -1729,7 +1729,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
 
 
       if(strcmp(old_name, name)) {
-        if(!pushed) { xctx->push_undo(); pushed=1;}
+        if(!pushed) { xctx->push_undo(0); pushed=1;}
         if(!k) hash_names(-1, XINSERT);
         hash_names(*ii, XDELETE);
         dbg(1, ("update_symbol(): delete %s\n", xctx->inst[*ii].instname));
@@ -1835,7 +1835,7 @@ void change_elem_order(int n)
       if(strcmp(tclgetvar("tctx::retval"),"") )
       {
         int c = 0;
-        xctx->push_undo();
+        xctx->push_undo(0);
         modified = 1;
         xctx->prep_hash_inst=0;
         xctx->prep_net_structs=0;
@@ -1849,7 +1849,7 @@ void change_elem_order(int n)
       }
     } else {
       new_n = n;
-      xctx->push_undo();
+      xctx->push_undo(0);
       modified = 1;
       xctx->prep_hash_inst=0;
       xctx->prep_net_structs=0;
@@ -2034,38 +2034,38 @@ void edit_property(int x)
    {
      if(xctx->netlist_type==CAD_SYMBOL_ATTRS &&
         (!xctx->schsymbolprop || strcmp(xctx->schsymbolprop, tclgetvar("tctx::retval") ) ) ) {
-        xctx->push_undo();
+        xctx->push_undo(0);
         modified = 1;
         my_strdup(_ALLOC_ID_, &xctx->schsymbolprop, (char *) tclgetvar("tctx::retval"));
 
      } else if(xctx->netlist_type==CAD_VERILOG_NETLIST &&
         (!xctx->schverilogprop || strcmp(xctx->schverilogprop, tclgetvar("tctx::retval") ) ) ) {
         modified = 1;
-        xctx->push_undo();
+        xctx->push_undo(0);
         my_strdup(_ALLOC_ID_, &xctx->schverilogprop, (char *) tclgetvar("tctx::retval"));
 
      } else if(xctx->netlist_type==CAD_SPECTRE_NETLIST &&
         (!xctx->schspectreprop || strcmp(xctx->schspectreprop, tclgetvar("tctx::retval") ) ) ) {
         modified = 1;
-        xctx->push_undo();
+        xctx->push_undo(0);
         my_strdup(_ALLOC_ID_, &xctx->schspectreprop, (char *) tclgetvar("tctx::retval"));
 
      } else if(xctx->netlist_type==CAD_SPICE_NETLIST &&
         (!xctx->schprop || strcmp(xctx->schprop, tclgetvar("tctx::retval") ) ) ) {
         modified = 1;
-        xctx->push_undo();
+        xctx->push_undo(0);
         my_strdup(_ALLOC_ID_, &xctx->schprop, (char *) tclgetvar("tctx::retval"));
 
      } else if(xctx->netlist_type==CAD_TEDAX_NETLIST &&
         (!xctx->schtedaxprop || strcmp(xctx->schtedaxprop, tclgetvar("tctx::retval") ) ) ) {
         modified = 1;
-        xctx->push_undo();
+        xctx->push_undo(0);
         my_strdup(_ALLOC_ID_, &xctx->schtedaxprop, (char *) tclgetvar("tctx::retval"));
 
      } else if(xctx->netlist_type==CAD_VHDL_NETLIST &&
         (!xctx->schvhdlprop || strcmp(xctx->schvhdlprop, tclgetvar("tctx::retval") ) ) ) {
         modified = 1;
-        xctx->push_undo();
+        xctx->push_undo(0);
         my_strdup(_ALLOC_ID_, &xctx->schvhdlprop, (char *) tclgetvar("tctx::retval"));
      }
    }

@@ -848,7 +848,7 @@ void check_unique_names(int rename)
           if(first) {
             bbox(START,0.0,0.0,0.0,0.0);
             modified = 1;
-            xctx->push_undo();
+            xctx->push_undo(0);
             xctx->prep_hash_inst=0;
             xctx->prep_net_structs=0;
             xctx->prep_hi_structs=0;

@@ -272,10 +272,12 @@ void mem_delete_undo(void)
   xctx->mem_undo_initialized = 0;
 }
 
-void mem_push_undo(void)
+/* what: currently always 0 */
+void mem_push_undo(int what)
 {
   int slot, i, c;
 
+  (void) what;
   if(xctx->no_undo)return;
   mem_init_undo();
   slot = xctx->cur_undo_ptr%MAX_UNDO;
@@ -419,7 +421,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   } else if(redo == 0 || redo == 4) {  /* undo */
     if(xctx->cur_undo_ptr == xctx->tail_undo_ptr) return;
     if(xctx->head_undo_ptr == xctx->cur_undo_ptr) {
-      xctx->push_undo();
+      xctx->push_undo(0);
       xctx->head_undo_ptr--;
       xctx->cur_undo_ptr--;
     }

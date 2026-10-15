@@ -202,7 +202,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       const char *name = NULL;
       const char *dir = NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      xctx->push_undo();
+      xctx->push_undo(0);
       if(argc > 6) draw = atoi(argv[6]);
       if(argc > 5) {
         char *prop = NULL;
@@ -321,7 +321,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "align"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      xctx->push_undo();
+      xctx->push_undo(0);
       round_schematic_to_grid(tclgetdoublevar("cadsnap"));
       if(tclgetboolvar("autotrim_wires")) trim_wires();
       set_modify(1);
@@ -1440,6 +1440,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   8: do not uniquify name when copying (what == 2)
      *  16: copy undo pointers and undo directory
      *  32: for fork_sch(6, ...): only delete hash table entry, do not delete schematic data
+     *  64: for fork_sch(3, ...): delete pre-existing schematic also if modified.
      * dbglev: 
      *   0: print informations, ask user to save a modified schematic [default]
      *  >0: print info only if debug_var >-dbglev, do not prompt user
@@ -2657,7 +2658,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(what) {
         rebuild_selected_array();
         if(what & 256) set_modify(1);
-        xctx->push_undo();
+        xctx->push_undo(0);
         for(n=0; n < xctx->lastsel; ++n) {
           if(xctx->sel_array[n].type == xRECT) {
             i = xctx->sel_array[n].n;
@@ -3280,7 +3281,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             clear_all_hilights();
             unselect_all(1);
             /* no implicit undo: if needed do it before loading */
-            /* if(!undo_reset) xctx->push_undo(); */
+            /* if(!undo_reset) xctx->push_undo(0); */
             if(!first_loaded) {
               if(undo_reset) xctx->currsch = 0;
               if(!keep_symbols) remove_symbols();
@@ -3595,7 +3596,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           Tcl_SetResult(interp, "xschem move_instance: instance not found", TCL_STATIC);
           return TCL_ERROR;
         }
-        if(undo) xctx->push_undo();
+        if(undo) xctx->push_undo(0);
         if(strcmp(argv[3], "-")) xctx->inst[i].x0 = atof(argv[3]);
         if(strcmp(argv[4], "-")) xctx->inst[i].y0 = atof(argv[4]);
         if(strcmp(argv[5], "-")) xctx->inst[i].rot = (unsigned short)atoi(argv[5]);
@@ -4348,12 +4349,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       propagate_hilights(set, clear, XINSERT_NOREPLACE);
     }
 
-    /* push_undo
-     *   Push current state on undo stack */
+    /* push_undo [what]
+     *   Push current state on undo stack
+     *   if `what == 1` is given do a push on slot pointed by cur_undo_ptr
+     *   without changing cur_undo_ptr */
     else if(!strcmp(argv[1], "push_undo"))
     {
+      int what = 0;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      xctx->push_undo();
+      if(argc > 2) {
+        what = atoi(argv[2]);
+      }
+      xctx->push_undo(what);
       Tcl_ResetResult(interp);
     }
     else { cmd_found = 0;}
@@ -4939,7 +4946,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         char *sym = NULL;
         my_strncpy(symbol, argv[3], S(symbol));
         if(!fast) {
-          xctx->push_undo();
+          xctx->push_undo(0);
           xctx->prep_hash_inst=0;
           xctx->prep_net_structs=0;
           xctx->prep_hi_structs=0;
@@ -5007,7 +5014,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         return TCL_ERROR;
       }
       symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-      xctx->push_undo();
+      xctx->push_undo(0);
       xctx->prep_hash_inst=0;
       xctx->prep_net_structs=0;
       xctx->prep_hi_structs=0;
@@ -5734,7 +5741,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           else if(!strcmp(argv[2], "header_text")) { /* set header metadata (used for license info) */
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             if(!xctx->header_text || strcmp(xctx->header_text, argv[3])) {
-              set_modify(1); xctx->push_undo();
+              set_modify(1); xctx->push_undo(0);
               my_strdup2(_ALLOC_ID_, &xctx->header_text, argv[3]);
             }
           }
@@ -5995,7 +6002,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
           if(!fast) {
             symbol_bbox(inst, &xctx->inst[inst].x1, &xctx->inst[inst].y1, &xctx->inst[inst].x2, &xctx->inst[inst].y2);
-            xctx->push_undo();
+            xctx->push_undo(0);
           }
           xctx->prep_hash_inst=0;
           xctx->prep_net_structs=0;
@@ -6103,14 +6110,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           /* verify if there is some difference */
           if(strcmp(argv[6], get_tok_value(r->prop_ptr, argv[5], 0))) {
             change_done = 1;
-            if(fast == 3 || fast == 0) xctx->push_undo();
+            if(fast == 3 || fast == 0) xctx->push_undo(0);
             my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], argv[6]));
           }
         } else {
           get_tok_value(r->prop_ptr, argv[5], 0);
           if(xctx->tok_size) {
             change_done = 1;
-            if(fast == 3 || fast == 0) xctx->push_undo();
+            if(fast == 3 || fast == 0) xctx->push_undo(0);
             my_strdup2(_ALLOC_ID_, &r->prop_ptr, subst_token(r->prop_ptr, argv[5], NULL)); /* delete attr */
           }
         }
@@ -6151,14 +6158,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           /* verify if there is some difference */
           if(strcmp(argv[5], get_tok_value(w->prop_ptr, argv[4], 0))) {
             change_done = 1;
-            if(fast == 3 || fast == 0) xctx->push_undo();
+            if(fast == 3 || fast == 0) xctx->push_undo(0);
             my_strdup2(_ALLOC_ID_, &w->prop_ptr, subst_token(w->prop_ptr, argv[4], argv[5]));
           }
         } else {
           get_tok_value(w->prop_ptr, argv[4], 0);
           if(xctx->tok_size) {
             change_done = 1;
-            if(fast == 3 || fast == 0) xctx->push_undo();
+            if(fast == 3 || fast == 0) xctx->push_undo(0);
             my_strdup2(_ALLOC_ID_, &w->prop_ptr, subst_token(w->prop_ptr, argv[4], NULL)); /* delete attr */
           }
         }
@@ -6215,19 +6222,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(!strcmp(argv[4], "txt_ptr")) {
             if(strcmp(argv[5], t->txt_ptr)) {
               change_done = 1;
-              if(fast == 3 || fast == 0) xctx->push_undo();
+              if(fast == 3 || fast == 0) xctx->push_undo(0);
               my_strdup2(_ALLOC_ID_, &t->txt_ptr, argv[5]);
             }
           } else if(strcmp(argv[5], get_tok_value(t->prop_ptr, argv[4], 0))) {
             change_done = 1;
-            if(fast == 3 || fast == 0) xctx->push_undo();
+            if(fast == 3 || fast == 0) xctx->push_undo(0);
             my_strdup2(_ALLOC_ID_, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], argv[5]));
           }
         } else if(argc > 4) {
           get_tok_value(t->prop_ptr, argv[4], 0);
           if(xctx->tok_size) {
             change_done = 1;
-            if(fast == 3 || fast == 0) xctx->push_undo();
+            if(fast == 3 || fast == 0) xctx->push_undo(0);
             my_strdup2(_ALLOC_ID_, &t->prop_ptr, subst_token(t->prop_ptr, argv[4], NULL)); /* delete attr */
           }
         }
@@ -6821,7 +6828,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     else if(!strcmp(argv[1], "trim_wires"))
     {
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      xctx->push_undo();
+      xctx->push_undo(0);
       trim_wires();
       draw();
       Tcl_ResetResult(interp);
@@ -7019,7 +7026,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc > 6) pos=atoi(argv[6]);
         if(argc > 7) prop = argv[7];
         if(argc > 8) sel = atoi(argv[8]);
-        xctx->push_undo();
+        xctx->push_undo(0);
         storeobject(pos, x1,y1,x2,y2,WIRE,0,(short)sel,prop);
         if(sel) xctx->need_reb_sel_arr=1;
         xctx->prep_hi_structs=0;

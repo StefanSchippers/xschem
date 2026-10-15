@@ -530,7 +530,7 @@ void delete(int to_push_undo)
   dbg(3, ("delete(): start\n"));
   j = 0;
   rebuild_selected_array();
-  if(to_push_undo && xctx->lastsel) xctx->push_undo();
+  if(to_push_undo && xctx->lastsel) xctx->push_undo(0);
   del_rect_line_arc_poly();
 
   for(i=0;i<xctx->texts; ++i)
@@ -1788,7 +1788,7 @@ int floaters_from_selected_inst()
       instrot = xctx->inst[i].rot;
       instflip = xctx->inst[i].flip;
       if(first) {
-        xctx->push_undo();
+        xctx->push_undo(0);
         set_modify(1);
         first = 0;
       }

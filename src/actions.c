@@ -1202,7 +1202,7 @@ int connect_by_kissing(void)
       if(kissing) {
 
         if(!done_undo) {
-          xctx->push_undo();
+          xctx->push_undo(0);
           done_undo = 1;
         }
         my_snprintf(coord, S(coord), "%.16g %.16g", pinx0, piny0);
@@ -1259,7 +1259,7 @@ int connect_by_kissing(void)
       }
       if(kissing) {
         if(!done_undo) {
-          xctx->push_undo();
+          xctx->push_undo(0);
           done_undo = 1;
         }
         my_snprintf(coord, S(coord), "%.16g %.16g", x0, y0);
@@ -1593,7 +1593,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  my_strncpy(name1, rel_sym_path(name), S(name1));
  my_strncpy(name, name1, S(name));
  if(name[0]) {
-   if(first_call && to_push_undo) xctx->push_undo();
+   if(first_call && to_push_undo) xctx->push_undo(0);
  } else  return 0;
  i=match_symbol(name);
 
@@ -2084,7 +2084,7 @@ void toggle_ignore(void)
       if(xctx->sel_array[n].type == ELEMENT) {
         i = xctx->sel_array[n].n;
         if(first) {
-          xctx->push_undo();
+          xctx->push_undo(0);
           first = 0;
         }
         flag = 0;
@@ -2113,7 +2113,7 @@ void toggle_ignore(void)
       if(xctx->sel_array[n].type == WIRE) {
         i = xctx->sel_array[n].n;
         if(first) {
-          xctx->push_undo();
+          xctx->push_undo(0);
           first = 0;
         }
         flag = 0;
@@ -2558,8 +2558,8 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    ) return 0;
 
    if(tclgetboolvar("preserve_undo")) {
-     /* do not push state for undo if at bottom of stack */
-     if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) xctx->push_undo(); 
+     /* push state into cur_undo_ptr, do not advance the pointer */
+     xctx->push_undo(2); 
    }
 
    /* get schematic to descend into */
@@ -2712,7 +2712,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
 
      if(tclgetboolvar("preserve_undo")) {
        save_undo_table(xctx->current_name, NULL, XGET);
-       if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) xctx->pop_undo(4, 0);
+       xctx->pop_undo(2, 0);
      }
 
      if(xctx->hilight_nets) {
@@ -2779,8 +2779,8 @@ void go_back(int what)
   }
 
   if(tclgetboolvar("preserve_undo")) {
-    /* do not push state for undo if at bottom of stack */
-    if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) xctx->push_undo(); 
+    /* push state into cur_undo_ptr, do not advance the pointer */
+    xctx->push_undo(2); 
   }
 
   unselect_all(1);
@@ -2812,7 +2812,7 @@ void go_back(int what)
 
   if(tclgetboolvar("preserve_undo")) {
     save_undo_table(xctx->current_name, NULL, XGET);
-    if(xctx->cur_undo_ptr > xctx->tail_undo_ptr) xctx->pop_undo(4, 0);
+    xctx->pop_undo(2, 0);
   }
 
   if(xctx->hilight_nets) {
@@ -3318,7 +3318,7 @@ void new_wire(int what, double mx_snap, double my_snap)
   double nl_xx1, nl_yy1, nl_xx2, nl_yy2;
   if( (what & PLACE) ) {
     if( (xctx->ui_state & STARTWIRE) && (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) ) {
-      xctx->push_undo();
+      xctx->push_undo(0);
       if(xctx->manhattan_lines & 1) {
         if(xctx->nl_x2!=xctx->nl_x1) {
           nl_xx1 = xctx->nl_x1; nl_yy1 = xctx->nl_y1;
@@ -3399,7 +3399,7 @@ void change_layer()
   double x1,y1,x2,y2, a, b, r;
   int modified = 0;
 
-   if(xctx->lastsel) xctx->push_undo();
+   if(xctx->lastsel) xctx->push_undo(0);
    for(k=0;k<xctx->lastsel; ++k)
    {
      n=xctx->sel_array[k].n;
@@ -3477,7 +3477,7 @@ void new_arc(int what, double sweep, double mousex_snap, double mousey_snap)
           xctx->nl_x3, xctx->nl_y3, &xctx->nl_x, &xctx->nl_y, &xctx->nl_r, &xctx->nl_a, &xctx->nl_b);
       if(xctx->nl_sweep_angle==360.) xctx->nl_b=360.;
       if(xctx->nl_r>0.) {
-        xctx->push_undo();
+        xctx->push_undo(0);
         drawarc(xctx->rectcolor, NOW, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, 0, 0.0, 0);
         store_arc(-1, xctx->nl_x, xctx->nl_y, xctx->nl_r, xctx->nl_a, xctx->nl_b, xctx->rectcolor, 0, NULL);
         set_modify(1);
@@ -3524,7 +3524,7 @@ void new_line(int what, double mx_snap, double my_snap)
   {
     if( (xctx->nl_x1!=xctx->nl_x2 || xctx->nl_y1!=xctx->nl_y2) && (xctx->ui_state & STARTLINE) )
     {
-      xctx->push_undo();
+      xctx->push_undo(0);
       if(xctx->manhattan_lines & 1) {
         if(xctx->nl_x2!=xctx->nl_x1) {
           nl_xx1 = xctx->nl_x1; nl_yy1 = xctx->nl_y1;
@@ -3596,7 +3596,7 @@ void new_rect(int what, double mousex_snap, double mousey_snap)
    {
     int save_draw;
     RECTORDER(xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2);
-    xctx->push_undo();
+    xctx->push_undo(0);
     drawrect(xctx->rectcolor, NOW, xctx->nl_x1,xctx->nl_y1,xctx->nl_x2,xctx->nl_y2, 0.0, 0, -1, -1);
     save_draw = xctx->draw_window;
     xctx->draw_window = 1;
@@ -3678,7 +3678,7 @@ void new_polygon(int what, double mousex_snap, double mousey_snap)
         /* closed poly end by clicking on first point */
         ((what & ADD) && xctx->nl_polyx[xctx->nl_points-1] == xctx->nl_polyx[0] &&
          xctx->nl_polyy[xctx->nl_points-1] == xctx->nl_polyy[0]) ) {
-     xctx->push_undo();
+     xctx->push_undo(0);
      drawtemppolygon(xctx->gctiled, NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points+1, 0);
      store_poly(-1, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, xctx->rectcolor, 0, NULL);
      drawtemppolygon(xctx->gc[xctx->rectcolor], NOW, xctx->nl_polyx, xctx->nl_polyy, xctx->nl_points, 0);
@@ -3972,7 +3972,7 @@ int place_text(int draw_text, double mx, double my)
   hsize =  (char *)tclgetvar("tctx::hsize");
   vsize =  (char *)tclgetvar("tctx::vsize");
   if(!txt || !strcmp(txt,"")) return 0;   /*  dont allocate text object if empty string given */
-  xctx->push_undo();
+  xctx->push_undo(0);
   dbg(1,("props=%s, txt=%s\n", props, txt));
 
   create_text(draw_text, mx, my, 0, 0, txt, props, atof(hsize), atof(vsize));

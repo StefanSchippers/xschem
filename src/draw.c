@@ -248,7 +248,7 @@ int grabscreen(const char *win_path, int event, int mx, int my, KeySym key,
     INT_RECTORDER(x1, y1, x2, y2);
     tclvareval("grab release ", xctx->top_path, ".drw", NULL);
     if(x2 - x1 > 10 && y2 -y1 > 10) {
-      xctx->push_undo();
+      xctx->push_undo(0);
       grab_w = (x2 - x1 + 1);
       grab_h = (y2 - y1 + 1);
       dbg(1, ("grabscreen(): grab area: %d %d - %d %d\n", x1, y1, x2, y2));
@@ -4671,7 +4671,7 @@ int embed_rawfile(const char *rawfile)
   dbg(1, ("embed_rawfile(): rawfile=%s\n", rawfile));
   if(xctx->lastsel==1 && xctx->sel_array[0].type==ELEMENT) {
     xInstance *i = &xctx->inst[xctx->sel_array[0].n];
-    xctx->push_undo();
+    xctx->push_undo(0);
     ptr = base64_from_file(rawfile, &len);
     my_strdup2(_ALLOC_ID_, &i->prop_ptr, subst_token(i->prop_ptr, "spice_data", ptr));
     my_free(_ALLOC_ID_, &ptr);
