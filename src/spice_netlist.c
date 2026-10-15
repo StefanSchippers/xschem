@@ -110,6 +110,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
 
             if(tclgetboolvar("preserve_undo")) {
               save_undo_table(xctx->current_name, NULL, XGET);
+              xctx->pop_undo(2, 0);
             }
 
             get_additional_symbols(1);
