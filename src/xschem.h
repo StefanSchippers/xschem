@@ -1759,7 +1759,7 @@ extern size_t my_strdup2(int id, char **dest, const char *src);
 extern char *my_fgets(FILE *fd, size_t *line_len);
 extern size_t my_fgets_skip(FILE *fd);
 extern char *my_strtok_r(char *str, const char *delim, const char *quote, int keep_quote, char **saveptr);
-extern int save_undo_table(char *sch_name, char *undo_dirname, int what);
+extern int save_undo_table(char *sch_name, void *ptr, int what);
 extern char **parse_cmd_string(const char *cmd, int *argc);
 extern int my_strncpy(char *d, const char *s, size_t n);
 extern int my_strcasecmp(const char *s1, const char *s2);

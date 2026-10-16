@@ -53,10 +53,11 @@ static void save_undo_freefunc(void **ptr)
   my_free(_ALLOC_ID_, undo_item_ptr);
 }
 
-int save_undo_table(char *sch_name, char *undo_dirname, int what) {
+int save_undo_table(char *sch_name, void *ptr, int what) {
   static Ptr_hashtable undo_dir_hash = {NULL, 0};
   int res = 0;
   char *winpath_sch = NULL;
+  char *undo_dirname = (char *)ptr;
   if(xctx && xctx->current_win_path && sch_name) {
     my_mstrcat(_ALLOC_ID_, &winpath_sch, xctx->current_win_path, "/", sch_name, NULL);
   }
