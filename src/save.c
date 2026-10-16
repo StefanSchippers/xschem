@@ -36,7 +36,7 @@ typedef struct undo_save {
 } undo_save;
 
 
-void save_undo_freefunc(void **ptr)
+static void save_undo_freefunc(void **ptr)
 {
   int i;
   char diff_name[PATH_MAX];
