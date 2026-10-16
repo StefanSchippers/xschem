@@ -4228,8 +4228,8 @@ void push_undo(int what)
 
   dbg(1, ("push_undo(%d): %s undo_index=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
      what, xctx->current_name, undo_index, xctx->tail_undo_ptr, xctx->head_undo_ptr));
+  if(xctx->no_undo) return;
   init_undo();
-  if(xctx->no_undo)return;
   #if HAS_POPEN==1
   my_snprintf(diff_name, S(diff_name), "gzip --fast -c > %s/undo%d", xctx->undo_dirname, undo_index);
   fd = popen(diff_name,"w");
@@ -4321,7 +4321,7 @@ void pop_undo(int redo, int set_modify_status)
   if(!xctx->undo_initialized) return;
 
   if(redo == 1) {
-    if(xctx->cur_undo_ptr < xctx->head_undo_ptr -1) {
+    if(xctx->cur_undo_ptr < xctx->head_undo_ptr - 1) {
       dbg(1, ("pop_undo(): redo; cur_undo_ptr=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
          xctx->cur_undo_ptr, xctx->tail_undo_ptr, xctx->head_undo_ptr));
       xctx->cur_undo_ptr++;
@@ -4346,11 +4346,14 @@ void pop_undo(int redo, int set_modify_status)
 
   } else if(redo == 2) { /* read reserved slot 0, no change any *undo_ptr */
     /* set undo_index later */
+
   } else if(redo == 6) { /* read reserved slot 1, no change any *undo_ptr */
     /* set undo_index later */
+
   } else if(redo == 3) { /* read slot pointed by cur_undo_ptr, do not change any *_undo_ptr */
     if(xctx->head_undo_ptr <= xctx->cur_undo_ptr) return; /* nothing present */
     /* do nothing: not moving *_undo_ptr pointers */
+
   } else {
     info("pop_undo(): wrong argument: %d, doing nothing\n", redo);
     return;
