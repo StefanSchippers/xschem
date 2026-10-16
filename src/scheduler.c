@@ -5203,10 +5203,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int what = XLIST;
       int res = 0;
       char sch_name[PATH_MAX];
-      char undo_dirname[PATH_MAX];
+      char *undo_dirname = NULL;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       my_strncpy(sch_name, xctx->current_name, S(sch_name));
-      my_strncpy(undo_dirname, xctx->undo_dirname ? xctx->undo_dirname : "", S(undo_dirname));
       if(argc < 3) {
         Tcl_SetResult(interp, "xschem save_undo_table: missing arguments.", TCL_STATIC);
         return TCL_ERROR;
@@ -5226,10 +5225,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         my_strncpy(sch_name, argv[3], S(sch_name));
       }
       if(argc > 4) {
-        my_strncpy(undo_dirname, argv[4], S(undo_dirname));
+        my_strdup2(_ALLOC_ID_, &undo_dirname, argv[4]);
       }
       res = save_undo_table(sch_name, undo_dirname, what);
       Tcl_SetResult(interp, my_itoa(res), TCL_VOLATILE);
+      my_free(_ALLOC_ID_, &undo_dirname);
     }
  
     /* saveas [file] [type]

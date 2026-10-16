@@ -58,6 +58,9 @@ int save_undo_table(char *sch_name, void *ptr, int what) {
   int res = 0;
   char *winpath_sch = NULL;
   char *undo_dirname = (char *)ptr;
+  if(xctx && undo_dirname == NULL) {
+    undo_dirname = xctx->undo_dirname;
+  }
   if(xctx && xctx->current_win_path && sch_name) {
     my_mstrcat(_ALLOC_ID_, &winpath_sch, xctx->current_win_path, "/", sch_name, NULL);
   }
@@ -254,7 +257,7 @@ int save_undo_table(char *sch_name, void *ptr, int what) {
             /* ok, this is a schematic down or up in hierarchy that is modified and that is not
              * currently displayed in window / tab. Need to handle save here */
             if(!found) {
-              info("WARNING:  %s\n  %s\n  needs to be saved\n", entry->token, undo_item->sch);
+              info("\nWARNING:  %s\n  %s\n  needs to be saved\n", entry->token, undo_item->sch);
 
               if(has_x) {
                 char *cmd = NULL;
@@ -4156,7 +4159,7 @@ void delete_undo(void)
 
   if(tclgetboolvar("preserve_undo")) {
     /* update undo pointers in save table */
-    save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+    save_undo_table(xctx->current_name, NULL, XINSERT);
   }
 
   clear_undo();
@@ -4198,7 +4201,7 @@ static void init_undo(void)
     xctx->tail_undo_ptr = 0; 
     /* create entry in undo save table */
     if(tclgetboolvar("preserve_undo")) {
-      save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+      save_undo_table(xctx->current_name, NULL, XINSERT);
     }
   }
 }
@@ -4290,7 +4293,7 @@ void push_undo(int what)
   #endif
   if(tclgetboolvar("preserve_undo")) {
     /* update head, cur, tail pointers */
-    save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+    save_undo_table(xctx->current_name, NULL, XINSERT);
   }
 }
 
@@ -4447,7 +4450,7 @@ void pop_undo(int redo, int set_modify_status)
   if(tclgetboolvar("preserve_undo")) {
     if(redo != 5 && redo != 2 && redo != 6) {
       /* update head, cur, tail pointers */
-      save_undo_table(xctx->current_name, xctx->undo_dirname, XINSERT);
+      save_undo_table(xctx->current_name, NULL, XINSERT);
     }
   }
   dbg(2, ("pop_undo(): returning\n"));
