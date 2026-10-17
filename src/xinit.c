@@ -728,9 +728,13 @@ void alloc_xschem_data(const char *top_path, const char *win_path)
 void delete_schematic_data(int delete_pixmap)
 {
   dbg(1, ("delete_schematic_data: %p %s\n", xctx, xctx->current_name));
-  unselect_all(1);
+
+  /* assuming this is not needed as we are deleting everything */
+  /* unselect_all(0); */
+
   /* clear static data in get_tok_value() must be done after unselect_all(1)
    * as this functions re-uses get_tok_value() */
+
   parse_cmd_string(NULL, NULL); /* clear static data in function */
   get_tok_value(NULL, NULL, 0); /* clear static data in function */
   /* delete inst and wire node fields, delete inst_pin spatial hash, and node hash table */
@@ -1397,8 +1401,9 @@ void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_name, i
   /* SCHEMATIC DATA */
   dest->currsch = source->currsch;
 
-
   /* copy undo data */
+  /* FIXME: should duplicate also the undo directory, otherwise we have two independent
+   * schematics writing undo data in the same location */
   if(flags & 16) {
     dest->cur_undo_ptr = source->cur_undo_ptr;
     dest->saved_cur_undo_ptr = source->saved_cur_undo_ptr;
@@ -1791,6 +1796,10 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
 
   } else if(what == 4 && fork_table.table) { /* free data */
     dbg(1, ("*** Delete ***\n"));
+    /* we do it here because delete_schematic_data() will do it after swapping xctx;
+     * if it does an `unselect_all(1)` (draw) as it used to do (now fixed to (0), but anyway...) 
+     * program will crash due to missing pixmap / surfaces */
+    unselect_all(0);
     for(i = 0; i < fork_table.size; ++i) {
       entry = fork_table.table[i];
       while(entry) {

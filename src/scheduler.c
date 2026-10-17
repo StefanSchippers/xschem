@@ -1117,6 +1117,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
       dbg(1, ("`xschem exit` called\n"));
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      rebuild_selected_array();
+      unselect_all(0); /* always better to do it immediately to avoid calling it somewhere else later */ 
       for(i = 2; i < argc; ++i) {
         if(!strcmp(argv[i], "closewindow")) closewindow = 1;
         if(!strcmp(argv[i], "force")) force = 1;
