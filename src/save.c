@@ -29,7 +29,7 @@ typedef struct undo_save {
   int head_undo_ptr;
   int cur_undo_ptr;
   int tail_undo_ptr;
-  int saved_cur_undo_ptr; /* copy of xctx->currsch */
+  int saved_cur_undo_ptr; /* copy of xctx->saved_cur_undo_ptr */
   int modified;
   char *undo_dirname; /* directory containing undo states */
   char *sch; /* full path of schematic */

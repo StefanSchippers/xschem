@@ -203,6 +203,10 @@ static void mem_init_undo(void)
 {
   int slot;
 
+  /* all the uslot[] items are set to 0 since xctx is 'calloc'ated.
+   * no need to zero xctx->uslot[slot].gptr, ..., xctx->uslot[slot].version_string,
+   * xctx->uslot[slot].symptr, ...
+   */
   dbg(1, ("mem_init_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized));
   if(xctx->no_undo == 0 && !xctx->mem_undo_initialized) {
     for(slot = 0;slot<MAX_UNDO; slot++) {
