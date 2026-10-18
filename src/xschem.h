@@ -1112,7 +1112,7 @@ typedef struct {
   int edit_sym_i;
   int netlist_commands;
   /* in_memory_undo */
-  Undo_slot uslot[MAX_UNDO];
+  Undo_slot *uslot;
   int undo_initialized;
   int mem_undo_initialized;
   /* graph context struct */

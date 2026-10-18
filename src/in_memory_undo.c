@@ -203,6 +203,7 @@ static void mem_init_undo(void)
 {
   int slot;
 
+  xctx->uslot = my_calloc(_ALLOC_ID_, MAX_UNDO, sizeof(Undo_slot));
   /* all the uslot[] items are set to 0 since xctx is 'calloc'ated.
    * no need to zero xctx->uslot[slot].gptr, ..., xctx->uslot[slot].version_string,
    * xctx->uslot[slot].symptr, ...
@@ -273,6 +274,7 @@ void mem_delete_undo(void)
     my_free(_ALLOC_ID_, &xctx->uslot[slot].version_string);
 
   }
+  my_free(_ALLOC_ID_, &xctx->uslot);
   xctx->mem_undo_initialized = 0;
 }
 

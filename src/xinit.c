@@ -488,6 +488,7 @@ void alloc_xschem_data(const char *top_path, const char *win_path)
     xctx->clear_undo = mem_clear_undo;
   }
   xctx->undo_initialized = 0;
+  xctx->uslot = NULL;
   xctx->mem_undo_initialized = 0;
   xctx->zoom=CADINITIALZOOM;
   xctx->mooz=1/CADINITIALZOOM;
