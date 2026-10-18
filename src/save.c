@@ -281,8 +281,8 @@ int save_undo_table(char *sch_name, void *ptr, int what) {
                   my_strncpy(xctx->current_name, get_cell_w_ext(undo_item->sch, 0), S(xctx->current_name));
                   tclvareval("get_directory {", undo_item->sch, "}", NULL);
                   my_strncpy(xctx->current_dirname, tclresult(), S(xctx->current_dirname));
-
-                  xctx->pop_undo(4, 0);
+                  xctx->undo_initialized = 1; /* otherwise pop_undo will exit immediately */
+                  xctx->pop_undo(2, 0);
                   save_schematic(undo_item->sch, 1);
 
                   delete_schematic_data(0);
@@ -4427,7 +4427,7 @@ void pop_undo(int redo, int set_modify_status)
   #else
   fclose(fd);
   #endif
-  dbg(2, ("pop_undo(): loaded file:wire=%d inst=%d\n",xctx->wires , xctx->instances));
+  dbg(2, ("pop_undo(): loaded file:wires=%d instances=%d\n",xctx->wires , xctx->instances));
 
 
   if(set_modify_status) {
