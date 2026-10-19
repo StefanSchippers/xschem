@@ -22,109 +22,109 @@
 
 #include "xschem.h"
 
-static void free_undo_lines(int slot)
+static void free_undo_lines(Undo_slot *uslot, int slot)
 {
   int i, c;
 
   for(c = 0;c<cadlayers; ++c) {
-    for(i = 0;i<xctx->uslot[slot].lines[c]; ++i) {
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].lptr[c][i].prop_ptr);
+    for(i = 0;i<uslot[slot].lines[c]; ++i) {
+      my_free(_ALLOC_ID_, &uslot[slot].lptr[c][i].prop_ptr);
     }
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].lptr[c]);
-    xctx->uslot[slot].lines[c] = 0;
+    my_free(_ALLOC_ID_, &uslot[slot].lptr[c]);
+    uslot[slot].lines[c] = 0;
   }
 }
 
-static void free_undo_rects(int slot)
+static void free_undo_rects(Undo_slot *uslot, int slot)
 {
   int i, c;
 
   for(c = 0;c<cadlayers; ++c) {
-    for(i = 0;i<xctx->uslot[slot].rects[c]; ++i) {
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].bptr[c][i].prop_ptr);
+    for(i = 0;i<uslot[slot].rects[c]; ++i) {
+      my_free(_ALLOC_ID_, &uslot[slot].bptr[c][i].prop_ptr);
     }
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].bptr[c]);
-    xctx->uslot[slot].rects[c] = 0;
+    my_free(_ALLOC_ID_, &uslot[slot].bptr[c]);
+    uslot[slot].rects[c] = 0;
   }
 }
 
-static void free_undo_polygons(int slot)
+static void free_undo_polygons(Undo_slot *uslot, int slot)
 {
   int i, c;
 
   for(c = 0;c<cadlayers; ++c) {
-    for(i = 0;i<xctx->uslot[slot].polygons[c]; ++i) {
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].pptr[c][i].prop_ptr);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].pptr[c][i].x);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].pptr[c][i].y);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].pptr[c][i].selected_point);
+    for(i = 0;i<uslot[slot].polygons[c]; ++i) {
+      my_free(_ALLOC_ID_, &uslot[slot].pptr[c][i].prop_ptr);
+      my_free(_ALLOC_ID_, &uslot[slot].pptr[c][i].x);
+      my_free(_ALLOC_ID_, &uslot[slot].pptr[c][i].y);
+      my_free(_ALLOC_ID_, &uslot[slot].pptr[c][i].selected_point);
     }
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].pptr[c]);
-    xctx->uslot[slot].polygons[c] = 0;
+    my_free(_ALLOC_ID_, &uslot[slot].pptr[c]);
+    uslot[slot].polygons[c] = 0;
   }
 }
 
-static void free_undo_arcs(int slot)
+static void free_undo_arcs(Undo_slot *uslot, int slot)
 {
   int i, c;
 
   for(c = 0;c<cadlayers; ++c) {
-    for(i = 0;i<xctx->uslot[slot].arcs[c]; ++i) {
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].aptr[c][i].prop_ptr);
+    for(i = 0;i<uslot[slot].arcs[c]; ++i) {
+      my_free(_ALLOC_ID_, &uslot[slot].aptr[c][i].prop_ptr);
     }
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].aptr[c]);
-    xctx->uslot[slot].arcs[c] = 0;
+    my_free(_ALLOC_ID_, &uslot[slot].aptr[c]);
+    uslot[slot].arcs[c] = 0;
   }
 }
 
-static void free_undo_wires(int slot)
+static void free_undo_wires(Undo_slot *uslot, int slot)
 {
   int i;
 
-  for(i = 0;i<xctx->uslot[slot].wires; ++i) {
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].wptr[i].prop_ptr);
+  for(i = 0;i<uslot[slot].wires; ++i) {
+    my_free(_ALLOC_ID_, &uslot[slot].wptr[i].prop_ptr);
   }
-  my_free(_ALLOC_ID_, &xctx->uslot[slot].wptr);
-  xctx->uslot[slot].wires = 0;
+  my_free(_ALLOC_ID_, &uslot[slot].wptr);
+  uslot[slot].wires = 0;
 }
 
-static void free_undo_texts(int slot)
+static void free_undo_texts(Undo_slot *uslot, int slot)
 {
   int i;
 
-  for(i = 0;i<xctx->uslot[slot].texts; ++i) {
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].prop_ptr);
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].txt_ptr);
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].font);
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].floater_instname);
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr[i].floater_ptr);
+  for(i = 0;i<uslot[slot].texts; ++i) {
+    my_free(_ALLOC_ID_, &uslot[slot].tptr[i].prop_ptr);
+    my_free(_ALLOC_ID_, &uslot[slot].tptr[i].txt_ptr);
+    my_free(_ALLOC_ID_, &uslot[slot].tptr[i].font);
+    my_free(_ALLOC_ID_, &uslot[slot].tptr[i].floater_instname);
+    my_free(_ALLOC_ID_, &uslot[slot].tptr[i].floater_ptr);
   }
-  my_free(_ALLOC_ID_, &xctx->uslot[slot].tptr);
-  xctx->uslot[slot].texts = 0;
+  my_free(_ALLOC_ID_, &uslot[slot].tptr);
+  uslot[slot].texts = 0;
 }
 
-static void free_undo_instances(int slot)
+static void free_undo_instances(Undo_slot *uslot, int slot)
 {
   int i;
 
-  for(i = 0;i<xctx->uslot[slot].instances; ++i) {
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].iptr[i].name);
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].iptr[i].prop_ptr);
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].iptr[i].instname);
-    my_free(_ALLOC_ID_, &xctx->uslot[slot].iptr[i].lab);
+  for(i = 0;i<uslot[slot].instances; ++i) {
+    my_free(_ALLOC_ID_, &uslot[slot].iptr[i].name);
+    my_free(_ALLOC_ID_, &uslot[slot].iptr[i].prop_ptr);
+    my_free(_ALLOC_ID_, &uslot[slot].iptr[i].instname);
+    my_free(_ALLOC_ID_, &uslot[slot].iptr[i].lab);
   }
-  my_free(_ALLOC_ID_, &xctx->uslot[slot].iptr);
-  xctx->uslot[slot].instances = 0;
+  my_free(_ALLOC_ID_, &uslot[slot].iptr);
+  uslot[slot].instances = 0;
 }
 
-static void free_undo_symbols(int slot)
+static void free_undo_symbols(Undo_slot *uslot, int slot)
 {
   int i, j, c, symbols;
   xSymbol *sym;
 
-  symbols = xctx->uslot[slot].symbols;
+  symbols = uslot[slot].symbols;
   for(i = 0;i < symbols; ++i) {
-    sym = &xctx->uslot[slot].symptr[i];
+    sym = &uslot[slot].symptr[i];
     my_free(_ALLOC_ID_, &sym->name);
     my_free(_ALLOC_ID_, &sym->prop_ptr);
     my_free(_ALLOC_ID_, &sym->type);
@@ -195,8 +195,8 @@ static void free_undo_symbols(int slot)
     my_free(_ALLOC_ID_, &sym->polygons);
     my_free(_ALLOC_ID_, &sym->arcs);
   }
-  my_free(_ALLOC_ID_, &xctx->uslot[slot].symptr);
-  xctx->uslot[slot].symbols = 0;
+  my_free(_ALLOC_ID_, &uslot[slot].symptr);
+  uslot[slot].symbols = 0;
 }
 
 static void mem_init_undo(void)
@@ -244,10 +244,43 @@ void mem_clear_undo(void)
   xctx->head_undo_ptr = 0;
 }
 
+void mem_free_uslots(Undo_slot **uslot_ptr)
+{
+  int slot;
+  for(slot = 0;slot<MAX_UNDO; slot++) {
+    free_undo_lines(*uslot_ptr, slot);
+    free_undo_rects(*uslot_ptr, slot);
+    free_undo_polygons(*uslot_ptr, slot);
+    free_undo_arcs(*uslot_ptr, slot);
+    free_undo_wires(*uslot_ptr, slot);
+    free_undo_texts(*uslot_ptr, slot);
+    free_undo_instances(*uslot_ptr, slot);
+    free_undo_symbols(*uslot_ptr, slot);
+
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].lines);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].rects);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].arcs);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].polygons);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].lptr);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].bptr);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].aptr);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].pptr);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].sptr);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].vptr);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].gptr);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].eptr);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].fptr);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].kptr);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].header_text);
+    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].version_string);
+
+  }
+  my_free(_ALLOC_ID_, uslot_ptr);
+}
+
 /* used to delete everything when program exits */
 void mem_delete_undo(void)
 {
-  int slot;
   dbg(1, ("mem_delete_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized));
   if(!xctx->mem_undo_initialized) return;
 
@@ -259,35 +292,7 @@ void mem_delete_undo(void)
   mem_clear_undo();
   xctx->mem_undo_initialized = 0;
   if(!tclgetboolvar("preserve_undo")) {
-    for(slot = 0;slot<MAX_UNDO; slot++) {
-      free_undo_lines(slot);
-      free_undo_rects(slot);
-      free_undo_polygons(slot);
-      free_undo_arcs(slot);
-      free_undo_wires(slot);
-      free_undo_texts(slot);
-      free_undo_instances(slot);
-      free_undo_symbols(slot);
-
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].lines);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].rects);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].arcs);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].polygons);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].lptr);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].bptr);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].aptr);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].pptr);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].sptr);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].vptr);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].gptr);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].eptr);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].fptr);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].kptr);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].header_text);
-      my_free(_ALLOC_ID_, &xctx->uslot[slot].version_string);
-  
-    }
-    my_free(_ALLOC_ID_, &xctx->uslot);
+    mem_free_uslots(&xctx->uslot);
   }
 }
 
@@ -321,14 +326,14 @@ void mem_push_undo(int what)
   my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].header_text, xctx->header_text);
   my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].version_string, xctx->version_string);
 
-  free_undo_lines(undo_index);
-  free_undo_rects(undo_index);
-  free_undo_polygons(undo_index);
-  free_undo_arcs(undo_index);
-  free_undo_wires(undo_index);
-  free_undo_texts(undo_index);
-  free_undo_instances(undo_index);
-  free_undo_symbols(undo_index);
+  free_undo_lines(xctx->uslot, undo_index);
+  free_undo_rects(xctx->uslot, undo_index);
+  free_undo_polygons(xctx->uslot, undo_index);
+  free_undo_arcs(xctx->uslot, undo_index);
+  free_undo_wires(xctx->uslot, undo_index);
+  free_undo_texts(xctx->uslot, undo_index);
+  free_undo_instances(xctx->uslot, undo_index);
+  free_undo_symbols(xctx->uslot, undo_index);
 
   memcpy(xctx->uslot[undo_index].lines, xctx->lines, sizeof(xctx->lines[0]) * cadlayers);
   memcpy(xctx->uslot[undo_index].rects, xctx->rects, sizeof(xctx->rects[0]) * cadlayers);

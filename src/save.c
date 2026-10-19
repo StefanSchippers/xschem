@@ -32,6 +32,7 @@ typedef struct undo_save {
   int saved_cur_undo_ptr; /* copy of xctx->saved_cur_undo_ptr */
   int modified;
   char *undo_dirname; /* directory containing undo states */
+  Undo_slot **uslot_ptr; /* undo states when memory undo is used */
   char *sch; /* full path of schematic */
 } undo_save;
 
@@ -42,13 +43,17 @@ static void save_undo_freefunc(void **ptr)
   char diff_name[PATH_MAX];
   undo_save **undo_item_ptr = (undo_save **)ptr;
 
-  for(i = 0; i < MAX_UNDO; ++i) {
-    my_snprintf(diff_name, S(diff_name), "%s/undo%d",(*undo_item_ptr)->undo_dirname, i);
-    xunlink(diff_name);
+  if(!strcmp(tclgetvar("undo_type"), "disk")) {
+    for(i = 0; i < MAX_UNDO; ++i) {
+      my_snprintf(diff_name, S(diff_name), "%s/undo%d",(*undo_item_ptr)->undo_dirname, i);
+      xunlink(diff_name);
+    }
+    dbg(1, ("save_undo_freefunc(): removing %s\n", (*undo_item_ptr)->undo_dirname));
+    rmdir((*undo_item_ptr)->undo_dirname);
+    my_free(_ALLOC_ID_, &(*undo_item_ptr)->undo_dirname);
+  } else { /* memory undo */
+    mem_free_uslots((*undo_item_ptr)->uslot_ptr);
   }
-  dbg(1, ("save_undo_freefunc(): removing %s\n", (*undo_item_ptr)->undo_dirname));
-  rmdir((*undo_item_ptr)->undo_dirname);
-  my_free(_ALLOC_ID_, &(*undo_item_ptr)->undo_dirname);
   my_free(_ALLOC_ID_, &(*undo_item_ptr)->sch);
   my_free(_ALLOC_ID_, undo_item_ptr);
 }
@@ -3882,12 +3887,12 @@ int save_schematic(const char *schname, int fast) /* 20171020 added return value
   if(!xctx->sch[xctx->currsch]) { /* no current schematic name -> assign new name */
     my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
     set_modify(-1); /* set title to new filename */
-    delete_undo();
+    xctx->delete_undo();
   }
   else if(strcmp(schname, xctx->sch[xctx->currsch])) { /* user asks to save to a different filename */
     my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], schname);
     set_modify(-1); /* set title to new filename */
-    delete_undo();
+    xctx->delete_undo();
   }
   else { /* user asks to save to same filename */
     if(has_x && !stat(xctx->sch[xctx->currsch], &buf)) {

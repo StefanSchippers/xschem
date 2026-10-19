@@ -6855,7 +6855,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     }
 
     /* undo_type disk|memory
-     *   Use disk file ('disk') or RAM ('memory') for undo bufer
+     *   Use disk file ('disk') or RAM ('memory') for undo buffer
      */
     else if(!strcmp(argv[1], "undo_type"))
     {
