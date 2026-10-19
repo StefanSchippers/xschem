@@ -317,14 +317,14 @@ void mem_push_undo(int what)
   if(xctx->no_undo)return;
   mem_init_undo();
 
-  my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].gptr, xctx->schvhdlprop);
-  my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].vptr, xctx->schverilogprop);
-  my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].sptr, xctx->schprop);
-  my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].fptr, xctx->schspectreprop);
-  my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].kptr, xctx->schsymbolprop);
-  my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].eptr, xctx->schtedaxprop);
-  my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].header_text, xctx->header_text);
-  my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].version_string, xctx->version_string);
+  my_strdup2(_ALLOC_ID_, &xctx->uslot[undo_index].gptr, xctx->schvhdlprop);
+  my_strdup2(_ALLOC_ID_, &xctx->uslot[undo_index].vptr, xctx->schverilogprop);
+  my_strdup2(_ALLOC_ID_, &xctx->uslot[undo_index].sptr, xctx->schprop);
+  my_strdup2(_ALLOC_ID_, &xctx->uslot[undo_index].fptr, xctx->schspectreprop);
+  my_strdup2(_ALLOC_ID_, &xctx->uslot[undo_index].kptr, xctx->schsymbolprop);
+  my_strdup2(_ALLOC_ID_, &xctx->uslot[undo_index].eptr, xctx->schtedaxprop);
+  my_strdup2(_ALLOC_ID_, &xctx->uslot[undo_index].header_text, xctx->header_text);
+  my_strdup2(_ALLOC_ID_, &xctx->uslot[undo_index].version_string, xctx->version_string);
 
   free_undo_lines(xctx->uslot, undo_index);
   free_undo_rects(xctx->uslot, undo_index);
@@ -360,7 +360,7 @@ void mem_push_undo(int what)
       xctx->uslot[undo_index].lptr[c][i] = xctx->line[c][i];
       xctx->uslot[undo_index].lptr[c][i].sel = 0; /* we don't want to store select status */
       xctx->uslot[undo_index].lptr[c][i].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].lptr[c][i].prop_ptr, xctx->line[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &xctx->uslot[undo_index].lptr[c][i].prop_ptr, xctx->line[c][i].prop_ptr);
     }
     /* rects */
     for(i = 0;i<xctx->rects[c]; ++i) {
@@ -368,14 +368,14 @@ void mem_push_undo(int what)
       xctx->uslot[undo_index].bptr[c][i].sel = 0; /* we don't want to store select status */
       xctx->uslot[undo_index].bptr[c][i].prop_ptr = NULL;
       xctx->uslot[undo_index].bptr[c][i].extraptr = NULL;
-      my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].bptr[c][i].prop_ptr, xctx->rect[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &xctx->uslot[undo_index].bptr[c][i].prop_ptr, xctx->rect[c][i].prop_ptr);
     }
     /* arcs */
     for(i = 0;i<xctx->arcs[c]; ++i) {
       xctx->uslot[undo_index].aptr[c][i] = xctx->arc[c][i];
       xctx->uslot[undo_index].aptr[c][i].sel = 0; /* we don't want to store select status */
       xctx->uslot[undo_index].aptr[c][i].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].aptr[c][i].prop_ptr, xctx->arc[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &xctx->uslot[undo_index].aptr[c][i].prop_ptr, xctx->arc[c][i].prop_ptr);
     }
     /*polygons */
     for(i = 0;i<xctx->polygons[c]; ++i) {
@@ -390,7 +390,7 @@ void mem_push_undo(int what)
       memcpy(xctx->uslot[undo_index].pptr[c][i].y, xctx->poly[c][i].y, points * sizeof(double));
       memcpy(xctx->uslot[undo_index].pptr[c][i].selected_point, xctx->poly[c][i].selected_point,
         points * sizeof(unsigned short));
-      my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].pptr[c][i].prop_ptr, xctx->poly[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &xctx->uslot[undo_index].pptr[c][i].prop_ptr, xctx->poly[c][i].prop_ptr);
     }
   }
   /* instances */
@@ -434,7 +434,7 @@ void mem_push_undo(int what)
     xctx->uslot[undo_index].wptr[i].sel = 0; /* we don't want to store select status */
     xctx->uslot[undo_index].wptr[i].prop_ptr = NULL;
     xctx->uslot[undo_index].wptr[i].node = NULL;
-    my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].wptr[i].prop_ptr, xctx->wire[i].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &xctx->uslot[undo_index].wptr[i].prop_ptr, xctx->wire[i].prop_ptr);
   }
 
   if(what == 1 || what == 0) xctx->head_undo_ptr = xctx->cur_undo_ptr + 1;
@@ -527,14 +527,14 @@ void mem_pop_undo(int redo, int set_modify_status)
     xctx->maxs = xctx->symbols = 0;
   }
 
-  my_strdup(_ALLOC_ID_, &xctx->schvhdlprop, xctx->uslot[undo_index].gptr);
-  my_strdup(_ALLOC_ID_, &xctx->schverilogprop, xctx->uslot[undo_index].vptr);
-  my_strdup(_ALLOC_ID_, &xctx->schspectreprop, xctx->uslot[undo_index].fptr);
-  my_strdup(_ALLOC_ID_, &xctx->schprop, xctx->uslot[undo_index].sptr);
-  my_strdup(_ALLOC_ID_, &xctx->schsymbolprop, xctx->uslot[undo_index].kptr);
-  my_strdup(_ALLOC_ID_, &xctx->schtedaxprop, xctx->uslot[undo_index].eptr);
-  my_strdup(_ALLOC_ID_, &xctx->header_text, xctx->uslot[undo_index].header_text);
-  my_strdup(_ALLOC_ID_, &xctx->version_string, xctx->uslot[undo_index].version_string);
+  my_strdup2(_ALLOC_ID_, &xctx->schvhdlprop, xctx->uslot[undo_index].gptr);
+  my_strdup2(_ALLOC_ID_, &xctx->schverilogprop, xctx->uslot[undo_index].vptr);
+  my_strdup2(_ALLOC_ID_, &xctx->schspectreprop, xctx->uslot[undo_index].fptr);
+  my_strdup2(_ALLOC_ID_, &xctx->schprop, xctx->uslot[undo_index].sptr);
+  my_strdup2(_ALLOC_ID_, &xctx->schsymbolprop, xctx->uslot[undo_index].kptr);
+  my_strdup2(_ALLOC_ID_, &xctx->schtedaxprop, xctx->uslot[undo_index].eptr);
+  my_strdup2(_ALLOC_ID_, &xctx->header_text, xctx->uslot[undo_index].header_text);
+  my_strdup2(_ALLOC_ID_, &xctx->version_string, xctx->uslot[undo_index].version_string);
 
   for(c = 0;c<cadlayers; ++c) {
     /* lines */
@@ -543,7 +543,7 @@ void mem_pop_undo(int redo, int set_modify_status)
     for(i = 0;i<xctx->lines[c]; ++i) {
       xctx->line[c][i] = xctx->uslot[undo_index].lptr[c][i];
       xctx->line[c][i].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &xctx->line[c][i].prop_ptr, xctx->uslot[undo_index].lptr[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &xctx->line[c][i].prop_ptr, xctx->uslot[undo_index].lptr[c][i].prop_ptr);
     }
     /* rects */
     xctx->maxr[c] = xctx->rects[c] = xctx->uslot[undo_index].rects[c];
@@ -552,7 +552,7 @@ void mem_pop_undo(int redo, int set_modify_status)
       xctx->rect[c][i] = xctx->uslot[undo_index].bptr[c][i];
       xctx->rect[c][i].prop_ptr = NULL;
       xctx->rect[c][i].extraptr = NULL;
-      my_strdup(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr, xctx->uslot[undo_index].bptr[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr, xctx->uslot[undo_index].bptr[c][i].prop_ptr);
     }
     /* arcs */
     xctx->maxa[c] = xctx->arcs[c] = xctx->uslot[undo_index].arcs[c];
@@ -560,7 +560,7 @@ void mem_pop_undo(int redo, int set_modify_status)
     for(i = 0;i<xctx->arcs[c]; ++i) {
       xctx->arc[c][i] = xctx->uslot[undo_index].aptr[c][i];
       xctx->arc[c][i].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr, xctx->uslot[undo_index].aptr[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr, xctx->uslot[undo_index].aptr[c][i].prop_ptr);
     }
     /* polygons */
     xctx->maxp[c] = xctx->polygons[c] = xctx->uslot[undo_index].polygons[c];
@@ -569,7 +569,7 @@ void mem_pop_undo(int redo, int set_modify_status)
       int points = xctx->uslot[undo_index].pptr[c][i].points;
       xctx->poly[c][i] = xctx->uslot[undo_index].pptr[c][i];
       xctx->poly[c][i].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr, xctx->uslot[undo_index].pptr[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr, xctx->uslot[undo_index].pptr[c][i].prop_ptr);
       xctx->poly[c][i].x = my_malloc(_ALLOC_ID_, points * sizeof(double));
       xctx->poly[c][i].y = my_malloc(_ALLOC_ID_, points * sizeof(double));
       xctx->poly[c][i].selected_point = my_malloc(_ALLOC_ID_, points * sizeof(unsigned short));
@@ -646,7 +646,7 @@ void mem_pop_undo(int redo, int set_modify_status)
     xctx->wire[i] = xctx->uslot[undo_index].wptr[i];
     xctx->wire[i].prop_ptr = NULL;
     xctx->wire[i].node = NULL;
-    my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr, xctx->uslot[undo_index].wptr[i].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &xctx->wire[i].prop_ptr, xctx->uslot[undo_index].wptr[i].prop_ptr);
   }
   /* unnecessary since in_memory_undo saves all symbols */
   /* link_symbols_to_instances(-1); */
@@ -709,14 +709,14 @@ void mem_copy_undo(Xschem_ctx *dest, Xschem_ctx *source)
     xctx->maxs = xctx->symbols = 0;
   }
 
-  my_strdup(_ALLOC_ID_, &xctx->schvhdlprop, xctx->uslot[undo_index].gptr);
-  my_strdup(_ALLOC_ID_, &xctx->schverilogprop, xctx->uslot[undo_index].vptr);
-  my_strdup(_ALLOC_ID_, &xctx->schspectreprop, xctx->uslot[undo_index].fptr);
-  my_strdup(_ALLOC_ID_, &xctx->schprop, xctx->uslot[undo_index].sptr);
-  my_strdup(_ALLOC_ID_, &xctx->schsymbolprop, xctx->uslot[undo_index].kptr);
-  my_strdup(_ALLOC_ID_, &xctx->schtedaxprop, xctx->uslot[undo_index].eptr);
-  my_strdup(_ALLOC_ID_, &xctx->header_text, xctx->uslot[undo_index].header_text);
-  my_strdup(_ALLOC_ID_, &xctx->version_string, xctx->uslot[undo_index].version_string);
+  my_strdup2(_ALLOC_ID_, &xctx->schvhdlprop, xctx->uslot[undo_index].gptr);
+  my_strdup2(_ALLOC_ID_, &xctx->schverilogprop, xctx->uslot[undo_index].vptr);
+  my_strdup2(_ALLOC_ID_, &xctx->schspectreprop, xctx->uslot[undo_index].fptr);
+  my_strdup2(_ALLOC_ID_, &xctx->schprop, xctx->uslot[undo_index].sptr);
+  my_strdup2(_ALLOC_ID_, &xctx->schsymbolprop, xctx->uslot[undo_index].kptr);
+  my_strdup2(_ALLOC_ID_, &xctx->schtedaxprop, xctx->uslot[undo_index].eptr);
+  my_strdup2(_ALLOC_ID_, &xctx->header_text, xctx->uslot[undo_index].header_text);
+  my_strdup2(_ALLOC_ID_, &xctx->version_string, xctx->uslot[undo_index].version_string);
 
   for(c = 0;c<cadlayers; ++c) {
     /* lines */
@@ -725,7 +725,7 @@ void mem_copy_undo(Xschem_ctx *dest, Xschem_ctx *source)
     for(i = 0;i<xctx->lines[c]; ++i) {
       xctx->line[c][i] = xctx->uslot[undo_index].lptr[c][i];
       xctx->line[c][i].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &xctx->line[c][i].prop_ptr, xctx->uslot[undo_index].lptr[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &xctx->line[c][i].prop_ptr, xctx->uslot[undo_index].lptr[c][i].prop_ptr);
     }
     /* rects */
     xctx->maxr[c] = xctx->rects[c] = xctx->uslot[undo_index].rects[c];
@@ -734,7 +734,7 @@ void mem_copy_undo(Xschem_ctx *dest, Xschem_ctx *source)
       xctx->rect[c][i] = xctx->uslot[undo_index].bptr[c][i];
       xctx->rect[c][i].prop_ptr = NULL;
       xctx->rect[c][i].extraptr = NULL;
-      my_strdup(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr, xctx->uslot[undo_index].bptr[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &xctx->rect[c][i].prop_ptr, xctx->uslot[undo_index].bptr[c][i].prop_ptr);
     }
     /* arcs */
     xctx->maxa[c] = xctx->arcs[c] = xctx->uslot[undo_index].arcs[c];
@@ -742,7 +742,7 @@ void mem_copy_undo(Xschem_ctx *dest, Xschem_ctx *source)
     for(i = 0;i<xctx->arcs[c]; ++i) {
       xctx->arc[c][i] = xctx->uslot[undo_index].aptr[c][i];
       xctx->arc[c][i].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr, xctx->uslot[undo_index].aptr[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &xctx->arc[c][i].prop_ptr, xctx->uslot[undo_index].aptr[c][i].prop_ptr);
     }
     /* polygons */
     xctx->maxp[c] = xctx->polygons[c] = xctx->uslot[undo_index].polygons[c];
@@ -751,7 +751,7 @@ void mem_copy_undo(Xschem_ctx *dest, Xschem_ctx *source)
       int points = xctx->uslot[undo_index].pptr[c][i].points;
       xctx->poly[c][i] = xctx->uslot[undo_index].pptr[c][i];
       xctx->poly[c][i].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr, xctx->uslot[undo_index].pptr[c][i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &xctx->poly[c][i].prop_ptr, xctx->uslot[undo_index].pptr[c][i].prop_ptr);
       xctx->poly[c][i].x = my_malloc(_ALLOC_ID_, points * sizeof(double));
       xctx->poly[c][i].y = my_malloc(_ALLOC_ID_, points * sizeof(double));
       xctx->poly[c][i].selected_point = my_malloc(_ALLOC_ID_, points * sizeof(unsigned short));
@@ -828,6 +828,6 @@ void mem_copy_undo(Xschem_ctx *dest, Xschem_ctx *source)
     xctx->wire[i] = xctx->uslot[undo_index].wptr[i];
     xctx->wire[i].prop_ptr = NULL;
     xctx->wire[i].node = NULL;
-    my_strdup(_ALLOC_ID_, &xctx->wire[i].prop_ptr, xctx->uslot[undo_index].wptr[i].prop_ptr);
+    my_strdup2(_ALLOC_ID_, &xctx->wire[i].prop_ptr, xctx->uslot[undo_index].wptr[i].prop_ptr);
   }
 }
