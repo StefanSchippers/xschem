@@ -1114,7 +1114,6 @@ typedef struct {
   /* in_memory_undo */
   Undo_slot *uslot;
   int undo_initialized;
-  int mem_undo_initialized;
   /* graph context struct */
   Graph_ctx graph_struct;
 
@@ -1624,7 +1623,7 @@ extern void delete_undo(void);
 extern void clear_undo(void);
 extern void mem_push_undo(int);
 extern void mem_pop_undo(int redo, int set_modify_status);
-extern void mem_free_uslots(Undo_slot **uslot_ptr);
+extern void mem_free_uslots(Undo_slot *uslot);
 extern void mem_delete_undo(void);
 extern void mem_clear_undo(void);
 extern int load_schematic(int load_symbol, const char *fname, int reset_undo, int alert);

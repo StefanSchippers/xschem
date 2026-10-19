@@ -4563,7 +4563,7 @@ static void handle_button_press(int event, int state, int rstate, KeySym key, in
        } else {
          sel = find_closest_obj(xctx->mousex, xctx->mousey, 0);
        }
-       dbg(1, ("sel.type=%d\n", sel.type));
+       dbg(1, ("sel.type=%d sel.n=%d\n", sel.type, sel.n));
        /* determine if closest object was already selected when button1 was pressed */
        switch(sel.type) {
          case WIRE:    if(xctx->wire[sel.n].sel)          already_selected = 1; break;

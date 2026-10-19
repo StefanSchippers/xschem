@@ -54,7 +54,7 @@ void rebuild_selected_array() /* can be used only if new selected set is lower *
 {
  int i,c;
 
- dbg(2, ("rebuild selected array\n"));
+ dbg(2, ("rebuild selected array: needed=%d\n", xctx->need_reb_sel_arr));
  if(!xctx->need_reb_sel_arr) return;
  xctx->lastsel=0;
  for(i=0;i<xctx->texts; ++i)

@@ -32,7 +32,7 @@ typedef struct undo_save {
   int saved_cur_undo_ptr; /* copy of xctx->saved_cur_undo_ptr */
   int modified;
   char *undo_dirname; /* directory containing undo states */
-  Undo_slot **uslot_ptr; /* undo states when memory undo is used */
+  Undo_slot *uslot; /* undo states when memory undo is used */
   char *sch; /* full path of schematic */
 } undo_save;
 
@@ -52,7 +52,9 @@ static void save_undo_freefunc(void **ptr)
     rmdir((*undo_item_ptr)->undo_dirname);
     my_free(_ALLOC_ID_, &(*undo_item_ptr)->undo_dirname);
   } else { /* memory undo */
-    mem_free_uslots((*undo_item_ptr)->uslot_ptr);
+    dbg(1, ("save_undo_freefunc(): removing %p\n", (*undo_item_ptr)->uslot));
+    mem_free_uslots((*undo_item_ptr)->uslot);
+    my_free(_ALLOC_ID_, &((*undo_item_ptr)->uslot));
   }
   my_free(_ALLOC_ID_, &(*undo_item_ptr)->sch);
   my_free(_ALLOC_ID_, undo_item_ptr);
@@ -138,6 +140,9 @@ int save_undo_table(char *sch_name, void *ptr, int what) {
           xctx->modified = undo_item->modified;
           set_modify(xctx->modified);
           my_strdup2(_ALLOC_ID_, &xctx->undo_dirname, undo_item->undo_dirname);
+          xctx->uslot = undo_item->uslot;
+          dbg(1, ("save_undo_table(... XGET): undo_item->uslot=%p\n", undo_item->uslot));
+          dbg(1, ("  save_undo_table(... XGET): winpath_sch=%s\n", winpath_sch));
           /* no need to set xctx->sch[xctx->currsch] */
           xctx->undo_initialized = 1;
         }
@@ -158,6 +163,9 @@ int save_undo_table(char *sch_name, void *ptr, int what) {
       my_strdup2(_ALLOC_ID_, &undo_item->sch, xctx->sch[xctx->currsch]);
       my_strdup2(_ALLOC_ID_, &undo_item->undo_dirname, xctx->undo_dirname);
     }
+    undo_item->uslot = xctx->uslot;
+    dbg(1, ("save_undo_table(... XINSERT): undo_item->uslot=%p\n", undo_item->uslot));
+    dbg(1, ("  save_undo_table(... XINSERT): winpath_sch=%s\n", winpath_sch));
     undo_item->head_undo_ptr = xctx->head_undo_ptr;
     undo_item->cur_undo_ptr = xctx->cur_undo_ptr;
     undo_item->saved_cur_undo_ptr = xctx->saved_cur_undo_ptr;
@@ -195,6 +203,7 @@ int save_undo_table(char *sch_name, void *ptr, int what) {
         while( entry ) {
           undo_item = entry->value;
           info("%s --> %s\n", entry->token, undo_item->undo_dirname);
+          info("     uslot: %p\n", undo_item->uslot);
           info("     full path: %s\n", undo_item->sch);
           info("     head_undo_ptr = %d\n", undo_item->head_undo_ptr);
           info("     cur_undo_ptr = %d\n", undo_item->cur_undo_ptr);
@@ -281,7 +290,7 @@ int save_undo_table(char *sch_name, void *ptr, int what) {
                   /* xctx->saved_cur_undo_ptr should not be updated from undo_item->saved_cur_undo_ptr! */
                   xctx->modified = undo_item->modified;
                   my_strdup2(_ALLOC_ID_, &xctx->undo_dirname, undo_item->undo_dirname);
-
+                  xctx->uslot = undo_item->uslot;
                   my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], undo_item->sch);
                   my_strncpy(xctx->current_name, get_cell_w_ext(undo_item->sch, 0), S(xctx->current_name));
                   tclvareval("get_directory {", undo_item->sch, "}", NULL);

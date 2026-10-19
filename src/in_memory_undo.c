@@ -207,9 +207,9 @@ static void mem_init_undo(void)
    * no need to zero xctx->uslot[slot].gptr, ..., xctx->uslot[slot].version_string,
    * xctx->uslot[slot].symptr, ...
    */
-  dbg(1, ("mem_init_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized));
-  if(xctx->no_undo == 0 && !xctx->mem_undo_initialized) {
+  if(xctx->no_undo == 0 && !xctx->undo_initialized) {
     xctx->uslot = my_calloc(_ALLOC_ID_, MAX_UNDO, sizeof(Undo_slot));
+    dbg(1, ("mem_init_undo(): xctx->uslot=%p, size=%ld\n", xctx->uslot, MAX_UNDO * sizeof(Undo_slot)));
     /* delete previous if any */
     if(tclgetboolvar("preserve_undo")) {
       save_undo_table(xctx->current_name, NULL, XDELETE);
@@ -224,7 +224,7 @@ static void mem_init_undo(void)
       xctx->uslot[slot].aptr = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
       xctx->uslot[slot].pptr = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
     }
-    xctx->mem_undo_initialized = 1;
+    xctx->undo_initialized = 1;
     xctx->cur_undo_ptr = 0; 
     xctx->head_undo_ptr = 0; 
     xctx->tail_undo_ptr = 0; 
@@ -238,51 +238,50 @@ static void mem_init_undo(void)
 /* called when program resets undo stack (for example when loading a new file */
 void mem_clear_undo(void)
 {
-  dbg(1, ("mem_clear_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized));
+  dbg(1, ("mem_clear_undo(): undo_initialized = %d\n", xctx->undo_initialized));
   xctx->cur_undo_ptr = 0;
   xctx->tail_undo_ptr = 0;
   xctx->head_undo_ptr = 0;
 }
 
-void mem_free_uslots(Undo_slot **uslot_ptr)
+void mem_free_uslots(Undo_slot *uslot)
 {
   int slot;
+  dbg(1, ("mem_free_uslots(): freeing uslot=%p\n", uslot));
   for(slot = 0;slot<MAX_UNDO; slot++) {
-    free_undo_lines(*uslot_ptr, slot);
-    free_undo_rects(*uslot_ptr, slot);
-    free_undo_polygons(*uslot_ptr, slot);
-    free_undo_arcs(*uslot_ptr, slot);
-    free_undo_wires(*uslot_ptr, slot);
-    free_undo_texts(*uslot_ptr, slot);
-    free_undo_instances(*uslot_ptr, slot);
-    free_undo_symbols(*uslot_ptr, slot);
+    free_undo_lines(uslot, slot);
+    free_undo_rects(uslot, slot);
+    free_undo_polygons(uslot, slot);
+    free_undo_arcs(uslot, slot);
+    free_undo_wires(uslot, slot);
+    free_undo_texts(uslot, slot);
+    free_undo_instances(uslot, slot);
+    free_undo_symbols(uslot, slot);
 
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].lines);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].rects);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].arcs);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].polygons);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].lptr);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].bptr);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].aptr);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].pptr);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].sptr);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].vptr);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].gptr);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].eptr);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].fptr);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].kptr);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].header_text);
-    my_free(_ALLOC_ID_, &(*uslot_ptr)[slot].version_string);
-
+    my_free(_ALLOC_ID_, &uslot[slot].lines);
+    my_free(_ALLOC_ID_, &uslot[slot].rects);
+    my_free(_ALLOC_ID_, &uslot[slot].arcs);
+    my_free(_ALLOC_ID_, &uslot[slot].polygons);
+    my_free(_ALLOC_ID_, &uslot[slot].lptr);
+    my_free(_ALLOC_ID_, &uslot[slot].bptr);
+    my_free(_ALLOC_ID_, &uslot[slot].aptr);
+    my_free(_ALLOC_ID_, &uslot[slot].pptr);
+    my_free(_ALLOC_ID_, &uslot[slot].sptr);
+    my_free(_ALLOC_ID_, &uslot[slot].vptr);
+    my_free(_ALLOC_ID_, &uslot[slot].gptr);
+    my_free(_ALLOC_ID_, &uslot[slot].eptr);
+    my_free(_ALLOC_ID_, &uslot[slot].fptr);
+    my_free(_ALLOC_ID_, &uslot[slot].kptr);
+    my_free(_ALLOC_ID_, &uslot[slot].header_text);
+    my_free(_ALLOC_ID_, &uslot[slot].version_string);
   }
-  my_free(_ALLOC_ID_, uslot_ptr);
 }
 
 /* used to delete everything when program exits */
 void mem_delete_undo(void)
 {
-  dbg(1, ("mem_delete_undo(): undo_initialized = %d\n", xctx->mem_undo_initialized));
-  if(!xctx->mem_undo_initialized) return;
+  dbg(1, ("mem_delete_undo(): undo_initialized = %d\n", xctx->undo_initialized));
+  if(!xctx->undo_initialized) return;
 
   if(tclgetboolvar("preserve_undo")) {
     /* update undo pointers in save table */
@@ -290,9 +289,10 @@ void mem_delete_undo(void)
   }
 
   mem_clear_undo();
-  xctx->mem_undo_initialized = 0;
+  xctx->undo_initialized = 0;
   if(!tclgetboolvar("preserve_undo")) {
-    mem_free_uslots(&xctx->uslot);
+    mem_free_uslots(xctx->uslot);
+    my_free(_ALLOC_ID_, &xctx->uslot);
   }
 }
 
@@ -358,12 +358,14 @@ void mem_push_undo(int what)
     /* lines */
     for(i = 0;i<xctx->lines[c]; ++i) {
       xctx->uslot[undo_index].lptr[c][i] = xctx->line[c][i];
+      xctx->uslot[undo_index].lptr[c][i].sel = 0; /* we don't want to store select status */
       xctx->uslot[undo_index].lptr[c][i].prop_ptr = NULL;
       my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].lptr[c][i].prop_ptr, xctx->line[c][i].prop_ptr);
     }
     /* rects */
     for(i = 0;i<xctx->rects[c]; ++i) {
       xctx->uslot[undo_index].bptr[c][i] = xctx->rect[c][i];
+      xctx->uslot[undo_index].bptr[c][i].sel = 0; /* we don't want to store select status */
       xctx->uslot[undo_index].bptr[c][i].prop_ptr = NULL;
       xctx->uslot[undo_index].bptr[c][i].extraptr = NULL;
       my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].bptr[c][i].prop_ptr, xctx->rect[c][i].prop_ptr);
@@ -371,6 +373,7 @@ void mem_push_undo(int what)
     /* arcs */
     for(i = 0;i<xctx->arcs[c]; ++i) {
       xctx->uslot[undo_index].aptr[c][i] = xctx->arc[c][i];
+      xctx->uslot[undo_index].aptr[c][i].sel = 0; /* we don't want to store select status */
       xctx->uslot[undo_index].aptr[c][i].prop_ptr = NULL;
       my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].aptr[c][i].prop_ptr, xctx->arc[c][i].prop_ptr);
     }
@@ -378,6 +381,7 @@ void mem_push_undo(int what)
     for(i = 0;i<xctx->polygons[c]; ++i) {
       int points = xctx->poly[c][i].points;
       xctx->uslot[undo_index].pptr[c][i] = xctx->poly[c][i];
+      xctx->uslot[undo_index].pptr[c][i].sel = 0; /* we don't want to store select status */
       xctx->uslot[undo_index].pptr[c][i].prop_ptr = NULL;
       xctx->uslot[undo_index].pptr[c][i].x = my_malloc(_ALLOC_ID_, points * sizeof(double));
       xctx->uslot[undo_index].pptr[c][i].y = my_malloc(_ALLOC_ID_, points * sizeof(double));
@@ -392,6 +396,7 @@ void mem_push_undo(int what)
   /* instances */
   for(i = 0;i<xctx->instances; ++i) {
     xctx->uslot[undo_index].iptr[i] = xctx->inst[i];
+    xctx->uslot[undo_index].iptr[i].sel = 0; /* we don't want to store select status */
     xctx->uslot[undo_index].iptr[i].prop_ptr = NULL;
     xctx->uslot[undo_index].iptr[i].name = NULL;
     xctx->uslot[undo_index].iptr[i].instname = NULL;
@@ -410,6 +415,7 @@ void mem_push_undo(int what)
   /* texts */
   for(i = 0;i<xctx->texts; ++i) {
     xctx->uslot[undo_index].tptr[i] = xctx->text[i];
+    xctx->uslot[undo_index].tptr[i].sel = 0; /* we don't want to store select status */
     xctx->uslot[undo_index].tptr[i].prop_ptr = NULL;
     xctx->uslot[undo_index].tptr[i].txt_ptr = NULL;
     xctx->uslot[undo_index].tptr[i].font = NULL;
@@ -425,6 +431,7 @@ void mem_push_undo(int what)
   /* wires */
   for(i = 0;i<xctx->wires; ++i) {
     xctx->uslot[undo_index].wptr[i] = xctx->wire[i];
+    xctx->uslot[undo_index].wptr[i].sel = 0; /* we don't want to store select status */
     xctx->uslot[undo_index].wptr[i].prop_ptr = NULL;
     xctx->uslot[undo_index].wptr[i].node = NULL;
     my_strdup(_ALLOC_ID_, &xctx->uslot[undo_index].wptr[i].prop_ptr, xctx->wire[i].prop_ptr);
@@ -457,7 +464,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   int undo_index;
 
   if(xctx->no_undo) return;
-  if(!xctx->mem_undo_initialized) return;
+  if(!xctx->undo_initialized) return;
 
   if(redo == 1) {
     if(xctx->cur_undo_ptr < xctx->head_undo_ptr - 1) {
@@ -683,7 +690,7 @@ void mem_copy_undo(Xschem_ctx *dest, Xschem_ctx *source)
   int i, c;
   int undo_index = -1;
   if(xctx->no_undo) return;
-  if(!source->mem_undo_initialized) return;
+  if(!source->undo_initialized) return;
 
   my_free(_ALLOC_ID_, &xctx->wire);
   my_free(_ALLOC_ID_, &xctx->text);

@@ -489,7 +489,6 @@ void alloc_xschem_data(const char *top_path, const char *win_path)
   }
   xctx->undo_initialized = 0;
   xctx->uslot = NULL;
-  xctx->mem_undo_initialized = 0;
   xctx->zoom=CADINITIALZOOM;
   xctx->mooz=1/CADINITIALZOOM;
   xctx->xorigin=CADINITIALX;
@@ -1403,8 +1402,8 @@ void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_name, i
   dest->currsch = source->currsch;
 
   /* copy undo data */
-  /* FIXME: should duplicate also the undo directory, otherwise we have two independent
-   * schematics writing undo data in the same location */
+  /* FIXME: should duplicate also the undo directory or the undo memory pointer,
+   *  otherwise we have two independent schematics writing undo data in the same location */
   if(flags & 16) {
     dest->cur_undo_ptr = source->cur_undo_ptr;
     dest->saved_cur_undo_ptr = source->saved_cur_undo_ptr;
