@@ -4443,7 +4443,6 @@ static char *get_pin_attr(const char *token, int inst, int engineering)
       }
     }
     my_free(_ALLOC_ID_, &pin_attr_value);
-    my_free(_ALLOC_ID_, &value);
   }
   /* just @#pin was given */
   else if(n>=0  && n < (xctx->inst[inst].ptr + xctx->sym)->rects[PINLAYER]) {
@@ -4685,6 +4684,7 @@ void substitute_predefined_token(char **token, int inst, int engineering)
         value = get_pin_attr(*token, inst, engineering);
         if(value) {
           my_strdup2(_ALLOC_ID_, token, value);
+          my_free(_ALLOC_ID_, &value);
         }
       } else if(inst >= 0 && strcmp(*token,"@sch_last_modified")==0 && xctx->inst[inst].ptr >= 0) {
         get_sch_from_sym(file_name, xctx->inst[inst].ptr + xctx->sym, inst, 0);
