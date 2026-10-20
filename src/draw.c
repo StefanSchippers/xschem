@@ -5381,7 +5381,7 @@ int smith_cursor_markers(int i, double f, int max_n, int *sx, int *sy)
   char *sweep_label = NULL;
   char *saven, *saves, *nptr, *sptr;
   const char *ntok;
-  int wcnt = -1, idx, expression;
+  int idx, expression;
   char *ntok_copy = NULL; /* copy of ntok without %<n> */
   char *express = NULL;
   xRect *r;
@@ -5434,7 +5434,6 @@ int smith_cursor_markers(int i, double f, int max_n, int *sx, int *sy)
   while( (ntok = my_strtok_r(nptr, "\n", "\"", 4, &saven)) ) {
     char *nd = NULL;
     int valid_rawfile = 1;
-    wcnt++;
     if(strstr(ntok, ",")) {
       if(find_nth(ntok, ";,", "\"", 0, 2)[0]) continue; /* bus signal: skip */
     }
@@ -5599,8 +5598,8 @@ int smith_cursor_markers(int i, double f, int max_n, int *sx, int *sy)
               sx[n] = (int)sxv;
               sy[n] = (int)syv;
               n++;
-              dbg(1, ("smith_cursor_markers(): wcnt=%d dset=%d p2=%d t=%g re=%g im=%g -> px=(%d,%d)\n",
-                  wcnt, dset, p2, t, re, im, (int)sxv, (int)syv));
+              dbg(1, ("smith_cursor_markers(): dset=%d p2=%d t=%g re=%g im=%g -> px=(%d,%d)\n",
+                  dset, p2, t, re, im, (int)sxv, (int)syv));
             }
           }
           ofs = ofs_end;

@@ -138,13 +138,20 @@ int save_undo_table(char *sch_name, void *ptr, int what) {
           xctx->tail_undo_ptr = undo_item->tail_undo_ptr;
           /* xctx->saved_cur_undo_ptr should not be updated from undo_item->saved_cur_undo_ptr! */
           xctx->modified = undo_item->modified;
-          set_modify(xctx->modified);
+
+          /* It is possible to XGET the undo buffer from another schematic.
+           * In this case rename the current schematic to the one the undo buffer refers to */
+          my_strdup2(_ALLOC_ID_, &xctx->sch[xctx->currsch], undo_item->sch);
+          my_strncpy(xctx->current_name, sch_name, S(xctx->current_name));
+          tclvareval("get_directory {", undo_item->sch, "}", NULL);
+          my_strncpy(xctx->current_dirname, tclresult(), S(xctx->current_dirname));
+
           my_strdup2(_ALLOC_ID_, &xctx->undo_dirname, undo_item->undo_dirname);
           xctx->uslot = undo_item->uslot;
           dbg(1, ("save_undo_table(... XGET): undo_item->uslot=%p\n", undo_item->uslot));
           dbg(1, ("  save_undo_table(... XGET): winpath_sch=%s\n", winpath_sch));
-          /* no need to set xctx->sch[xctx->currsch] */
           xctx->undo_initialized = 1;
+          set_modify(-1);
         }
         res = 1;
       } 
@@ -202,7 +209,7 @@ int save_undo_table(char *sch_name, void *ptr, int what) {
         entry = undo_dir_hash.table[i];
         while( entry ) {
           undo_item = entry->value;
-          info("%s --> %s\n", entry->token, undo_item->undo_dirname);
+          info("%s --> %s\n", entry->token, undo_item->undo_dirname ? undo_item->undo_dirname : "NULL");
           info("     uslot: %p\n", undo_item->uslot);
           info("     full path: %s\n", undo_item->sch);
           info("     head_undo_ptr = %d\n", undo_item->head_undo_ptr);

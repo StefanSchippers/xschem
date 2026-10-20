@@ -1379,8 +1379,21 @@ extern int set_modify(int mod); /* return number of floaters */
 extern int there_are_floaters(void);
 extern char *my_expand(const char *s, int tabstop) ;
 
+/* define to debug memory allocations / free / reallocations */
+#undef DEBUG_MEM
 
-#if __OPTIMIZE__ == 1
+#ifndef DEBUG_MEM
+    #define dbgmem(level, args)
+#else
+
+    #define dbgmem(level, args) \
+        do { \
+             dbg_internal args; \
+        } while (0)
+#endif
+
+
+#if __OPTIMIZE__ == 1 || defined(DEBUG_MEM)
     #define dbg(level, args)
 #else
 

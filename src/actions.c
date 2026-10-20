@@ -2834,10 +2834,15 @@ void go_back(int what)
 
 void clear_schematic(int cancel, int symbol)
 {
- if(cancel == 1) cancel=save(1, 0);
- if(cancel != -1) { /* -1 means user cancel save request */
+ int result;
+ if(cancel == 1) result=save(1, 0);
+ if(result != -1) { /* -1 means user cancel save request */
+   if(tclgetboolvar("preserve_undo") && cancel == 1) {
+     xctx->push_undo(0); /* push current state so we can retrieve it later from undo if needed */
+   }
    xctx->delete_undo();
-   save_undo_table(xctx->current_name, NULL, XDELETE);
+   /* if no confirmation dialog for save is presented delete completely undo buffer */
+   if(cancel == 0) save_undo_table(xctx->current_name, NULL, XDELETE);
    xctx->currsch = 0;
    unselect_all(1);
    remove_symbols();

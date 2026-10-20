@@ -243,11 +243,11 @@ size_t my_strdup(int id, char **dest, const char *src) /* empty source string --
    len = strlen(src)+1;
    my_realloc(id, dest, len);
    memcpy(*dest, src, len);
-   dbg(3,("my_strdup(%d,): duplicated string %s\n", id, src));
+   dbgmem(3,("my_strdup(%d,): duplicated string %s\n", id, src));
    return len-1;
  } else if(*dest) {
    my_free(_ALLOC_ID_, dest);
-   dbg(3,("my_strdup(%d,): freed destination ptr\n", id));
+   dbgmem(3,("my_strdup(%d,): freed destination ptr\n", id));
  }
 
  return 0;
@@ -258,7 +258,7 @@ void my_strndup(int id, char **dest, const char *src, size_t n) /* empty source 
 
 {
  if(*dest!=NULL) {
-   dbg(3,("  my_strndup:  calling my_free\n"));
+   dbgmem(3,("  my_strndup:  calling my_free\n"));
    my_free(_ALLOC_ID_, dest);
  }
  if(src!=NULL && src[0]!='\0')
@@ -273,7 +273,7 @@ void my_strndup(int id, char **dest, const char *src, size_t n) /* empty source 
   }
   /* *dest=strndup(src, n); */
 
-  dbg(3,("my_strndup(%d,): duplicated string %s\n", id, src));
+  dbgmem(3,("my_strndup(%d,): duplicated string %s\n", id, src));
  }
 }
 
@@ -481,11 +481,11 @@ size_t my_strdup2(int id, char **dest, const char *src) /* 20150409 duplicates a
    len = strlen(src)+1;
    my_realloc(id, dest, len);
    memcpy(*dest, src, len);
-   dbg(3,("my_strdup2(%d,): duplicated string %s\n", id, src));
+   dbgmem(3,("my_strdup2(%d,): duplicated string %s\n", id, src));
    return len-1;
  } else if(*dest) {
    my_free(_ALLOC_ID_, dest);
-   dbg(3,("my_strdup2(%d,): freed destination ptr\n", id));
+   dbgmem(3,("my_strdup2(%d,): freed destination ptr\n", id));
  }
  return 0;
 }
@@ -664,7 +664,7 @@ size_t my_mstrcat(int id, char **str, const char *add, ...)
         my_realloc(id, str, s + a );
         memcpy(*str + s, append_str, a);
         s += a - 1;
-        dbg(3,("my_mstrcat(%d,): reallocated string %s\n", id, *str));
+        dbgmem(3,("my_mstrcat(%d,): reallocated string %s\n", id, *str));
       }
     } else {
       if(append_str[0]) {
@@ -672,7 +672,7 @@ size_t my_mstrcat(int id, char **str, const char *add, ...)
         *str = my_malloc(id, a);
         memcpy(*str, append_str, a);
         s = a - 1;
-        dbg(3,("my_mstrcat(%d,): allocated string %s\n", id, *str));
+        dbgmem(3,("my_mstrcat(%d,): allocated string %s\n", id, *str));
       }
     }
     append_str = va_arg(args, const char *);
@@ -684,7 +684,7 @@ size_t my_mstrcat(int id, char **str, const char *add, ...)
 size_t my_strcat(int id, char **str, const char *append_str)
 {
   size_t s, a;
-  dbg(3,("my_strcat(%d,): str=%s  append_str=%s\n", id,
+  dbgmem(3,("my_strcat(%d,): str=%s  append_str=%s\n", id,
     *str? *str : "<NULL>", append_str ? append_str : "<NULL>"));
   if( *str != NULL)
   {
@@ -693,14 +693,14 @@ size_t my_strcat(int id, char **str, const char *append_str)
     a = strlen(append_str) + 1;
     my_realloc(id, str, s + a );
     memcpy(*str + s, append_str, a);
-    dbg(3,("my_strcat(%d,): reallocated string %s\n", id, *str));
+    dbgmem(3,("my_strcat(%d,): reallocated string %s\n", id, *str));
     return s + a - 1;
   } else { /* str = NULL */
     if(append_str == NULL || append_str[0] == '\0') return 0;
     a = strlen(append_str) + 1;
     *str = my_malloc(id, a );
     memcpy(*str, append_str, a);
-    dbg(3,("my_strcat(%d,): allocated string %s\n", id, *str));
+    dbgmem(3,("my_strcat(%d,): allocated string %s\n", id, *str));
     return a - 1;
   }
 }
@@ -709,7 +709,7 @@ size_t my_strcat(int id, char **str, const char *append_str)
 size_t my_strcat2(int id, char **str, const char *append_str)
 {
   size_t s, a;
-  dbg(3,("my_strcat(%d,): str=%s  append_str=%s\n", id,
+  dbgmem(3,("my_strcat(%d,): str=%s  append_str=%s\n", id,
     *str? *str : "<NULL>", append_str ? append_str : "<NULL>"));
   if( *str != NULL)
   {
@@ -718,14 +718,14 @@ size_t my_strcat2(int id, char **str, const char *append_str)
     a = strlen(append_str) + 1;
     my_realloc(id, str, s + a );
     memcpy(*str + s, append_str, a);
-    dbg(3,("my_strcat(%d,): reallocated string %s\n", id, *str));
+    dbgmem(3,("my_strcat(%d,): reallocated string %s\n", id, *str));
     return s + a - 1;
   } else { /* str == NULL */
     if(append_str == NULL ) return 0;
     a = strlen(append_str) + 1;
     *str = my_malloc(id, a );
     memcpy(*str, append_str, a);
-    dbg(3,("my_strcat(%d,): allocated string %s\n", id, *str));
+    dbgmem(3,("my_strcat(%d,): allocated string %s\n", id, *str));
     return a - 1;
   }
 }
@@ -734,7 +734,7 @@ size_t my_strcat2(int id, char **str, const char *append_str)
 size_t my_strncat(int id, char **str, size_t n, const char *append_str)
 {
  size_t s, a;
- dbg(3,("my_strncat(%d,): str=%s  append_str=%s\n", id,
+ dbgmem(3,("my_strncat(%d,): str=%s  append_str=%s\n", id,
     *str? *str : "<NULL>", append_str ? append_str : "<NULL>"));
  a = strlen(append_str) + 1;
  if(a > n + 1) a = n + 1;
@@ -745,7 +745,7 @@ size_t my_strncat(int id, char **str, size_t n, const char *append_str)
   my_realloc(id, str, s + a );
   memcpy(*str + s, append_str, a);
   *(*str + s + a - 1) = '\0';
-  dbg(3,("my_strncat(%d,): reallocated string %s\n", id, *str));
+  dbgmem(3,("my_strncat(%d,): reallocated string %s\n", id, *str));
   return s + a - 1;
  }
  else
@@ -754,7 +754,7 @@ size_t my_strncat(int id, char **str, size_t n, const char *append_str)
   *str = my_malloc(id,  a );
   memcpy(*str, append_str, a);
   *(*str + a - 1) = '\0';
-  dbg(3,("my_strncat(%d,): allocated string %s\n", id, *str));
+  dbgmem(3,("my_strncat(%d,): allocated string %s\n", id, *str));
   return a - 1;
  }
 }
@@ -766,7 +766,7 @@ void *my_calloc(int id, size_t nmemb, size_t size)
      ptr=calloc(nmemb, size);
      if(ptr == NULL)
         info("my_calloc(%d,): allocation failure %ld * %ld bytes\n", id, nmemb, size);
-     dbg(3, ("\nmy_calloc(%d,): allocating %p , %lu bytes\n",
+     dbgmem(3, ("\nmy_calloc(%d,): allocating %p , %lu bytes\n",
                id, ptr, (unsigned long) (size*nmemb)));
    }
    else ptr = NULL;
@@ -779,7 +779,7 @@ void *my_malloc(int id, size_t size)
  if(size>0) {
    ptr=malloc(size);
    if(ptr == NULL) info("my_malloc(%d,): allocation failure for %ld bytes\n", id, size);
-   dbg(3, ("\nmy_malloc(%d,): allocating %p , %lu bytes\n", id, ptr, (unsigned long) size));
+   dbgmem(3, ("\nmy_malloc(%d,): allocating %p , %lu bytes\n", id, ptr, (unsigned long) size));
  }
  else ptr=NULL;
  return ptr;
@@ -787,14 +787,12 @@ void *my_malloc(int id, size_t size)
 
 void my_realloc(int id, void *ptr,size_t size)
 {
- void *a;
- char old[100] = "";
+ void *old = *(void **)ptr;
  void *tmp;
- a = *(void **)ptr;
- if(debug_var > 2) my_snprintf(old, S(old), "%p", a);
+ (void) old; /* avoid compiler warnings (used only in dbgmem) */
  if(size == 0) {
    free(*(void **)ptr);
-   dbg(3, ("\nmy_free(%d,):  my_realloc_freeing %p\n",id, *(void **)ptr));
+   dbgmem(3, ("\nmy_free(%d,):  my_realloc_freeing %p\n",id, *(void **)ptr));
    *(void **)ptr=NULL;
  } else {
    tmp = realloc(*(void **)ptr,size);
@@ -802,7 +800,7 @@ void my_realloc(int id, void *ptr,size_t size)
      info("my_realloc(%d,): allocation failure for %ld bytes\n", id, size);
    } else {
       *(void **)ptr = tmp;
-      dbg(3, ("\nmy_realloc(%d,): reallocating %s --> %p to %lu bytes\n",
+      dbgmem(3, ("\nmy_realloc(%d,): reallocating %p --> %p to %lu bytes\n",
              id, old, *(void **)ptr,(unsigned long) size));
    }
  }
@@ -811,11 +809,11 @@ void my_realloc(int id, void *ptr,size_t size)
 char *my_free(int id, void *ptr)
 {
  if(*(void **)ptr) {
-   dbg(3, ("\nmy_free(%d,):  freeing %p\n", id, *(void **)ptr));
+   dbgmem(3, ("\nmy_free(%d,):  freeing %p\n", id, *(void **)ptr));
    free(*(void **)ptr);
    *(void **)ptr=NULL;
  } else {
-   dbg(3, ("\n--> my_free(%d,): trying to free NULL pointer\n", id));
+   dbgmem(3, ("\n--> my_free(%d,): trying to free NULL pointer\n", id));
  }
  return NULL;
 }
@@ -828,7 +826,7 @@ int my_strncpy(char *d, const char *s, size_t n)
 {
   int i = 0;
   n -= 1;
-  dbg(3, ("my_strncpy():  copying %s to %p\n", s, (void *)d));
+  dbgmem(3, ("my_strncpy():  copying %s to %p\n", s, (void *)d));
   while( (d[i] = s[i]) )
   {
     if(i == n) {
