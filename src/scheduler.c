@@ -6863,13 +6863,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2) {
         dbg(1, ("xschem undo_type %s\n", argv[2]));
 
-        if(tclgetboolvar("preserve_undo")) {
-          save_undo_table(NULL, NULL, XDELETE_ALL);
-        }
 
         if(!strcmp(argv[2], "disk")) {
           if(xctx->undo_type == 1) {
             mem_delete_undo(); /*reset memory undo */
+            if(tclgetboolvar("preserve_undo")) {
+              save_undo_table(NULL, NULL, XDELETE_ALL);
+            }
           }
           /* redefine undo function pointers */
           xctx->push_undo = push_undo;
@@ -6880,6 +6880,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } else { /* "memory" */
           if(xctx->undo_type == 0) {
             delete_undo(); /*reset disk undo */
+            if(tclgetboolvar("preserve_undo")) {
+              save_undo_table(NULL, NULL, XDELETE_ALL);
+            }
           }
           /* redefine undo function pointers */
           xctx->push_undo = mem_push_undo;

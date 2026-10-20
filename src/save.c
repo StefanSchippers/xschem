@@ -43,7 +43,7 @@ static void save_undo_freefunc(void **ptr)
   char diff_name[PATH_MAX];
   undo_save **undo_item_ptr = (undo_save **)ptr;
 
-  if(!strcmp(tclgetvar("undo_type"), "disk")) {
+  if(xctx->undo_type == 0) { /* disk undo */
     for(i = 0; i < MAX_UNDO; ++i) {
       my_snprintf(diff_name, S(diff_name), "%s/undo%d",(*undo_item_ptr)->undo_dirname, i);
       xunlink(diff_name);
