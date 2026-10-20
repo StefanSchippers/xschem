@@ -77,7 +77,7 @@ proc test_windows { {tabs 0} {destroy 1} } {
 
 ## select all loaded schematic and paste 32 times in different places,
 ## check if number of elements after paste matches.
-proc copy_paste_test {{f mos_power_ampli.sch}} {
+proc copy_paste_test {{f mos_power_ampli.sch} {forceclear 1}} {
   xschem load [abs_sym_path $f]
   xschem zoom_box -18000 -18000 18000 18000
   xschem select_all
@@ -102,7 +102,11 @@ proc copy_paste_test {{f mos_power_ampli.sch}} {
     puts "Copy / paste 32 additional circuits: $m elements != $n * 33. FAIL"
   }
   xschem unselect_all
-  xschem clear force
+  if {$forceclear} {
+    xschem clear force
+  } else {
+    xschem clear
+  }
 }
 
 ## draw a grid of long vertical wires and small horizontal wire segments

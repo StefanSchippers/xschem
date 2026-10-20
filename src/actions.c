@@ -2836,10 +2836,13 @@ void clear_schematic(int cancel, int symbol)
 {
  if(cancel == 1) cancel=save(1, 0);
  if(cancel != -1) { /* -1 means user cancel save request */
+   xctx->delete_undo();
+   save_undo_table(xctx->current_name, NULL, XDELETE);
    xctx->currsch = 0;
    unselect_all(1);
    remove_symbols();
    clear_drawing();
+   my_strncpy(xctx->current_name, "", S(xctx->current_name));
    set_unique_sch_name(xctx, symbol ? "untitled.sym" : "untitled.sch");
    draw();
    set_modify(0);
