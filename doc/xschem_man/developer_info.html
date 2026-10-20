@@ -686,6 +686,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    (0=no debug). Higher levels yield more debug info.</pre>
    <li><kbd>       delete</kbd></li><pre>
    Delete selection </pre>
+   <li><kbd>       delete_undo</kbd></li><pre>
+   debug command: call xctx-&gt;delete_undo() </pre>
    <li><kbd>       delete_files</kbd></li><pre>
    Bring up a file selector the user can use to delete files </pre>
    <li><kbd>       descend [n] [notitle]</kbd></li><pre>
@@ -787,6 +789,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    8: do not uniquify name when copying (what == 2)
   16: copy undo pointers and undo directory
   32: for fork_sch(6, ...): only delete hash table entry, do not delete schematic data
+  64: for fork_sch(3, ...): delete pre-existing schematic also if modified.
        dbglev: 
    0: print informations, ask user to save a modified schematic [default]
   &gt;0: print info only if debug_var &gt;-dbglev, do not prompt user</pre>
@@ -1233,6 +1236,8 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Start a GUI placement of a polygon
    if `gui` argument is given start a polygon GUI placement with 1st point
    set to current mouse coordinates </pre>
+   <li><kbd>       preserve_undo 1|0</kbd></li><pre>
+   enable or disable undo caching across hierarchies </pre>
    <li><kbd>       preview_window create|draw|destroy|close [win_path] [file]</kbd></li><pre>
    destroy: will delete preview schematic data and destroy container window
    close: same as destroy but leave the container window.
@@ -1267,8 +1272,10 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Print spice raw netlist line for instance (number or name) 'inst' </pre>
    <li><kbd>       propagate_hilights [set clear]</kbd></li><pre>
    Debug: wrapper to propagate_hilights() function </pre>
-   <li><kbd>       push_undo</kbd></li><pre>
-   Push current state on undo stack </pre>
+   <li><kbd>       push_undo [what]</kbd></li><pre>
+   Push current state on undo stack
+   if `what == 1` is given do a push on slot pointed by cur_undo_ptr
+   without changing cur_undo_ptr </pre>
    <li><kbd>       raw what ...</kbd></li><pre>
      what = add | clear | datasets | index | info | loaded | list |
             new | points | rawfile | del | read | set | rename |
@@ -1749,7 +1756,7 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    <li><kbd>       undo  [redo [set_modify]]</kbd></li><pre>
    Undo last action. Optional integers redo and set_modify are passed to pop_undo() </pre>
    <li><kbd>       undo_type disk|memory</kbd></li><pre>
-   Use disk file ('disk') or RAM ('memory') for undo bufer</pre>
+   Use disk file ('disk') or RAM ('memory') for undo buffer</pre>
    <li><kbd>       unhilight_all [fast]</kbd></li><pre>
    if 'fast' is given do not redraw
    Clear all highlights </pre>

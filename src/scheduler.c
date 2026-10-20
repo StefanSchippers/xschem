@@ -884,6 +884,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       Tcl_ResetResult(interp);
     }
 
+    /* delete_undo
+     *   debug command: call xctx->delete_undo() */
+    else if(!strcmp(argv[1], "delete_undo")) {
+      xctx->delete_undo();
+      Tcl_ResetResult(interp);
+    }
+
     /* delete_files
      *   Bring up a file selector the user can use to delete files */
     else if(!strcmp(argv[1], "delete_files"))
@@ -4044,6 +4051,25 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       } else {
         xctx->ui_state |= MENUSTART;
         xctx->ui_state2 = MENUSTARTPOLYGON;
+      }
+    }
+
+    /* preserve_undo 1|0
+     *   enable or disable undo caching across hierarchies */
+    else if(!strcmp(argv[1], "preserve_undo"))
+    {
+      if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
+      if(argc < 3) {
+        Tcl_SetResult(interp, "xschem preserve_undo needs at least 1 more arguments: 1|0", TCL_STATIC);
+        return TCL_ERROR;
+      } else {
+        int new = atoi(argv[2]);
+        xctx->delete_undo();
+        if(new == 0) { /* was enabled  --> disable */
+          save_undo_table(NULL, NULL, XDELETE_ALL);
+        } else {        /* was disabled --> enable  */
+          /* something to do here? */
+        }
       }
     }
 

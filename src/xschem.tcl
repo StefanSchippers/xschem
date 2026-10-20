@@ -10762,6 +10762,11 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.option add checkbutton -selectcolor $selectcolor \
      -label "Undo buffer on Disk" -variable undo_type \
      -onvalue disk -offvalue memory -command {switch_undo}
+
+  $topwin.menubar.option add checkbutton -selectcolor $selectcolor \
+     -label "Preserve undo across hierarchies" -variable preserve_undo \
+     -command {xschem preserve_undo $preserve_undo}
+
   $topwin.menubar.option add checkbutton -label "Enable stretch" -variable enable_stretch \
      -selectcolor $selectcolor  -accelerator Y
   $topwin.menubar.option add checkbutton -label "Enable infix-interface" -variable infix_interface \
@@ -10784,38 +10789,13 @@ proc build_widgets { {topwin {} } } {
     -variable intuitive_interface -selectcolor $selectcolor \
     -command {xschem set intuitive_interface $intuitive_interface}
 
-  $topwin.menubar.option add cascade -label "Crosshair" \
-       -menu $topwin.menubar.option.crosshair
-  menu $topwin.menubar.option.crosshair -tearoff 0 -takefocus 0
-
-  $topwin.menubar.option.crosshair add checkbutton -label "Draw snap cursor" \
-    -variable snap_cursor -selectcolor $selectcolor  -accelerator {Alt-Z}
-  $topwin.menubar.option.crosshair add checkbutton -label "Draw crosshair" \
-    -variable draw_crosshair -selectcolor $selectcolor -accelerator {Alt-X}
-  $topwin.menubar.option.crosshair add command -label "Crosshair size" \
-    -command {
-      input_line "Enter crosshair size (int, 0 = full screen width):" \
-          "set crosshair_size" $crosshair_size
-    }
   $topwin.menubar.option add command -label "Replace \[ and \] for buses in SPICE netlist" \
      -command {
        input_line "Enter two characters to replace default bus \[\] delimiters:" "set bus_replacement_char"
      }
   $topwin.menubar.option add checkbutton \
     -selectcolor $selectcolor -label "Group bus slices in Verilog instances" -variable verilog_bitblast
-  $topwin.menubar.option add checkbutton -label "Draw grid" -variable draw_grid \
-     -selectcolor $selectcolor -accelerator {%} \
-     -command {
-       xschem redraw
-     }
-  $topwin.menubar.option add command -label "Half Snap Threshold" -accelerator G -command {
-         xschem set cadsnap [expr {$cadsnap / 2.0} ]
-       }
-  $topwin.menubar.option add command -label "Double Snap Threshold" -accelerator Shift-G -command {
-         xschem set cadsnap [expr {$cadsnap * 2.0} ]
-       }
-  $topwin.menubar.option add checkbutton -label "Variable grid point size" -variable big_grid_points \
-     -selectcolor $selectcolor -command { xschem redraw }
+
   $topwin.menubar.option add separator
 
   $topwin.menubar.option add checkbutton -label "No XCopyArea drawing model" -variable draw_window \
@@ -10984,6 +10964,34 @@ proc build_widgets { {topwin {} } } {
        -command {
          input_line "Enter Grid point size (int or -1: $grid_point_size)" "set grid_point_size" $grid_point_size
        }
+
+  $topwin.menubar.view add cascade -label "Crosshair" \
+       -menu $topwin.menubar.view.crosshair
+  menu $topwin.menubar.view.crosshair -tearoff 0 -takefocus 0
+  $topwin.menubar.view.crosshair add checkbutton -label "Draw snap cursor" \
+    -variable snap_cursor -selectcolor $selectcolor  -accelerator {Alt-Z}
+  $topwin.menubar.view.crosshair add checkbutton -label "Draw crosshair" \
+    -variable draw_crosshair -selectcolor $selectcolor -accelerator {Alt-X}
+  $topwin.menubar.view.crosshair add command -label "Crosshair size" \
+    -command {
+      input_line "Enter crosshair size (int, 0 = full screen width):" \
+          "set crosshair_size" $crosshair_size
+    }
+
+  $topwin.menubar.view add checkbutton -label "Draw grid" -variable draw_grid \
+    -selectcolor $selectcolor -accelerator {%} \
+    -command {
+      xschem redraw
+    }
+  $topwin.menubar.view add command -label "Half Snap Threshold" -accelerator G -command {
+         xschem set cadsnap [expr {$cadsnap / 2.0} ]
+       }
+  $topwin.menubar.view add command -label "Double Snap Threshold" -accelerator Shift-G -command {
+         xschem set cadsnap [expr {$cadsnap * 2.0} ]
+       }
+  $topwin.menubar.view add checkbutton -label "Variable grid point size" -variable big_grid_points \
+     -selectcolor $selectcolor -command { xschem redraw }
+
   $topwin.menubar.view add checkbutton -label "Tabbed interface" -variable tabbed_interface \
     -selectcolor $selectcolor -command setup_tabbed_interface
 
