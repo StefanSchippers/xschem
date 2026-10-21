@@ -676,3 +676,178 @@ void mem_pop_undo(int redo, int set_modify_status)
 
 }
 
+void mem_copy_undo(Xschem_ctx *dest, Xschem_ctx *source)
+{
+  int i, c, undo_index;
+
+
+
+  dest->uslot = my_calloc(_ALLOC_ID_, MAX_UNDO, sizeof(Undo_slot));
+
+  for(undo_index = 0; undo_index < MAX_UNDO; undo_index++) {
+    my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].gptr,
+                          source->uslot[undo_index].gptr);
+    my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].vptr,
+                          source->uslot[undo_index].vptr);
+    my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].sptr,
+                          source->uslot[undo_index].sptr);
+    my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].fptr,
+                          source->uslot[undo_index].fptr);
+    my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].kptr,
+                          source->uslot[undo_index].kptr);
+    my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].eptr,
+                          source->uslot[undo_index].eptr);
+    my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].header_text,
+                          source->uslot[undo_index].header_text);
+    my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].version_string,
+                          source->uslot[undo_index].version_string);
+  
+    #if 0
+    free_undo_lines(dest->uslot, undo_index);
+    free_undo_rects(dest->uslot, undo_index);
+    free_undo_polygons(dest->uslot, undo_index);
+    free_undo_arcs(dest->uslot, undo_index);
+    free_undo_wires(dest->uslot, undo_index);
+    free_undo_texts(dest->uslot, undo_index);
+    free_undo_instances(dest->uslot, undo_index);
+    free_undo_symbols(dest->uslot, undo_index);
+    #endif
+  
+    dest->uslot[undo_index].lines = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+    dest->uslot[undo_index].rects = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+    dest->uslot[undo_index].arcs = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+    dest->uslot[undo_index].polygons = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+    dest->uslot[undo_index].lptr = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
+    dest->uslot[undo_index].bptr = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xRect *));
+    dest->uslot[undo_index].aptr = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
+    dest->uslot[undo_index].pptr = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
+
+    memcpy(dest->uslot[undo_index].lines,
+         source->uslot[undo_index].lines, sizeof(dest->uslot[undo_index].lines[0]) * cadlayers);
+    memcpy(dest->uslot[undo_index].rects,
+         source->uslot[undo_index].rects, sizeof(dest->uslot[undo_index].rects[0]) * cadlayers);
+    memcpy(dest->uslot[undo_index].arcs,
+         source->uslot[undo_index].arcs, sizeof(dest->uslot[undo_index].arcs[0]) * cadlayers);
+    memcpy(dest->uslot[undo_index].polygons,
+         source->uslot[undo_index].polygons, sizeof(dest->uslot[undo_index].polygons[0]) * cadlayers);
+
+    for(c = 0;c < cadlayers; ++c) {
+      dest->uslot[undo_index].lptr[c] = my_calloc(_ALLOC_ID_,
+           source->uslot[undo_index].lines[c], sizeof(xLine));
+      dest->uslot[undo_index].bptr[c] = my_calloc(_ALLOC_ID_,
+           source->uslot[undo_index].rects[c], sizeof(xRect));
+      dest->uslot[undo_index].pptr[c] = my_calloc(_ALLOC_ID_,
+           source->uslot[undo_index].polygons[c], sizeof(xPoly));
+      dest->uslot[undo_index].aptr[c] = my_calloc(_ALLOC_ID_,
+           source->uslot[undo_index].arcs[c], sizeof(xArc));
+    }
+
+    dest->uslot[undo_index].wptr = my_calloc(_ALLOC_ID_,
+           source->uslot[undo_index].wires, sizeof(xWire));
+    dest->uslot[undo_index].tptr = my_calloc(_ALLOC_ID_,
+           source->uslot[undo_index].texts, sizeof(xText));
+    dest->uslot[undo_index].iptr = my_calloc(_ALLOC_ID_,
+           source->uslot[undo_index].instances, sizeof(xInstance));
+    dest->uslot[undo_index].symptr = my_calloc(_ALLOC_ID_,
+           source->uslot[undo_index].symbols, sizeof(xSymbol));
+
+    dest->uslot[undo_index].texts = source->uslot[undo_index].texts;
+    dest->uslot[undo_index].instances = source->uslot[undo_index].instances;
+    dest->uslot[undo_index].symbols = source->uslot[undo_index].symbols;
+    dest->uslot[undo_index].wires = source->uslot[undo_index].wires;
+  
+    for(c = 0;c<cadlayers; ++c) {
+      /* lines */
+      for(i = 0;i<source->uslot[undo_index].lines[c]; ++i) {
+        dest->uslot[undo_index].lptr[c][i] = source->uslot[undo_index].lptr[c][i];
+        dest->uslot[undo_index].lptr[c][i].prop_ptr = NULL;
+        my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].lptr[c][i].prop_ptr,
+                              source->uslot[undo_index].lptr[c][i].prop_ptr);
+      }
+      /* rects */
+      for(i = 0;i<source->uslot[undo_index].rects[c]; ++i) {
+        dest->uslot[undo_index].bptr[c][i] = source->uslot[undo_index].bptr[c][i];
+        dest->uslot[undo_index].bptr[c][i].prop_ptr = NULL;
+        dest->uslot[undo_index].bptr[c][i].extraptr = NULL;
+        my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].bptr[c][i].prop_ptr,
+                              source->uslot[undo_index].bptr[c][i].prop_ptr);
+      }
+      /* arcs */
+      for(i = 0;i<source->uslot[undo_index].arcs[c]; ++i) {
+        dest->uslot[undo_index].aptr[c][i] = source->uslot[undo_index].aptr[c][i];
+        dest->uslot[undo_index].aptr[c][i].prop_ptr = NULL;
+        my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].aptr[c][i].prop_ptr,
+                              source->uslot[undo_index].aptr[c][i].prop_ptr);
+      }
+      /*polygons */
+      for(i = 0;i<source->uslot[undo_index].polygons[c]; ++i) {
+        int points = source->uslot[undo_index].pptr[c][i].points;
+        dest->uslot[undo_index].pptr[c][i] = source->uslot[undo_index].pptr[c][i];
+        dest->uslot[undo_index].pptr[c][i].prop_ptr = NULL;
+        dest->uslot[undo_index].pptr[c][i].x = my_malloc(_ALLOC_ID_, points * sizeof(double));
+        dest->uslot[undo_index].pptr[c][i].y = my_malloc(_ALLOC_ID_, points * sizeof(double));
+        dest->uslot[undo_index].pptr[c][i].selected_point =
+             my_malloc(_ALLOC_ID_, points * sizeof(unsigned short));
+        memcpy(dest->uslot[undo_index].pptr[c][i].x,
+             source->uslot[undo_index].pptr[c][i].x, points * sizeof(double));
+        memcpy(dest->uslot[undo_index].pptr[c][i].y,
+             source->uslot[undo_index].pptr[c][i].y, points * sizeof(double));
+        memcpy(dest->uslot[undo_index].pptr[c][i].selected_point,
+             source->uslot[undo_index].pptr[c][i].selected_point, points * sizeof(unsigned short));
+        my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].pptr[c][i].prop_ptr,
+                              source->uslot[undo_index].pptr[c][i].prop_ptr);
+      }
+    }
+    /* instances */
+    for(i = 0;i<source->uslot[undo_index].instances; ++i) {
+      dest->uslot[undo_index].iptr[i] = source->uslot[undo_index].iptr[i];
+      dest->uslot[undo_index].iptr[i].prop_ptr = NULL;
+      dest->uslot[undo_index].iptr[i].name = NULL;
+      dest->uslot[undo_index].iptr[i].instname = NULL;
+      dest->uslot[undo_index].iptr[i].lab = NULL;
+      dest->uslot[undo_index].iptr[i].node = NULL;
+      my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].iptr[i].lab,
+                            source->uslot[undo_index].iptr[i].lab);
+      my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].iptr[i].instname,
+                            source->uslot[undo_index].iptr[i].instname);
+      my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].iptr[i].prop_ptr,
+                            source->uslot[undo_index].iptr[i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].iptr[i].name,
+                            source->uslot[undo_index].iptr[i].name);
+    }
+  
+    /* symbols */
+    for(i = 0;i<source->uslot[undo_index].symbols; ++i) {
+      copy_symbol(&dest->uslot[undo_index].symptr[i], &source->uslot[undo_index].symptr[i]);
+    }
+    /* texts */
+    for(i = 0;i<source->uslot[undo_index].texts; ++i) {
+      dest->uslot[undo_index].tptr[i] = source->uslot[undo_index].tptr[i];
+      dest->uslot[undo_index].tptr[i].prop_ptr = NULL;
+      dest->uslot[undo_index].tptr[i].txt_ptr = NULL;
+      dest->uslot[undo_index].tptr[i].font = NULL;
+      dest->uslot[undo_index].tptr[i].floater_instname = NULL;
+      dest->uslot[undo_index].tptr[i].floater_ptr = NULL;
+      my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].tptr[i].prop_ptr,
+                            source->uslot[undo_index].tptr[i].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].tptr[i].txt_ptr,
+                            source->uslot[undo_index].tptr[i].txt_ptr);
+      my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].tptr[i].font,
+                            source->uslot[undo_index].tptr[i].font);
+      my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].tptr[i].floater_instname,
+                            source->uslot[undo_index].tptr[i].floater_instname);
+      my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].tptr[i].floater_ptr,
+                            source->uslot[undo_index].tptr[i].floater_ptr);
+    }
+  
+    /* wires */
+    for(i = 0;i<source->uslot[undo_index].wires; ++i) {
+      dest->uslot[undo_index].wptr[i] = source->uslot[undo_index].wptr[i];
+      dest->uslot[undo_index].wptr[i].prop_ptr = NULL;
+      dest->uslot[undo_index].wptr[i].node = NULL;
+      my_strdup2(_ALLOC_ID_, &dest->uslot[undo_index].wptr[i].prop_ptr,
+                            source->uslot[undo_index].wptr[i].prop_ptr);
+    }
+  }
+}
+

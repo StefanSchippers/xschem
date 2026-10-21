@@ -5313,6 +5313,13 @@ proc get_list_of_dirs_with_files {{paths {}} {levels -1} \
   return $dir_with_symbols
 }
 
+proc undo_file_copy {dest src} {
+  foreach i [glob -nocomplain -directory $src  -type f *] {
+    file copy $i $dest
+  }
+}
+
+
 #######################################################################
 ##### new alternate file_chooser browser
 #######################################################################

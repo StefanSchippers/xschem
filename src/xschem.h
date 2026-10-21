@@ -1636,6 +1636,7 @@ extern void delete_undo(void);
 extern void clear_undo(void);
 extern void mem_push_undo(int);
 extern void mem_pop_undo(int redo, int set_modify_status);
+extern void mem_copy_undo(Xschem_ctx *dest, Xschem_ctx *source);
 extern void mem_free_uslots(Undo_slot *uslot);
 extern void mem_delete_undo(void);
 extern void mem_clear_undo(void);

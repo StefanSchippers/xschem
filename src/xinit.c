@@ -1401,18 +1401,6 @@ void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_name, i
   /* SCHEMATIC DATA */
   dest->currsch = source->currsch;
 
-  /* copy undo data */
-  /* FIXME: should duplicate also the undo directory or the undo memory pointer,
-   *  otherwise we have two independent schematics writing undo data in the same location */
-  if(flags & 16) {
-    dest->cur_undo_ptr = source->cur_undo_ptr;
-    dest->saved_cur_undo_ptr = source->saved_cur_undo_ptr;
-    dest->head_undo_ptr = source->head_undo_ptr;
-    dest->tail_undo_ptr = source->tail_undo_ptr;
-    dest->undo_initialized = source->undo_initialized;
-    my_strdup2(_ALLOC_ID_, &dest->undo_dirname,source->undo_dirname);
-  }
-
   for(i = 0; i < CADMAXHIER; ++i) {
     my_strdup2(_ALLOC_ID_, &dest->sch[i], source->sch[i]);
     my_strdup2(_ALLOC_ID_, &dest->sch_path[i], source->sch_path[i]);
@@ -1460,6 +1448,28 @@ void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_name, i
   my_strncpy(dest->current_name, source->current_name, S(dest->current_name));
 
   if(!(flags & 8)) set_unique_sch_name(dest, sch_name);
+
+  /* copy undo data */
+  if(flags & 16) {
+    dest->cur_undo_ptr = source->cur_undo_ptr;
+    dest->saved_cur_undo_ptr = source->saved_cur_undo_ptr;
+    dest->head_undo_ptr = source->head_undo_ptr;
+    dest->tail_undo_ptr = source->tail_undo_ptr;
+    dest->undo_initialized = source->undo_initialized;
+    if(xctx->undo_type == 1) {
+      mem_copy_undo(dest, source);
+    } else {
+
+      if( !my_strdup(_ALLOC_ID_, &dest->undo_dirname,
+           create_tmpdir("xschem_undo_", get_cell_w_ext(dest->current_name, 0)) )) {
+        info("init_undo(): problems creating tmp undo dir, Undo will be disabled\n");
+        info("init_undo(): Check permissions in %s\n", tclgetvar("XSCHEM_TMP_DIR"));
+        dest->no_undo = 1; /* disable undo */
+      } else {
+        tclvareval("undo_file_copy {", dest->undo_dirname, "} {", source->undo_dirname, "}", NULL);
+      }
+    }
+  }
 
   raw_copy(&dest->raw, source->raw, dest);
   extra_raw_arr_copy(dest, source);
