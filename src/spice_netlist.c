@@ -519,7 +519,9 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
         else if(split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spectre_netlist",0),"true")==0 )
           err |= spectre_block_netlist(fd, i, alert);
         else
-          if( strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_primitive",0),"true") )
+          if( strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_primitive",0),"true") &&
+              (lvs_netlist == 0 || strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"lvs_primitive",0),"true"))
+            )
             err |= spice_block_netlist(fd, i, alert);
       }
     }
