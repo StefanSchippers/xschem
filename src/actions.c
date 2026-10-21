@@ -1869,6 +1869,7 @@ void launcher(void)
   int n, c;
   int inst = -1;
   char *prop_ptr=NULL;
+  int action_defined = 1;
   rebuild_selected_array();
   tcleval("update");
   if(xctx->lastsel ==1)
@@ -1918,12 +1919,15 @@ void launcher(void)
       }
     } else { /* no action defined --> warning */
       const char *msg = "No action on launcher is defined (url or tclcommand)";
-      info("%s\n", msg);
+      action_defined = 0;
+      dbg(1, ("%s\n", msg));
       /* if(has_x) tclvareval("alert_ {", msg, "} {}", NULL); */ /* commented, annoying */
     }
     my_free(_ALLOC_ID_, &command);
-    tcleval("after 300");
-    select_object(mx,my,0, 0, NULL);
+    if(action_defined) {
+      tcleval("after 300");
+      select_object(mx,my,0, 0, NULL);
+    }
   }
 }
 
