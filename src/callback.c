@@ -4692,9 +4692,9 @@ static void handle_button_release(int event, KeySym key, int state, int button, 
       !xctx->shape_point_selected && (xctx->ui_state & STARTMOVE) && xctx->mouse_moved == 0) {
      int savesem = xctx->semaphore;
      move_objects(ABORT, 0, 0.0, 0.0);
-     unselect_all(1);
+     /* unselect_all(1); */
      xctx->drag_elements = 0; /* after ctrl-Button1Press on a launcher need to clear this */
-     select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL);
+     /* select_object(xctx->mousex, xctx->mousey, SELECTED, 0, NULL); */
      rebuild_selected_array();
      xctx->semaphore = 0;
      launcher(); /* works only if lastsel == 1 */
