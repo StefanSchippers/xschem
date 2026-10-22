@@ -993,6 +993,11 @@ static void xwin_exit(void)
  if(xctx->infowindow_text) my_free(_ALLOC_ID_, &xctx->infowindow_text);
  if(has_x) new_schematic("destroy_all", "1", NULL, 1);
  drawbezier(xctx->window, xctx->gc[0], 0, NULL, NULL, 0, 0);
+
+ if(tclgetboolvar("preserve_undo")) {
+   save_undo_table(NULL, NULL, XDELETE_ALL);
+ }
+
  delete_schematic_data(1);
  if(has_x) {
    Tk_DestroyWindow(mainwindow);
@@ -1031,10 +1036,6 @@ static void xwin_exit(void)
  spice_get_node(NULL); /* clear static data in function */
  save_ascii_string(NULL, NULL, 0); /* clear static data in function */
  eval_expr_clear_table(); /* clear expression parser data */
-
- if(tclgetboolvar("preserve_undo")) {
-   save_undo_table(NULL, NULL, XDELETE_ALL);
- }
 
  dbg(1, ("xwin_exit(): removing font\n"));
  for(i=0;i<127; ++i) my_free(_ALLOC_ID_, &character[i]);

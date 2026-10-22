@@ -195,10 +195,19 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
       dbg(1, ("save_undo_table(): XDELETE, %s\n", winpath_sch));
       entry = ptr_hash_lookup(&undo_dir_hash, winpath_sch, NULL, XLOOKUP);
       if(entry) {
+        char *winpath_sch2 = NULL;
         undo_save **undo_item_ptr = (undo_save **)&entry->value;
         dbg(1, ("  save_undo_table(): found %s\n", entry->token));
         save_undo_freefunc((void **)undo_item_ptr);
         ptr_hash_lookup(&undo_dir_hash, winpath_sch, NULL, XDELETE);
+
+        my_mstrcat(_ALLOC_ID_, &winpath_sch2, xctx->current_win_path, "/", xctx->current_name, NULL);
+        if(!strcmp(winpath_sch, winpath_sch2)) {
+          xctx->undo_initialized = 0;
+          xctx->uslot = NULL;
+          my_free(_ALLOC_ID_, &xctx->undo_dirname);
+        }
+        my_free(_ALLOC_ID_, &winpath_sch2);
       }
       res = 1;
     }
@@ -206,6 +215,11 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
     if(undo_dir_hash.table) {
       dbg(1, ("save_undo_table(): XDELETE_ALL\n"));
       ptr_hash_free(&undo_dir_hash, save_undo_freefunc);
+      if(xctx) {
+        xctx->undo_initialized = 0;
+        xctx->uslot = NULL;
+        my_free(_ALLOC_ID_, &xctx->undo_dirname);
+      }
       res = 1;
     }
   } else if(what == XLIST) {
@@ -327,6 +341,8 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
           dbg(1, ("save_undo_table(..., XASK_SAVE): deleting %s\n", entry->token));
           save_undo_freefunc((void **)&entry->value);
           ptr_hash_lookup(&undo_dir_hash, entry->token, NULL, XDELETE);
+          xctx->uslot = NULL;
+          my_free(_ALLOC_ID_, &xctx->undo_dirname);
           xctx->undo_initialized = 0;
           entry = tmp;
         } /* while( entry ) */
