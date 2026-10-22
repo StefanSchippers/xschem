@@ -53,8 +53,10 @@ static void save_undo_freefunc(void **ptr)
     my_free(_ALLOC_ID_, &(*undo_item_ptr)->undo_dirname);
   } else { /* memory undo */
     dbg(1, ("save_undo_freefunc(): removing %p\n", (*undo_item_ptr)->uslot));
-    mem_free_uslots((*undo_item_ptr)->uslot);
-    my_free(_ALLOC_ID_, &((*undo_item_ptr)->uslot));
+    if(undo_item_ptr && *undo_item_ptr && (*undo_item_ptr)->uslot) {
+      mem_free_uslots((*undo_item_ptr)->uslot);
+      my_free(_ALLOC_ID_, &((*undo_item_ptr)->uslot));
+    }
   }
   my_free(_ALLOC_ID_, &(*undo_item_ptr)->sch);
   my_free(_ALLOC_ID_, undo_item_ptr);

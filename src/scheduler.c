@@ -4063,6 +4063,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, "xschem preserve_undo needs at least 1 more arguments: 1|0", TCL_STATIC);
         return TCL_ERROR;
       } else {
+        int old = tclgetboolvar("preserve_undo");
         int new = atoi(argv[2]);
         xctx->delete_undo();
         if(new == 0) { /* was enabled  --> disable */
@@ -4070,6 +4071,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         } else {        /* was disabled --> enable  */
           /* something to do here? */
         }
+        tclsetboolvar("preserve_undo", new);
       }
     }
 
@@ -6888,22 +6890,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(argc > 2) {
         dbg(1, ("xschem undo_type %s\n", argv[2]));
-
-
-        if(!strcmp(argv[2], "disk")) {
-          if(xctx->undo_type == 1) {
-            mem_delete_undo(); /*reset memory undo */
-            if(tclgetboolvar("preserve_undo")) {
-              save_undo_table(NULL, NULL, XDELETE_ALL);
-            }
-          }
-          /* redefine undo function pointers */
-          xctx->push_undo = push_undo;
-          xctx->pop_undo = pop_undo;
-          xctx->delete_undo = delete_undo;
-          xctx->clear_undo = clear_undo;
-          xctx->undo_type = 0; /* disk */
-        } else { /* "memory" */
+        if(!strcmp(argv[2], "memory") || !strcmp(argv[2], "1")) { /* memory undo */
           if(xctx->undo_type == 0) {
             delete_undo(); /*reset disk undo */
             if(tclgetboolvar("preserve_undo")) {
@@ -6916,6 +6903,19 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           xctx->delete_undo = mem_delete_undo;
           xctx->clear_undo = mem_clear_undo;
           xctx->undo_type = 1; /* memory */
+        } else { /* disk undo */
+          if(xctx->undo_type == 1) {
+            mem_delete_undo(); /*reset memory undo */
+            if(tclgetboolvar("preserve_undo")) {
+              save_undo_table(NULL, NULL, XDELETE_ALL);
+            }
+          }
+          /* redefine undo function pointers */
+          xctx->push_undo = push_undo;
+          xctx->pop_undo = pop_undo;
+          xctx->delete_undo = delete_undo;
+          xctx->clear_undo = clear_undo;
+          xctx->undo_type = 0; /* disk */
         }
       }
     }

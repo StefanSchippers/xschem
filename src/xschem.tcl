@@ -10772,7 +10772,11 @@ proc build_widgets { {topwin {} } } {
 
   $topwin.menubar.option add checkbutton -selectcolor $selectcolor \
      -label "Preserve undo across hierarchies" -variable preserve_undo \
-     -command {xschem preserve_undo $preserve_undo}
+     -command {
+         # menu checkbutton should not change `preserve_undo`. xschem preserve_undo command will.
+         set preserve_undo [expr {!$preserve_undo}] ;# revert toggled variable ...
+         xschem preserve_undo [expr {!$preserve_undo}] ;# ...let xschem preserve_undo toggle the variable when done
+     }
 
   $topwin.menubar.option add checkbutton -label "Enable stretch" -variable enable_stretch \
      -selectcolor $selectcolor  -accelerator Y

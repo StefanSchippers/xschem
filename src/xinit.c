@@ -473,19 +473,19 @@ void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->infowindow_text = NULL;
   xctx->intuitive_interface = 0;
 
-  if(!strcmp(tclgetvar("undo_type"), "disk")) {
-    xctx->undo_type = 0;
-    xctx->push_undo = push_undo;
-    xctx->pop_undo = pop_undo;
-    xctx->delete_undo = delete_undo;
-    xctx->clear_undo = clear_undo;
 
-  } else {
-    xctx->undo_type = 1; /* "memory" */
+  if(!strcmp(tclgetvar("undo_type"), "memory") || !strcmp(tclgetvar("undo_type"), "1")) {
+    xctx->undo_type = 1; /* memory undo */
     xctx->push_undo = mem_push_undo;
     xctx->pop_undo = mem_pop_undo;
     xctx->delete_undo = mem_delete_undo;
     xctx->clear_undo = mem_clear_undo;
+  } else {
+    xctx->undo_type = 0; /* disk undo */
+    xctx->push_undo = push_undo;
+    xctx->pop_undo = pop_undo;
+    xctx->delete_undo = delete_undo;
+    xctx->clear_undo = clear_undo;
   }
   xctx->undo_initialized = 0;
   xctx->uslot = NULL;

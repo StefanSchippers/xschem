@@ -1146,7 +1146,7 @@ static void ptr_hash_free_entry(Ptr_hashentry *entry, void(*freefunc)(void **))
   while( entry ) {
     tmp = entry -> next;
     my_free(_ALLOC_ID_, &(entry->token));
-    if(freefunc) {
+    if(freefunc && entry->value) {
       (*freefunc)(&entry->value);
     }
     my_free(_ALLOC_ID_, &entry);
