@@ -196,8 +196,33 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
     }
   }
   if(!found) {
+    int undo_found = 0;
+    char *undo_dirname = NULL;
+    FILE *fd = NULL;
+    pid_t pid;
+    struct stat buf;
     dbg(1, ("match_symbol(): matching symbol not found: loading %s\n", name));
-    load_sym_def(name, NULL); /* append another symbol to the xctx->sym[] array */
+
+    /* if a symbol has been edited, preserve_undo is set and
+     * undo_type==0 (disk undo) read symbol data from <undo_dirname>/undo0 */
+    if(xctx->undo_type == 0 && tclgetboolvar("preserve_undo")) { /* disk undo  and preserve_undo */
+      undo_found = save_undo_table(name, &undo_dirname, XLOOKUP);
+      if(undo_found) {
+        my_mstrcat(_ALLOC_ID_, &undo_dirname, "/undo0", NULL);
+        dbg(1, ("undo_dirname=%s\n", undo_dirname));
+        if(stat(undo_dirname, &buf)) {
+          /* entry found in save_undo_table, but file not existing */
+          undo_found = 0;
+        } else {
+          fd = open_read_undo_file(undo_dirname, &pid);
+        }
+      }
+    }
+
+    load_sym_def(name, fd); /* append another symbol to the xctx->sym[] array */
+
+    if(fd) close_undo_file(fd, pid);
+    if(undo_dirname) my_free(_ALLOC_ID_, &undo_dirname);
   }
   dbg(1, ("match_symbol(): returning %d\n",i));
   return i;

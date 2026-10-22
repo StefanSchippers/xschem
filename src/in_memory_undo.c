@@ -454,8 +454,8 @@ void mem_push_undo(int what)
  * 1: redo, increment cur_undo_ptr, then fetch state
  * 5: read data from undo stack at cur_undo_ptr - 1 without changing undo stack
  * 3: read slot pointed by cur_undo_ptr, do not change any *_undo_ptr
- * 2: read reserved slot 0, do not change any *_undo_ptr
- * 6: read reserved slot 1, do not change any *_undo_ptr
+ * 2: read reserved slot 0, do not change any *_undo_ptr (for preserve_undo)
+ * 6: read reserved slot 1, do not change any *_undo_ptr (for netlisting)
  * 
  */
 void mem_pop_undo(int redo, int set_modify_status)

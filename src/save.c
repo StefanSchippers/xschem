@@ -60,7 +60,7 @@ static void save_undo_freefunc(void **ptr)
   my_free(_ALLOC_ID_, undo_item_ptr);
 }
 
-int save_undo_table(char *sch_name, void *ptr, int what) {
+int save_undo_table(const char *sch_name, void *ptr, int what) {
   static Ptr_hashtable undo_dir_hash = {NULL, 0};
   int res = 0;
   char *winpath_sch = NULL;
@@ -129,10 +129,13 @@ int save_undo_table(char *sch_name, void *ptr, int what) {
       dbg(1, ("save_undo_table(): XLOOKUP|XGET, %s\n", winpath_sch));
       entry = ptr_hash_lookup(&undo_dir_hash, winpath_sch, NULL, XLOOKUP);
       if(entry ) {
+        undo_save *undo_item = entry->value;
         dbg(1, ("  save_undo_table(): XLOOKUP|XGET found item\n"));
-        if(what == XGET) {
-          undo_save *undo_item = NULL;
-          undo_item = entry->value;
+        if(what == XLOOKUP) {
+          if(ptr) {
+            my_strdup2(_ALLOC_ID_, ptr, undo_item->undo_dirname);
+          }
+        } else if(what == XGET) {
           xctx->head_undo_ptr = undo_item->head_undo_ptr;
           xctx->cur_undo_ptr = undo_item->cur_undo_ptr;
           xctx->tail_undo_ptr = undo_item->tail_undo_ptr;
@@ -4227,51 +4230,32 @@ static void init_undo(void)
   }
 }
 
-/* save state, then increment cur_undo_ptr
- * what: 
- *   0: normal push, put current state into cur_undo_ptr slot, then
- *      increment cur_undo_ptr and head_undo_ptr.
- *   1: as above but do not increment cur_undo_ptr. This is equivalent to a 
- *      push_undo(0) followed by a pop_undo(4)
- *   2: push state into undo reserved slot 0
- *   6: push state into undo reserved slot 1
- */
-void push_undo(int what)
+FILE *open_write_undo_file(const char *name, pid_t *pid_ptr)
 {
+  FILE *fd = NULL;
+  char diff_name[PATH_MAX + 12];
   #if HAS_PIPE==1
   int pd[2];
-  pid_t pid;
   FILE *diff_fd;
   #endif
-  FILE *fd;
-  char diff_name[PATH_MAX+100]; /* overflow safe 20161122 */
-  int undo_index;
 
-  undo_index = xctx->cur_undo_ptr % (MAX_UNDO - 2) + 2;
-  if(what == 2) undo_index = 0;
-  else if(what == 6) undo_index = 1;
-
-  dbg(1, ("push_undo(%d): %s undo_index=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
-     what, xctx->current_name, undo_index, xctx->tail_undo_ptr, xctx->head_undo_ptr));
-  if(xctx->no_undo) return;
-  init_undo();
   #if HAS_POPEN==1
-  my_snprintf(diff_name, S(diff_name), "gzip --fast -c > %s/undo%d", xctx->undo_dirname, undo_index);
+  my_snprintf(diff_name, S(diff_name), "gzip --fast -c > %s", name);
   fd = popen(diff_name,"w");
   if(!fd) {
     info("push_undo(): failed to open write pipe %s\n", diff_name);
     xctx->no_undo=1;
-    return;
+    return NULL;
   }
   #elif HAS_PIPE==1
-  my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, undo_index);
+  my_snprintf(diff_name, S(diff_name), "%s", name);
   pipe(pd);
   fflush(NULL); /* flush all stdio streams before process forking */
-  if((pid = fork()) ==0) {                                    /* child process */
+  if((*pid_ptr = fork()) ==0) {                                    /* child process */
     close(pd[1]);                                     /* close write side of pipe */
     if(!(diff_fd=freopen(diff_name,"w", stdout)))     /* redirect stdout to file diff_name */
     {
-      dbg(1, ("push_undo(): problems opening file %s \n",diff_name));
+      info("push_undo(): problems opening file %s \n",diff_name);
       _exit(1);
     }
 
@@ -4292,31 +4276,126 @@ void push_undo(int what)
   close(pd[0]);                                       /* close read side of pipe */
   fd=fdopen(pd[1],"w");
   #else /* uncompressed undo */
-  my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, undo_index);
+  my_snprintf(diff_name, S(diff_name), "%s", name);
   fd = fopen(diff_name,"w");
   if(!fd) {
     info("push_undo(): failed to open undo file %s\n", diff_name);
     xctx->no_undo=1;
-    return;
+    return NULL;
   }
   #endif
-  write_xschem_file(fd);
-  if(what == 1 || what == 0) xctx->head_undo_ptr = xctx->cur_undo_ptr + 1;
-  if(what == 0) xctx->cur_undo_ptr++;
-  xctx->tail_undo_ptr = xctx->head_undo_ptr <= (MAX_UNDO - 2) ? 0: xctx->head_undo_ptr - (MAX_UNDO - 2);
+
+
+  return fd;
+}
+
+FILE *open_read_undo_file(const char *name, pid_t *pid_ptr)
+{
+  FILE *fd = NULL;
+  char diff_name[PATH_MAX + 12];
+  #if HAS_PIPE==1
+  int pd[2];
+  FILE *diff_fd;
+  #endif
+
   #if HAS_POPEN==1
-  pclose(fd);
+  my_snprintf(diff_name, S(diff_name), "gzip -d -c %s", name);
+  fd=popen(diff_name, "r");
+  if(!fd) {
+    info("pop_undo(): failed to open read pipe %s\n", diff_name);
+    xctx->no_undo=1;
+    return NULL;
+  }
+  #elif HAS_PIPE==1
+  my_snprintf(diff_name, S(diff_name), "%s", name);
+  pipe(pd);
+  fflush(NULL); /* flush all stdio streams before process forking */
+  if((*pid_ptr = fork())==0) {                                     /* child process */
+    close(pd[0]);                                    /* close read side of pipe */
+    if(!(diff_fd=freopen(diff_name,"r", stdin)))     /* redirect stdin from file name */
+    {
+      info("pop_undo(): problems opening file %s\n",diff_name);
+      _exit(1);
+    }
+    /* connect write side of pipe to stdout */
+    #if HAS_DUP2
+    dup2(pd[1], 1);
+    #else
+    close(1);    /* close stdout */
+    dup(pd[1]);  /* write side of pipe --> stdout */
+    #endif
+    execlp("gzip", "gzip", "-d", "-c", NULL);       /* replace current process with command */
+    /* never gets here */
+    dbg(1, ("pop_undo(): problems with execlp\n"));
+    _exit(1);
+  }
+  close(pd[1]);                                       /* close write side of pipe */
+  fd=fdopen(pd[0],"r");
+  #else /* uncompressed undo */
+  my_snprintf(diff_name, S(diff_name), "%s", name);
+  fd=my_fopen(diff_name, fopen_read_mode);
+  if(!fd) {
+    info("pop_undo(): failed to open read pipe %s\n", diff_name);
+    xctx->no_undo=1;
+    return NULL;
+  }
+  #endif
+  return fd;
+}
+
+void close_undo_file(FILE *fd, pid_t pid)
+{
+  #if HAS_POPEN==1
+  pclose(fd); /* 20150326 moved before load symbols */
   #elif HAS_PIPE==1
   fclose(fd);
-  waitpid(pid, NULL,0);
+  waitpid(pid, NULL, 0);
   #else
   fclose(fd);
   #endif
+}
+
+/* save state, then increment cur_undo_ptr
+ * what: 
+ *   0: normal push, put current state into cur_undo_ptr slot, then
+ *      increment cur_undo_ptr and head_undo_ptr.
+ *   1: as above but do not increment cur_undo_ptr. This is equivalent to a 
+ *      push_undo(0) followed by a pop_undo(4)
+ *   2: push state into undo reserved slot 0
+ *   6: push state into undo reserved slot 1
+ */
+void push_undo(int what)
+{
+  FILE *fd = NULL;
+  char diff_name[PATH_MAX];
+  int undo_index;
+  pid_t pid;
+
+  undo_index = xctx->cur_undo_ptr % (MAX_UNDO - 2) + 2;
+  if(what == 2) undo_index = 0;
+  else if(what == 6) undo_index = 1;
+
+  dbg(1, ("push_undo(%d): %s undo_index=%d tail_undo_ptr=%d head_undo_ptr=%d\n",
+     what, xctx->current_name, undo_index, xctx->tail_undo_ptr, xctx->head_undo_ptr));
+  if(xctx->no_undo) return;
+  init_undo();
+
+  my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, undo_index);
+  if((fd = open_write_undo_file(diff_name, &pid))) {
+    write_xschem_file(fd);
+    close_undo_file(fd, pid);
+  }
+
+  if(what == 1 || what == 0) xctx->head_undo_ptr = xctx->cur_undo_ptr + 1;
+  if(what == 0) xctx->cur_undo_ptr++;
+  xctx->tail_undo_ptr = xctx->head_undo_ptr <= (MAX_UNDO - 2) ? 0: xctx->head_undo_ptr - (MAX_UNDO - 2);
+
   if(tclgetboolvar("preserve_undo")) {
     /* update head, cur, tail pointers */
     save_undo_table(xctx->current_name, NULL, XINSERT);
   }
 }
+
 
 /* decrement cur_undo_ptr, then fetch state
  * redo:
@@ -4326,20 +4405,16 @@ void push_undo(int what)
  * 1: redo, increment cur_undo_ptr, then fetch state
  * 5: read data from undo stack at cur_undo_ptr - 1 without changing undo stack
  * 3: read slot pointed by cur_undo_ptr, do not change any *_undo_ptr
- * 2: read reserved slot 0, do not change any *_undo_ptr
- * 6: read reserved slot 1, do not change any *_undo_ptr
+ * 2: read reserved slot 0, do not change any *_undo_ptr (for preserve_undo)
+ * 6: read reserved slot 1, do not change any *_undo_ptr (for netlisting)
  * 
  */
 void pop_undo(int redo, int set_modify_status)
 {
   FILE *fd;
-  char diff_name[PATH_MAX+12];
-  #if HAS_PIPE==1
-  int pd[2];
-  pid_t pid;
-  FILE *diff_fd;
-  #endif
+  char diff_name[PATH_MAX];
   int undo_index;
+  pid_t pid;
 
   dbg(1, ("pop_undo(%d, %d): %s\n", redo, set_modify_status, xctx->current_name));
   if(xctx->no_undo) return;
@@ -4394,60 +4469,13 @@ void pop_undo(int redo, int set_modify_status)
     undo_index = 1;
   }
 
+  my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, undo_index);
+  if((fd = open_read_undo_file(diff_name, &pid))) {
+    read_xschem_file(fd);
+    close_undo_file(fd, pid);
+  }
 
-  #if HAS_POPEN==1
-  my_snprintf(diff_name, S(diff_name), "gzip -d -c %s/undo%d", xctx->undo_dirname, undo_index);
-  fd=popen(diff_name, "r");
-  if(!fd) {
-    info("pop_undo(): failed to open read pipe %s\n", diff_name);
-    xctx->no_undo=1;
-    return;
-  }
-  #elif HAS_PIPE==1
-  my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, undo_index);
-  pipe(pd);
-  fflush(NULL); /* flush all stdio streams before process forking */
-  if((pid = fork())==0) {                                     /* child process */
-    close(pd[0]);                                    /* close read side of pipe */
-    if(!(diff_fd=freopen(diff_name,"r", stdin)))     /* redirect stdin from file name */
-    {
-      dbg(1, ("pop_undo(): problems opening file %s \n",diff_name));
-      _exit(1);
-    }
-    /* connect write side of pipe to stdout */
-    #if HAS_DUP2
-    dup2(pd[1], 1);
-    #else
-    close(1);    /* close stdout */
-    dup(pd[1]);  /* write side of pipe --> stdout */
-    #endif
-    execlp("gzip", "gzip", "-d", "-c", NULL);       /* replace current process with command */
-    /* never gets here */
-    dbg(1, ("pop_undo(): problems with execlp\n"));
-    _exit(1);
-  }
-  close(pd[1]);                                       /* close write side of pipe */
-  fd=fdopen(pd[0],"r");
-  #else /* uncompressed undo */
-  my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, undo_index);
-  fd=my_fopen(diff_name, fopen_read_mode);
-  if(!fd) {
-    info("pop_undo(): failed to open read pipe %s\n", diff_name);
-    xctx->no_undo=1;
-    return;
-  }
-  #endif
-  read_xschem_file(fd);
   if(redo == 5) xctx->cur_undo_ptr++; /* restore undo stack pointer */
-
-  #if HAS_POPEN==1
-  pclose(fd); /* 20150326 moved before load symbols */
-  #elif HAS_PIPE==1
-  fclose(fd);
-  waitpid(pid, NULL, 0);
-  #else
-  fclose(fd);
-  #endif
   dbg(2, ("pop_undo(): loaded file:wires=%d instances=%d\n",xctx->wires , xctx->instances));
 
 

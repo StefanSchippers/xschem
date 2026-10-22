@@ -1630,6 +1630,9 @@ extern int match_symbol(const char name[]);
 extern Sch_pin_record *sort_schematic_pins(int *npins);
 extern int save_schematic(const char *, int fast); /*  20171020 added return value */
 extern void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym);
+extern FILE *open_write_undo_file(const char *name, pid_t *pid_ptr);
+extern FILE *open_read_undo_file(const char *name, pid_t *pid_ptr);
+extern void close_undo_file(FILE *fd, pid_t pid);
 extern void push_undo(int);
 extern void pop_undo(int redo, int set_modify_status);
 extern void delete_undo(void);
@@ -1773,7 +1776,7 @@ extern size_t my_strdup2(int id, char **dest, const char *src);
 extern char *my_fgets(FILE *fd, size_t *line_len);
 extern size_t my_fgets_skip(FILE *fd);
 extern char *my_strtok_r(char *str, const char *delim, const char *quote, int keep_quote, char **saveptr);
-extern int save_undo_table(char *sch_name, void *ptr, int what);
+extern int save_undo_table(const char *sch_name, void *ptr, int what);
 extern char **parse_cmd_string(const char *cmd, int *argc);
 extern int my_strncpy(char *d, const char *s, size_t n);
 extern int my_strcasecmp(const char *s1, const char *s2);
