@@ -1980,7 +1980,7 @@ static void copy_symbol_from_uslot(int i, xSymbol *dest_sym, xSymbol *src_sym, U
 {
     int c, j;
 
-    dbg(0, ("%s: fetched from uslot[0] ...\n",src_sym->name));
+    dbg(1, ("%s: fetched from uslot[0] ...\n",src_sym->name));
     /* need calc_symbol_bbox()  and set_sym_flags() after doing copy*/
     #if 0
     dest_sym->minx = src_sym->minx;
