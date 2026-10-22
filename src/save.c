@@ -67,6 +67,9 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
   int res = 0;
   char *winpath_sch = NULL;
   char *undo_dirname = (char *)ptr;
+
+  dbg(1, ("save_undo_table(%s, ptr, %d)\n", sch_name, what));
+
   if(xctx && undo_dirname == NULL) {
     undo_dirname = xctx->undo_dirname;
   }

@@ -286,7 +286,7 @@ void mem_free_uslots(Undo_slot *uslot)
 void mem_delete_undo(void)
 {
   dbg(1, ("mem_delete_undo(): undo_initialized = %d\n", xctx->undo_initialized));
-  if(!xctx->undo_initialized) return;
+  if(!xctx->undo_initialized) goto done;
 
   if(tclgetboolvar("preserve_undo")) {
     /* update undo pointers in save table */
@@ -295,10 +295,14 @@ void mem_delete_undo(void)
 
   mem_clear_undo();
   xctx->undo_initialized = 0;
+
   if(!tclgetboolvar("preserve_undo")) {
     mem_free_uslots(xctx->uslot);
     my_free(_ALLOC_ID_, &xctx->uslot);
   }
+  done:
+  xctx->uslot = NULL;
+
 }
 
 /* save state, then increment cur_undo_ptr
