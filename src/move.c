@@ -1184,7 +1184,10 @@ void move_objects(int what, int merge, double dx, double dy)
   if(what & ABORT)  /* abort operation */
   {
    xctx->paste_from = 0;
-   draw_selection(xctx->gctiled,0);
+   /* Restore window and re-draw selection (at end of this function) *only*
+    * if mouse was moved when releasing button1 (a move operation was started)
+    * This is done to avoid flickering if clicking and releasing mouse on a component */
+   if(xctx->mouse_moved) draw_selection(xctx->gctiled,0);
    if(xctx->kissing) {
      xctx->pop_undo(0, 0);
      if(xctx->connect_by_kissing == 2) xctx->connect_by_kissing = 0;
@@ -1586,6 +1589,8 @@ void move_objects(int what, int merge, double dx, double dy)
    draw();
    xctx->rotatelocal=0;
   } /* what & end */
-  draw_selection(xctx->gc[SELLAYER], 0);
+  /*  Avoid flickering when releasing button without moving anything
+   *   /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ */
+  if(!( (what & ABORT) && !xctx->mouse_moved ))  draw_selection(xctx->gc[SELLAYER], 0);
   if(tclgetboolvar("draw_crosshair")) draw_crosshair(3, 0); /* what = 1(clear) + 2(draw) */
 }
