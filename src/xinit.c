@@ -1571,7 +1571,7 @@ void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_name, i
   dest->maxs = dest->symbols = source->symbols;
   my_realloc(_ALLOC_ID_, &dest->sym, dest->symbols * sizeof(xSymbol));
   for(i = 0;i<dest->symbols; ++i) {
-    copy_symbol(&dest->sym[i], &source->sym[i]);
+    copy_symbol(i, &dest->sym[i], &source->sym[i]);
   } 
 }
 

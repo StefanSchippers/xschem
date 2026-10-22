@@ -416,7 +416,7 @@ void mem_push_undo(int what)
 
   /* symbols */
   for(i = 0;i<xctx->symbols; ++i) {
-    copy_symbol(&xctx->uslot[undo_index].symptr[i], &xctx->sym[i]);
+    copy_symbol(i, &xctx->uslot[undo_index].symptr[i], &xctx->sym[i]);
   }
   /* texts */
   for(i = 0;i<xctx->texts; ++i) {
@@ -607,7 +607,7 @@ void mem_pop_undo(int redo, int set_modify_status)
     xctx->maxs = xctx->symbols = xctx->uslot[undo_index].symbols;
     xctx->sym = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(xSymbol));
     for(i = 0; i < xctx->uslot[undo_index].symbols; ++i) {
-      copy_symbol(&xctx->sym[i], &xctx->uslot[undo_index].symptr[i]);
+      copy_symbol(i, &xctx->sym[i], &xctx->uslot[undo_index].symptr[i]);
     }
   } else {
     Int_hashtable sym_table = {NULL, 0};
@@ -621,7 +621,7 @@ void mem_pop_undo(int redo, int set_modify_status)
       const char *sym = xctx->uslot[undo_index].symptr[i].name;
       if(!int_hash_lookup(&sym_table, sym, 0, XLOOKUP)) {
         check_symbol_storage();
-        copy_symbol(&xctx->sym[xctx->symbols], &xctx->uslot[undo_index].symptr[i]);
+        copy_symbol(xctx->symbols, &xctx->sym[xctx->symbols], &xctx->uslot[undo_index].symptr[i]);
         xctx->symbols++;
       }
     }
@@ -824,7 +824,7 @@ void mem_copy_undo(Xschem_ctx *dest, Xschem_ctx *source)
   
     /* symbols */
     for(i = 0;i<source->uslot[undo_index].symbols; ++i) {
-      copy_symbol(&dest->uslot[undo_index].symptr[i], &source->uslot[undo_index].symptr[i]);
+      copy_symbol(i, &dest->uslot[undo_index].symptr[i], &source->uslot[undo_index].symptr[i]);
     }
     /* texts */
     for(i = 0;i<source->uslot[undo_index].texts; ++i) {

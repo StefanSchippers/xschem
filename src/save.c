@@ -135,7 +135,8 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
         dbg(1, ("  save_undo_table(): XLOOKUP|XGET found item\n"));
         if(what == XLOOKUP) {
           if(ptr) {
-            my_strdup2(_ALLOC_ID_, ptr, undo_item->undo_dirname);
+            if(xctx->undo_type == 0) my_strdup2(_ALLOC_ID_, ptr, undo_item->undo_dirname); /* disk */
+            else                     *(Undo_slot **)ptr = undo_item->uslot; /* memory */
           }
         } else if(what == XGET) {
           xctx->head_undo_ptr = undo_item->head_undo_ptr;
@@ -4722,7 +4723,7 @@ static void use_lcc_pins(int level, char *symtype, char (*filename)[PATH_MAX])
   }
 }
 
-static void calc_symbol_bbox(int pos)
+void calc_symbol_bbox(int pos)
 {
   int c, i, count = 0;
   xRect boundbox, tmp;

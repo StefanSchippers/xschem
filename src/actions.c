@@ -1976,96 +1976,202 @@ const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
   else return get_cell(sym, ndir);
 }
 
-void copy_symbol(xSymbol *dest_sym, xSymbol *src_sym)
+static void copy_symbol_from_uslot(int i, xSymbol *dest_sym, xSymbol *src_sym, Undo_slot uslot)
+{
+    int c, j;
+
+    dbg(0, ("%s: fetched from uslot[0] ...\n",src_sym->name));
+    /* need calc_symbol_bbox()  and set_sym_flags() after doing copy*/
+    #if 0
+    dest_sym->minx = src_sym->minx;
+    dest_sym->maxx = src_sym->maxx;
+    dest_sym->miny = src_sym->miny;
+    dest_sym->maxy = src_sym->maxy;
+    dest_sym->flags = src_sym->flags;
+    #endif
+    dest_sym->texts = uslot.texts;
+    dest_sym->name = NULL;
+    dest_sym->base_name = NULL; /* this is not allocated and points to the base symbol */
+    dest_sym->prop_ptr = NULL;
+    /* dest_sym->type = NULL; */   /* done in set_sym_flags() at end */
+    /* dest_sym->templ = NULL; */  /* done in set_sym_flags() at end */
+    dest_sym->parent_prop_ptr = NULL;
+    my_strdup2(_ALLOC_ID_, &dest_sym->name, src_sym->name); /* this will not change vs original */
+    my_strdup(_ALLOC_ID_, &dest_sym->parent_prop_ptr, src_sym->parent_prop_ptr);
+    my_strdup2(_ALLOC_ID_, &dest_sym->prop_ptr, uslot.kptr);
+  
+    dest_sym->line = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
+    dest_sym->poly = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
+    dest_sym->arc = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
+    dest_sym->rect = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xRect *));
+    dest_sym->lines = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+    dest_sym->rects = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+    dest_sym->arcs = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+    dest_sym->polygons = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  
+    dest_sym->text = my_calloc(_ALLOC_ID_, uslot.texts, sizeof(xText));
+    memcpy(dest_sym->lines, uslot.lines, sizeof(dest_sym->lines[0]) * cadlayers);
+    memcpy(dest_sym->rects, uslot.rects, sizeof(dest_sym->rects[0]) * cadlayers);
+    memcpy(dest_sym->arcs, uslot.arcs, sizeof(dest_sym->arcs[0]) * cadlayers);
+    memcpy(dest_sym->polygons, uslot.polygons, sizeof(dest_sym->polygons[0]) * cadlayers);
+    for(c = 0;c<cadlayers; ++c) {
+      /* symbol lines */
+      dest_sym->line[c] = my_calloc(_ALLOC_ID_, uslot.lines[c], sizeof(xLine));
+      for(j = 0; j < uslot.lines[c]; ++j) {
+        dest_sym->line[c][j] = uslot.lptr[c][j];
+        dest_sym->line[c][j].prop_ptr = NULL;
+        my_strdup(_ALLOC_ID_, &dest_sym->line[c][j].prop_ptr, uslot.lptr[c][j].prop_ptr);
+      }
+      /* symbol rects */
+      dest_sym->rect[c] = my_calloc(_ALLOC_ID_, uslot.rects[c], sizeof(xRect));
+      for(j = 0; j < uslot.rects[c]; ++j) {
+        dest_sym->rect[c][j] = uslot.bptr[c][j];
+        dest_sym->rect[c][j].prop_ptr = NULL;
+        dest_sym->rect[c][j].extraptr = NULL;
+        my_strdup(_ALLOC_ID_, &dest_sym->rect[c][j].prop_ptr, uslot.bptr[c][j].prop_ptr);
+      }
+      /* symbol arcs */
+      dest_sym->arc[c] = my_calloc(_ALLOC_ID_, uslot.arcs[c], sizeof(xArc));
+      for(j = 0; j < uslot.arcs[c]; ++j) {
+        dest_sym->arc[c][j] = uslot.aptr[c][j];
+        dest_sym->arc[c][j].prop_ptr = NULL;
+        my_strdup(_ALLOC_ID_, &dest_sym->arc[c][j].prop_ptr, uslot.aptr[c][j].prop_ptr);
+      }
+      /* symbol polygons */
+      dest_sym->poly[c] = my_calloc(_ALLOC_ID_, uslot.polygons[c], sizeof(xPoly));
+      for(j = 0; j < uslot.polygons[c]; ++j) {
+        int points = uslot.pptr[c][j].points;
+        dest_sym->poly[c][j] = uslot.pptr[c][j];
+        dest_sym->poly[c][j].prop_ptr = NULL;
+        dest_sym->poly[c][j].x = my_malloc(_ALLOC_ID_, points * sizeof(double));
+        dest_sym->poly[c][j].y = my_malloc(_ALLOC_ID_, points * sizeof(double));
+        dest_sym->poly[c][j].selected_point = my_malloc(_ALLOC_ID_, points * sizeof(unsigned short));
+        my_strdup(_ALLOC_ID_, &dest_sym->poly[c][j].prop_ptr, uslot.pptr[c][j].prop_ptr);
+        memcpy(dest_sym->poly[c][j].x, uslot.pptr[c][j].x, points * sizeof(double));
+        memcpy(dest_sym->poly[c][j].y, uslot.pptr[c][j].y, points * sizeof(double));
+        memcpy(dest_sym->poly[c][j].selected_point, uslot.pptr[c][j].selected_point,
+             points * sizeof(unsigned short));
+      }
+    }
+    /* symbol texts */
+    for(j = 0; j < uslot.texts; ++j) {
+      dest_sym->text[j] = uslot.tptr[j];
+      dest_sym->text[j].prop_ptr = NULL;
+      dest_sym->text[j].txt_ptr = NULL;
+      dest_sym->text[j].font = NULL;
+      dest_sym->text[j].floater_instname = NULL;
+      dest_sym->text[j].floater_ptr = NULL;
+      my_strdup2(_ALLOC_ID_, &dest_sym->text[j].prop_ptr, uslot.tptr[j].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &dest_sym->text[j].floater_ptr, uslot.tptr[j].floater_ptr);
+      my_strdup2(_ALLOC_ID_, &dest_sym->text[j].txt_ptr, uslot.tptr[j].txt_ptr);
+      my_strdup2(_ALLOC_ID_, &dest_sym->text[j].font, uslot.tptr[j].font);
+      my_strdup2(_ALLOC_ID_, &dest_sym->text[j].floater_instname, uslot.tptr[j].floater_instname);
+    }
+    set_sym_flags(dest_sym);
+    calc_symbol_bbox(i);
+}
+
+void copy_symbol(int i, xSymbol *dest_sym, xSymbol *src_sym)
 {
   int c, j;
+  int undo_found = 0;
+  Undo_slot *uslot = NULL;
 
-  dest_sym->minx = src_sym->minx;
-  dest_sym->maxx = src_sym->maxx;
-  dest_sym->miny = src_sym->miny;
-  dest_sym->maxy = src_sym->maxy;
-  dest_sym->flags = src_sym->flags;
-  dest_sym->texts = src_sym->texts;
-
-  dest_sym->name = NULL;
-  dest_sym->base_name = NULL; /* this is not allocated and points to the base symbol */
-  dest_sym->prop_ptr = NULL;
-  dest_sym->type = NULL;
-  dest_sym->templ = NULL;
-  dest_sym->parent_prop_ptr = NULL;
-  my_strdup2(_ALLOC_ID_, &dest_sym->name, src_sym->name);
-  my_strdup2(_ALLOC_ID_, &dest_sym->type, src_sym->type);
-  my_strdup2(_ALLOC_ID_, &dest_sym->templ, src_sym->templ);
-  my_strdup(_ALLOC_ID_, &dest_sym->parent_prop_ptr, src_sym->parent_prop_ptr);
-  my_strdup2(_ALLOC_ID_, &dest_sym->prop_ptr, src_sym->prop_ptr);
-
-  dest_sym->line = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
-  dest_sym->poly = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
-  dest_sym->arc = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
-  dest_sym->rect = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xRect *));
-  dest_sym->lines = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-  dest_sym->rects = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-  dest_sym->arcs = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-  dest_sym->polygons = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
-
-  dest_sym->text = my_calloc(_ALLOC_ID_, src_sym->texts, sizeof(xText));
-  memcpy(dest_sym->lines, src_sym->lines, sizeof(dest_sym->lines[0]) * cadlayers);
-  memcpy(dest_sym->rects, src_sym->rects, sizeof(dest_sym->rects[0]) * cadlayers);
-  memcpy(dest_sym->arcs, src_sym->arcs, sizeof(dest_sym->arcs[0]) * cadlayers);
-  memcpy(dest_sym->polygons, src_sym->polygons, sizeof(dest_sym->polygons[0]) * cadlayers);
-  for(c = 0;c<cadlayers; ++c) {
-    /* symbol lines */
-    dest_sym->line[c] = my_calloc(_ALLOC_ID_, src_sym->lines[c], sizeof(xLine));
-    for(j = 0; j < src_sym->lines[c]; ++j) {
-      dest_sym->line[c][j] = src_sym->line[c][j];
-      dest_sym->line[c][j].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &dest_sym->line[c][j].prop_ptr, src_sym->line[c][j].prop_ptr);
-    }
-    /* symbol rects */
-    dest_sym->rect[c] = my_calloc(_ALLOC_ID_, src_sym->rects[c], sizeof(xRect));
-    for(j = 0; j < src_sym->rects[c]; ++j) {
-      dest_sym->rect[c][j] = src_sym->rect[c][j];
-      dest_sym->rect[c][j].prop_ptr = NULL;
-      dest_sym->rect[c][j].extraptr = NULL;
-      my_strdup(_ALLOC_ID_, &dest_sym->rect[c][j].prop_ptr, src_sym->rect[c][j].prop_ptr);
-    }
-    /* symbol arcs */
-    dest_sym->arc[c] = my_calloc(_ALLOC_ID_, src_sym->arcs[c], sizeof(xArc));
-    for(j = 0; j < src_sym->arcs[c]; ++j) {
-      dest_sym->arc[c][j] = src_sym->arc[c][j];
-      dest_sym->arc[c][j].prop_ptr = NULL;
-      my_strdup(_ALLOC_ID_, &dest_sym->arc[c][j].prop_ptr, src_sym->arc[c][j].prop_ptr);
-    }
-    /* symbol polygons */
-    dest_sym->poly[c] = my_calloc(_ALLOC_ID_, src_sym->polygons[c], sizeof(xPoly));
-    for(j = 0; j < src_sym->polygons[c]; ++j) {
-      int points = src_sym->poly[c][j].points;
-      dest_sym->poly[c][j] = src_sym->poly[c][j];
-      dest_sym->poly[c][j].prop_ptr = NULL;
-      dest_sym->poly[c][j].x = my_malloc(_ALLOC_ID_, points * sizeof(double));
-      dest_sym->poly[c][j].y = my_malloc(_ALLOC_ID_, points * sizeof(double));
-      dest_sym->poly[c][j].selected_point = my_malloc(_ALLOC_ID_, points * sizeof(unsigned short));
-      my_strdup(_ALLOC_ID_, &dest_sym->poly[c][j].prop_ptr, src_sym->poly[c][j].prop_ptr);
-      memcpy(dest_sym->poly[c][j].x, src_sym->poly[c][j].x, points * sizeof(double));
-      memcpy(dest_sym->poly[c][j].y, src_sym->poly[c][j].y, points * sizeof(double));
-      memcpy(dest_sym->poly[c][j].selected_point, src_sym->poly[c][j].selected_point,
-           points * sizeof(unsigned short));
-    }
+  /* if a symbol has been edited, preserve_undo is set, we are assigning to xctx->sym[i] and
+   * undo_type==1 (memory undo) *THEN* read symbol data from uslot[0] */
+  if(dest_sym == &xctx->sym[i] && xctx->undo_type == 1 && tclgetboolvar("preserve_undo")) {
+    undo_found = save_undo_table(src_sym->name, &uslot, XLOOKUP);
   }
-  /* symbol texts */
-  for(j = 0; j < src_sym->texts; ++j) {
-    dest_sym->text[j] = src_sym->text[j];
-    dest_sym->text[j].prop_ptr = NULL;
-    dest_sym->text[j].txt_ptr = NULL;
-    dest_sym->text[j].font = NULL;
-    dest_sym->text[j].floater_instname = NULL;
-    dest_sym->text[j].floater_ptr = NULL;
-    my_strdup2(_ALLOC_ID_, &dest_sym->text[j].prop_ptr, src_sym->text[j].prop_ptr);
-    my_strdup2(_ALLOC_ID_, &dest_sym->text[j].floater_ptr, src_sym->text[j].floater_ptr);
-    dbg(1, ("copy_symbol1(): allocating sym %d text %d\n", dest_sym - xctx->sym, j));
-    my_strdup2(_ALLOC_ID_, &dest_sym->text[j].txt_ptr, src_sym->text[j].txt_ptr);
-    my_strdup2(_ALLOC_ID_, &dest_sym->text[j].font, src_sym->text[j].font);
-    my_strdup2(_ALLOC_ID_, &dest_sym->text[j].floater_instname, src_sym->text[j].floater_instname);
+
+  if(undo_found) {
+    copy_symbol_from_uslot(i, dest_sym, src_sym, uslot[0]);
+  } else {
+    dest_sym->minx = src_sym->minx;
+    dest_sym->maxx = src_sym->maxx;
+    dest_sym->miny = src_sym->miny;
+    dest_sym->maxy = src_sym->maxy;
+    dest_sym->flags = src_sym->flags;
+    dest_sym->texts = src_sym->texts;
+  
+    dest_sym->name = NULL;
+    dest_sym->base_name = NULL; /* this is not allocated and points to the base symbol */
+    dest_sym->prop_ptr = NULL;
+    dest_sym->type = NULL;
+    dest_sym->templ = NULL;
+    dest_sym->parent_prop_ptr = NULL;
+    my_strdup2(_ALLOC_ID_, &dest_sym->name, src_sym->name);
+    my_strdup2(_ALLOC_ID_, &dest_sym->type, src_sym->type);
+    my_strdup2(_ALLOC_ID_, &dest_sym->templ, src_sym->templ);
+    my_strdup(_ALLOC_ID_, &dest_sym->parent_prop_ptr, src_sym->parent_prop_ptr);
+    my_strdup2(_ALLOC_ID_, &dest_sym->prop_ptr, src_sym->prop_ptr);
+  
+    dest_sym->line = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
+    dest_sym->poly = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xPoly *));
+    dest_sym->arc = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xArc *));
+    dest_sym->rect = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xRect *));
+    dest_sym->lines = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+    dest_sym->rects = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+    dest_sym->arcs = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+    dest_sym->polygons = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
+  
+    dest_sym->text = my_calloc(_ALLOC_ID_, src_sym->texts, sizeof(xText));
+    memcpy(dest_sym->lines, src_sym->lines, sizeof(dest_sym->lines[0]) * cadlayers);
+    memcpy(dest_sym->rects, src_sym->rects, sizeof(dest_sym->rects[0]) * cadlayers);
+    memcpy(dest_sym->arcs, src_sym->arcs, sizeof(dest_sym->arcs[0]) * cadlayers);
+    memcpy(dest_sym->polygons, src_sym->polygons, sizeof(dest_sym->polygons[0]) * cadlayers);
+    for(c = 0;c<cadlayers; ++c) {
+      /* symbol lines */
+      dest_sym->line[c] = my_calloc(_ALLOC_ID_, src_sym->lines[c], sizeof(xLine));
+      for(j = 0; j < src_sym->lines[c]; ++j) {
+        dest_sym->line[c][j] = src_sym->line[c][j];
+        dest_sym->line[c][j].prop_ptr = NULL;
+        my_strdup(_ALLOC_ID_, &dest_sym->line[c][j].prop_ptr, src_sym->line[c][j].prop_ptr);
+      }
+      /* symbol rects */
+      dest_sym->rect[c] = my_calloc(_ALLOC_ID_, src_sym->rects[c], sizeof(xRect));
+      for(j = 0; j < src_sym->rects[c]; ++j) {
+        dest_sym->rect[c][j] = src_sym->rect[c][j];
+        dest_sym->rect[c][j].prop_ptr = NULL;
+        dest_sym->rect[c][j].extraptr = NULL;
+        my_strdup(_ALLOC_ID_, &dest_sym->rect[c][j].prop_ptr, src_sym->rect[c][j].prop_ptr);
+      }
+      /* symbol arcs */
+      dest_sym->arc[c] = my_calloc(_ALLOC_ID_, src_sym->arcs[c], sizeof(xArc));
+      for(j = 0; j < src_sym->arcs[c]; ++j) {
+        dest_sym->arc[c][j] = src_sym->arc[c][j];
+        dest_sym->arc[c][j].prop_ptr = NULL;
+        my_strdup(_ALLOC_ID_, &dest_sym->arc[c][j].prop_ptr, src_sym->arc[c][j].prop_ptr);
+      }
+      /* symbol polygons */
+      dest_sym->poly[c] = my_calloc(_ALLOC_ID_, src_sym->polygons[c], sizeof(xPoly));
+      for(j = 0; j < src_sym->polygons[c]; ++j) {
+        int points = src_sym->poly[c][j].points;
+        dest_sym->poly[c][j] = src_sym->poly[c][j];
+        dest_sym->poly[c][j].prop_ptr = NULL;
+        dest_sym->poly[c][j].x = my_malloc(_ALLOC_ID_, points * sizeof(double));
+        dest_sym->poly[c][j].y = my_malloc(_ALLOC_ID_, points * sizeof(double));
+        dest_sym->poly[c][j].selected_point = my_malloc(_ALLOC_ID_, points * sizeof(unsigned short));
+        my_strdup(_ALLOC_ID_, &dest_sym->poly[c][j].prop_ptr, src_sym->poly[c][j].prop_ptr);
+        memcpy(dest_sym->poly[c][j].x, src_sym->poly[c][j].x, points * sizeof(double));
+        memcpy(dest_sym->poly[c][j].y, src_sym->poly[c][j].y, points * sizeof(double));
+        memcpy(dest_sym->poly[c][j].selected_point, src_sym->poly[c][j].selected_point,
+             points * sizeof(unsigned short));
+      }
+    }
+    /* symbol texts */
+    for(j = 0; j < src_sym->texts; ++j) {
+      dest_sym->text[j] = src_sym->text[j];
+      dest_sym->text[j].prop_ptr = NULL;
+      dest_sym->text[j].txt_ptr = NULL;
+      dest_sym->text[j].font = NULL;
+      dest_sym->text[j].floater_instname = NULL;
+      dest_sym->text[j].floater_ptr = NULL;
+      my_strdup2(_ALLOC_ID_, &dest_sym->text[j].prop_ptr, src_sym->text[j].prop_ptr);
+      my_strdup2(_ALLOC_ID_, &dest_sym->text[j].floater_ptr, src_sym->text[j].floater_ptr);
+      my_strdup2(_ALLOC_ID_, &dest_sym->text[j].txt_ptr, src_sym->text[j].txt_ptr);
+      my_strdup2(_ALLOC_ID_, &dest_sym->text[j].font, src_sym->text[j].font);
+      my_strdup2(_ALLOC_ID_, &dest_sym->text[j].floater_instname, src_sym->text[j].floater_instname);
+    }
   }
 }
 
@@ -2249,7 +2355,7 @@ void get_additional_symbols(int what)
           /* check_symbol_storage() may relocate symbols, update pointer */
           symptr = xctx->inst[i].ptr + xctx->sym;
 
-          copy_symbol(&xctx->sym[j], symptr);
+          copy_symbol(j, &xctx->sym[j], symptr);
           xctx->sym[j].base_name = symptr->name;
           my_strdup(_ALLOC_ID_, &xctx->sym[j].name, sym);
 

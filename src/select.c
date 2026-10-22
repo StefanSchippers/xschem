@@ -1159,7 +1159,7 @@ void select_arc(int c, int i, unsigned short select_mode, int fast, int override
   char s[256];    /* overflow safe */
   if(!(fast & 1))
   {
-   my_strncpy(s,xctx->rect[c][i].prop_ptr!=NULL?xctx->rect[c][i].prop_ptr:"<NULL>",S(s));
+   my_strncpy(s,xctx->arc[c][i].prop_ptr!=NULL?xctx->arc[c][i].prop_ptr:"<NULL>",S(s));
    my_snprintf(str, S(str), "Info: selected arc : layer=%d, n=%d properties: %s",c-4,i,s);
    statusmsg(str,3);
    tcleval("infowindow");
