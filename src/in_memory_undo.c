@@ -25,8 +25,7 @@
 static void free_undo_lines(Undo_slot *uslot, int slot)
 {
   int i, c;
-
-  for(c = 0;c<cadlayers; ++c) {
+  if(uslot[slot].lines) for(c = 0;c<cadlayers; ++c) {
     for(i = 0;i<uslot[slot].lines[c]; ++i) {
       my_free(_ALLOC_ID_, &uslot[slot].lptr[c][i].prop_ptr);
     }
@@ -39,7 +38,7 @@ static void free_undo_rects(Undo_slot *uslot, int slot)
 {
   int i, c;
 
-  for(c = 0;c<cadlayers; ++c) {
+  if(uslot[slot].rects) for(c = 0;c<cadlayers; ++c) {
     for(i = 0;i<uslot[slot].rects[c]; ++i) {
       my_free(_ALLOC_ID_, &uslot[slot].bptr[c][i].prop_ptr);
     }
@@ -52,7 +51,7 @@ static void free_undo_polygons(Undo_slot *uslot, int slot)
 {
   int i, c;
 
-  for(c = 0;c<cadlayers; ++c) {
+  if(uslot[slot].polygons) for(c = 0;c<cadlayers; ++c) {
     for(i = 0;i<uslot[slot].polygons[c]; ++i) {
       my_free(_ALLOC_ID_, &uslot[slot].pptr[c][i].prop_ptr);
       my_free(_ALLOC_ID_, &uslot[slot].pptr[c][i].x);
@@ -68,7 +67,7 @@ static void free_undo_arcs(Undo_slot *uslot, int slot)
 {
   int i, c;
 
-  for(c = 0;c<cadlayers; ++c) {
+  if(uslot[slot].arcs) for(c = 0;c<cadlayers; ++c) {
     for(i = 0;i<uslot[slot].arcs[c]; ++i) {
       my_free(_ALLOC_ID_, &uslot[slot].aptr[c][i].prop_ptr);
     }

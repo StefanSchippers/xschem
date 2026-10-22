@@ -323,6 +323,7 @@ extern char win_temp_dir[PATH_MAX];
 #define XGET 6
 #define XASK_SAVE 7
 #define XREPLACE_WINPATH 8
+#define XDELETE_ALL_CURRENT_WIN 9 /* delete all entries belonging to current tab/window */
 
 /* Cairo text flags (.flags field) */
 #define TEXT_BOLD 1

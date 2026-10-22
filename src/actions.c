@@ -2941,17 +2941,20 @@ void go_back(int what)
  }
 }
 
+/* cancel == 1: ask confirmation */
 void clear_schematic(int cancel, int symbol)
 {
  int result;
- if(cancel == 1) result=save(1, 0);
+ if(cancel) result=save(1, 0);
  if(result != -1) { /* -1 means user cancel save request */
    if(tclgetboolvar("preserve_undo") && cancel == 1) {
      xctx->push_undo(0); /* push current state so we can retrieve it later from undo if needed */
    }
    xctx->delete_undo();
-   /* if no confirmation dialog for save is presented delete completely undo buffer */
-   if(cancel == 0) save_undo_table(xctx->current_name, NULL, XDELETE);
+   if(cancel == 1) save_undo_table(xctx->current_name, NULL, XASK_SAVE);
+   /* if no confirmation dialog for save is presented delete completely undo buffer
+    * for all hierarchies in current window / tab */
+   else if(cancel == 0) save_undo_table(xctx->current_name, NULL, XDELETE_ALL_CURRENT_WIN);
    xctx->currsch = 0;
    unselect_all(1);
    remove_symbols();

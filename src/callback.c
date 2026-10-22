@@ -3448,7 +3448,8 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
       }
       else if(rstate == ControlMask) { /* clear schematic */
         if(xctx->semaphore >= 2) break;
-        clear_schematic(1, 0); /*cancel=1: ask user to save if modified; symbol=0: clear schematic*/
+        /* cancel=1: ask user to save if modified */
+        clear_schematic(1, 0);
       }
       break;
 

@@ -10688,11 +10688,11 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.help add command -label "Show Keybindings" -command "show_bindkeys"
   $topwin.menubar.help add command -label "About XSCHEM" -command "about"
 
-  $topwin.menubar.file add command -label "Clear Schematic"  -accelerator Ctrl+N\
+  $topwin.menubar.file add command -label "Clear schematic"  -accelerator Ctrl+N\
     -command {
       xschem clear schematic
     }
-  $topwin.menubar.file add command -label "Clear Symbol" -accelerator Ctrl+Shift+N \
+  $topwin.menubar.file add command -label "Clear symbol" -accelerator Ctrl+Shift+N \
     -command {
       xschem clear symbol
     }
