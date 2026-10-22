@@ -1379,7 +1379,7 @@ extern int set_modify(int mod); /* return number of floaters */
 extern int there_are_floaters(void);
 extern char *my_expand(const char *s, int tabstop) ;
 
-/* define to debug memory allocations / free / reallocations */
+/* undef -> define to debug memory allocations / free / reallocations */
 #undef DEBUG_MEM
 
 #ifndef DEBUG_MEM

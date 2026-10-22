@@ -1918,9 +1918,8 @@ void launcher(void)
         Tcl_ResetResult(interp);
       }
     } else { /* no action defined --> warning */
-      const char *msg = "No action on launcher is defined (url or tclcommand)";
       action_defined = 0;
-      dbg(1, ("%s\n", msg));
+      dbg(1, ("%s\n", "No action on launcher is defined (url or tclcommand)"));
       /* if(has_x) tclvareval("alert_ {", msg, "} {}", NULL); */ /* commented, annoying */
     }
     my_free(_ALLOC_ID_, &command);

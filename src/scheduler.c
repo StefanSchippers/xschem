@@ -4063,7 +4063,6 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         Tcl_SetResult(interp, "xschem preserve_undo needs at least 1 more arguments: 1|0", TCL_STATIC);
         return TCL_ERROR;
       } else {
-        int old = tclgetboolvar("preserve_undo");
         int new = atoi(argv[2]);
         xctx->delete_undo();
         if(new == 0) { /* was enabled  --> disable */

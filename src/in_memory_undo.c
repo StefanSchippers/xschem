@@ -117,22 +117,18 @@ static void free_undo_instances(Undo_slot *uslot, int slot)
   uslot[slot].instances = 0;
 }
 
-static void free_undo_symbols(Undo_slot *uslot, int slot)
-{
-  int i, j, c, symbols;
-  xSymbol *sym;
 
-  symbols = uslot[slot].symbols;
-  for(i = 0;i < symbols; ++i) {
-    sym = &uslot[slot].symptr[i];
+static void free_undo_symbol(xSymbol *sym)
+{
+    int j, c;
     my_free(_ALLOC_ID_, &sym->name);
     my_free(_ALLOC_ID_, &sym->prop_ptr);
     my_free(_ALLOC_ID_, &sym->type);
     my_free(_ALLOC_ID_, &sym->templ);
     my_free(_ALLOC_ID_, &sym->parent_prop_ptr);
 
-    for(c = 0;c<cadlayers; ++c) {
-      for(j = 0;j<sym->polygons[c]; ++j) {
+    for(c = 0;c < cadlayers; ++c) {
+      for(j = 0;j < sym->polygons[c]; ++j) {
         if(sym->poly[c][j].prop_ptr != NULL) {
           my_free(_ALLOC_ID_, &sym->poly[c][j].prop_ptr);
         }
@@ -143,7 +139,7 @@ static void free_undo_symbols(Undo_slot *uslot, int slot)
       my_free(_ALLOC_ID_, &sym->poly[c]);
       sym->polygons[c] = 0;
 
-      for(j = 0;j<sym->lines[c]; ++j) {
+      for(j = 0;j < sym->lines[c]; ++j) {
         if(sym->line[c][j].prop_ptr != NULL) {
           my_free(_ALLOC_ID_, &sym->line[c][j].prop_ptr);
         }
@@ -151,7 +147,7 @@ static void free_undo_symbols(Undo_slot *uslot, int slot)
       my_free(_ALLOC_ID_, &sym->line[c]);
       sym->lines[c] = 0;
 
-      for(j = 0;j<sym->arcs[c]; ++j) {
+      for(j = 0;j < sym->arcs[c]; ++j) {
         if(sym->arc[c][j].prop_ptr != NULL) {
           my_free(_ALLOC_ID_, &sym->arc[c][j].prop_ptr);
         }
@@ -159,7 +155,7 @@ static void free_undo_symbols(Undo_slot *uslot, int slot)
       my_free(_ALLOC_ID_, &sym->arc[c]);
       sym->arcs[c] = 0;
 
-      for(j = 0;j<sym->rects[c]; ++j) {
+      for(j = 0;j < sym->rects[c]; ++j) {
         if(sym->rect[c][j].prop_ptr != NULL) {
           my_free(_ALLOC_ID_, &sym->rect[c][j].prop_ptr);
         }
@@ -167,7 +163,7 @@ static void free_undo_symbols(Undo_slot *uslot, int slot)
       my_free(_ALLOC_ID_, &sym->rect[c]);
       sym->rects[c] = 0;
     }
-    for(j = 0;j<sym->texts; ++j) {
+    for(j = 0;j < sym->texts; ++j) {
       if(sym->text[j].prop_ptr != NULL) {
         my_free(_ALLOC_ID_, &sym->text[j].prop_ptr);
       }
@@ -194,6 +190,16 @@ static void free_undo_symbols(Undo_slot *uslot, int slot)
     my_free(_ALLOC_ID_, &sym->rects);
     my_free(_ALLOC_ID_, &sym->polygons);
     my_free(_ALLOC_ID_, &sym->arcs);
+}
+
+static void free_undo_symbols(Undo_slot *uslot, int slot)
+{
+  int i;
+  int symbols = uslot[slot].symbols;
+
+  for(i = 0; i < symbols; ++i) {
+    xSymbol *sym = &uslot[slot].symptr[i];
+    free_undo_symbol(sym);
   }
   my_free(_ALLOC_ID_, &uslot[slot].symptr);
   uslot[slot].symbols = 0;
