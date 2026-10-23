@@ -4048,7 +4048,7 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
   }
   else  {
     xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
-    xctx->undo_initialized = 0;
+    /* xctx->undo_initialized = 0; */    /* No!, will disallow pop_undo([6|2]) later on  when netlisting */
   }
   if(ffname && ffname[0]) {
     int generator = 0;

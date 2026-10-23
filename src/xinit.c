@@ -545,6 +545,7 @@ void alloc_xschem_data(const char *top_path, const char *win_path)
   xctx->current_name[0] = '\0';
   xctx->sch_to_compare[0] = '\0';
   xctx->tok_size = 0;
+  xctx->netlist_count = 0;
   xctx->netlist_name[0] = '\0';
   xctx->plotfile[0] = '\0';
   xctx->netlist_unconn_cnt = 0; /* unique count of unconnected pins while netlisting */
@@ -1346,6 +1347,7 @@ void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_name, i
   dest->n_active_layers = source->n_active_layers;
   
   dest->netlist_type = source->netlist_type;
+  dest->netlist_count = source->netlist_count;
   dest->crosshair_layer = source->crosshair_layer;
   my_strdup2(_ALLOC_ID_, &dest->format, source->format);
   my_strdup2(_ALLOC_ID_, &dest->custom_format, source->custom_format);
