@@ -2787,7 +2787,9 @@ int print_spice_element(FILE *fd, int inst)
      my_strdup(_ALLOC_ID_, &result, tcl_hook2(result));
   }
   my_strdup2(_ALLOC_ID_, &result, eval_expr(result));
-  if(result) fprintf(fd, "%s", result);
+  if(result) {
+     fprintf(fd, "%s", result);
+  }
   dbg(1, ("print_spice_element(): returning |%s|\n", result));
   my_free(_ALLOC_ID_, &template);
   my_free(_ALLOC_ID_, &format);

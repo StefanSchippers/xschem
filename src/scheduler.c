@@ -6671,6 +6671,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               i, ctx[i], get_window_path(i), get_save_xctx()[i]->current_name);
         }
       }
+      else if(argc > 3 && atoi(argv[2]) == 11) {
+         load_schematic(1, argv[3], 0, 0);
+      }
     }
 
     /* text x y rot flip text props size draw

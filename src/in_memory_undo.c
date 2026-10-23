@@ -214,7 +214,8 @@ static void mem_init_undo(void)
    */
   if(xctx->no_undo == 0 && !xctx->undo_initialized) {
     xctx->uslot = my_calloc(_ALLOC_ID_, MAX_UNDO, sizeof(Undo_slot));
-    dbg(1, ("mem_init_undo(): xctx->uslot=%p, size=%ld\n", xctx->uslot, MAX_UNDO * sizeof(Undo_slot)));
+    dbg(1, ("mem_init_undo(): xctx->uslot=%p, size=%ld, %s\n",
+        xctx->uslot, MAX_UNDO * sizeof(Undo_slot), xctx->current_name));
     /* delete previous if any */
     if(tclgetboolvar("preserve_undo")) {
       save_undo_table(xctx->current_name, NULL, XDELETE);
@@ -285,8 +286,8 @@ void mem_free_uslots(Undo_slot *uslot)
 /* used to delete everything when program exits */
 void mem_delete_undo(void)
 {
-  dbg(1, ("mem_delete_undo(): undo_initialized = %d\n", xctx->undo_initialized));
   if(!xctx->undo_initialized) goto done;
+  dbg(1, ("mem_delete_undo(): undo_initialized = %d, %s\n", xctx->undo_initialized, xctx->current_name));
 
   if(tclgetboolvar("preserve_undo")) {
     /* update undo pointers in save table */
@@ -319,6 +320,7 @@ void mem_push_undo(int what)
   int i, c;
   int undo_index;
 
+  dbg(1, ("mem_push_undo(%d), %s\n", what, xctx->current_name));
   undo_index = xctx->cur_undo_ptr % (MAX_UNDO - 2) + 2;
   if(what == 2) undo_index = 0;
   else if(what == 6) undo_index = 1;
@@ -475,6 +477,7 @@ void mem_pop_undo(int redo, int set_modify_status)
   if(xctx->no_undo) return;
   if(!xctx->undo_initialized) return;
 
+  dbg(1, ("mem_pop_undo(%d, %d), %s\n", redo, set_modify_status, xctx->current_name));
   if(redo == 1) {
     if(xctx->cur_undo_ptr < xctx->head_undo_ptr - 1) {
       xctx->cur_undo_ptr++;
@@ -530,11 +533,16 @@ void mem_pop_undo(int redo, int set_modify_status)
     my_free(_ALLOC_ID_, &xctx->arc[i]);
   }
 
+
+  /* if netlisting and preserve_undo is set we need to keep symbols so we netlist them all
+   * when descending with descend_schematic() symbols are cleared there */
+  #if 0
   if(!tclgetboolvar("keep_symbols")) {
     remove_symbols();
     my_free(_ALLOC_ID_, &xctx->sym);
     xctx->maxs = xctx->symbols = 0;
   }
+  #endif
 
   my_strdup2(_ALLOC_ID_, &xctx->schvhdlprop, xctx->uslot[undo_index].gptr);
   my_strdup2(_ALLOC_ID_, &xctx->schverilogprop, xctx->uslot[undo_index].vptr);
@@ -603,13 +611,20 @@ void mem_pop_undo(int redo, int set_modify_status)
     my_strdup2(_ALLOC_ID_, &xctx->inst[i].name, xctx->uslot[undo_index].iptr[i].name);
     my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, xctx->uslot[undo_index].iptr[i].instname);
     my_strdup2(_ALLOC_ID_, &xctx->inst[i].lab, xctx->uslot[undo_index].iptr[i].lab);
+    set_inst_flags(&xctx->inst[i]);
   }
 
   /* symbols */
+  dbg(1, ("mem_pop_undo(): uslot[%d].symbols=%d\n", undo_index, xctx->uslot[undo_index].symbols));
+  dbg(1, ("mem_pop_undo(): xctx->symbols=%d\n", xctx->symbols));
+  dbg(1, ("mem_pop_undo(): xctx->sym=%p\n", xctx->sym));
+  dbg(1, ("mem_pop_undo(): xctx->instances=%d\n", xctx->instances));
   if(!xctx->sym) {
     xctx->maxs = xctx->symbols = xctx->uslot[undo_index].symbols;
     xctx->sym = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(xSymbol));
     for(i = 0; i < xctx->uslot[undo_index].symbols; ++i) {
+        dbg(1, ("mem_pop_undo(): loading symbol: %d <-- %s\n",
+               i, xctx->uslot[undo_index].symptr[i].name));
       copy_symbol(i, &xctx->sym[i], &xctx->uslot[undo_index].symptr[i]);
     }
   } else {
@@ -624,6 +639,8 @@ void mem_pop_undo(int redo, int set_modify_status)
       const char *sym = xctx->uslot[undo_index].symptr[i].name;
       if(!int_hash_lookup(&sym_table, sym, 0, XLOOKUP)) {
         check_symbol_storage();
+        dbg(1, ("mem_pop_undo(): adding symbol: %d <-- %s\n",
+               xctx->symbols, xctx->uslot[undo_index].symptr[i].name));
         copy_symbol(xctx->symbols, &xctx->sym[xctx->symbols], &xctx->uslot[undo_index].symptr[i]);
         xctx->symbols++;
       }
@@ -656,9 +673,10 @@ void mem_pop_undo(int redo, int set_modify_status)
     xctx->wire[i].prop_ptr = NULL;
     xctx->wire[i].node = NULL;
     my_strdup2(_ALLOC_ID_, &xctx->wire[i].prop_ptr, xctx->uslot[undo_index].wptr[i].prop_ptr);
+    set_wire_flags(&xctx->wire[i]);
   }
-  /* unnecessary since in_memory_undo saves all symbols */
-  /* link_symbols_to_instances(-1); */
+  /* necessary, because symbols, although loaded, may be in a different order */
+  link_symbols_to_instances(-1);
   if(redo == 5) xctx->cur_undo_ptr++; /* restore undo stack pointer */
 
   if(set_modify_status) {
@@ -674,8 +692,10 @@ void mem_pop_undo(int redo, int set_modify_status)
   xctx->prep_net_structs = 0;
   xctx->prep_hi_structs = 0;
   update_conn_cues(WIRELAYER, 0, 0);
-  int_hash_free(&xctx->floater_inst_table);
-
+  if(xctx->hilight_nets) {
+    propagate_hilights(1, 1, XINSERT_NOREPLACE);
+  }
+  int_hash_free(&xctx->floater_inst_table); /* disk undo does this in read_xschem_file() */
   if(tclgetboolvar("preserve_undo")) {
     if(redo != 5 && redo != 2 && redo != 6) {
       /* update head, cur, tail pointers */

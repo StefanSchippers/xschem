@@ -4046,7 +4046,10 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
     xctx->delete_undo();
     xctx->prev_set_modify = -1; /* will force set_modify(0) to set window title */
   }
-  else  xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
+  else  {
+    xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
+    xctx->undo_initialized = 0;
+  }
   if(ffname && ffname[0]) {
     int generator = 0;
     /* if ffname is a generator add () at end of filename if not already present */

@@ -2814,7 +2814,6 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    hilight_child_pins();
    unselect_all(1);
    dbg(1, ("descend_schematic(): filename=%s\n", filename));
-   /* we are descending from a parent schematic downloaded from the web */
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
    descend_ok = load_schematic(1, filename, (set_title & 1), alert);
    if(descend_ok) {

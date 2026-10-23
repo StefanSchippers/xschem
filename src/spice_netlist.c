@@ -104,7 +104,6 @@ void hier_psprint(char **res, int what)  /* netlister driver */
         if(is_generator(filename) || !stat(filename, &buf)) {
           if(str_hash_lookup(&subckt_table, get_cell_w_ext(filename, 0), "", XINSERT_NOREPLACE)==NULL) {
             /* for printing we go down to bottom regardless of spice_stop attribute */
-            if(tclgetboolvar("preserve_undo")) xctx->delete_undo();
             dbg(1, ("hier_psprint(): loading file: |%s|\n", filename));
             load_schematic(1,filename, 0, 1);
 
@@ -221,6 +220,8 @@ static int spice_netlist(FILE *fd, int spice_stop )
     if(top_sub) fprintf(fd, "\n");
     for(i=0;i<xctx->instances; ++i) /* ... then print other lines */
     {
+     dbg(1, ("spice_netlist(): netlisting %s/%s (%s)\n",
+            xctx->current_name, xctx->inst[i].instname, xctx->inst[i].name));
      if(skip_instance(i, 1, lvs_ignore)) continue;
      type = (xctx->inst[i].ptr+ xctx->sym)->type;
 
@@ -724,13 +725,15 @@ int spice_block_netlist(FILE *fd, int i, int alert)
     my_free(_ALLOC_ID_, &extra);
     fprintf(fd, "\n");
 
-    if(tclgetboolvar("preserve_undo")) xctx->delete_undo();
     spice_stop ? load_schematic(0,filename, 0, alert) : load_schematic(1,filename, 0, alert);
 
     if(tclgetboolvar("preserve_undo")) {
       save_undo_table(xctx->current_name, NULL, XGET);
       xctx->pop_undo(2, 0);
     }
+
+    dbg(1, ("spice_block_netlist(): instances=%d symbols=%d\n", xctx->instances, xctx->symbols));
+    dbg(1, ("spice_block_netlist(): prep_net_structs=%d\n", xctx->prep_net_structs));
 
 
     get_additional_symbols(1);
