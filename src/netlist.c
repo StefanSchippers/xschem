@@ -2121,6 +2121,6 @@ int sym_vs_sch_pins(int all)
     my_free(_ALLOC_ID_, &pin_dir);
   } /* for(i=0;i<n_syms; ++i) */
 
-  if(all == -1) while(xctx->symbols > n_syms) remove_symbol(xctx->symbols - 1);
+  if(all == -1) while(xctx->symbols > n_syms) remove_symbol(xctx->symbols - 1, 1);
   return err;
 }

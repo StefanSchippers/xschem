@@ -195,7 +195,7 @@ int global_vhdl_netlist(int global, int alert)  /* netlister driver */
  if(!stat(str_tmp, &buf)) {
    load_sym_def(str_tmp, NULL);
    print_generic(fd,"entity", xctx->symbols-1);  /* added print top level params */
-   remove_symbol(xctx->symbols - 1);
+   remove_symbol(xctx->symbols - 1, 1);
  } else {
     fprintf(fd,"entity %s is\n", get_cell( xctx->sch[xctx->currsch], 0) );
  }

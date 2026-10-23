@@ -597,6 +597,42 @@ void mem_pop_undo(int redo, int set_modify_status)
     }
   }
 
+  /* symbols */
+  dbg(1, ("mem_pop_undo(): uslot[%d].symbols=%d\n", undo_index, xctx->uslot[undo_index].symbols));
+  dbg(1, ("mem_pop_undo(): xctx->symbols=%d\n", xctx->symbols));
+  dbg(1, ("mem_pop_undo(): xctx->sym=%p\n", xctx->sym));
+  dbg(1, ("mem_pop_undo(): xctx->instances=%d\n", xctx->instances));
+  if(!xctx->sym) { /* all symbols were deleted... */
+    xctx->maxs = xctx->symbols = xctx->uslot[undo_index].symbols;
+    xctx->sym = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(xSymbol));
+    for(i = 0; i < xctx->uslot[undo_index].symbols; ++i) {
+        dbg(1, ("mem_pop_undo(): loading symbol: %d <-- %s\n",
+               i, xctx->uslot[undo_index].symptr[i].name));
+      copy_symbol(i, &xctx->sym[i], &xctx->uslot[undo_index].symptr[i]);
+    }
+  } else {
+    Int_hashtable sym_table = {NULL, 0};
+    int_hash_init(&sym_table, 367);
+
+    for(i = 0; i < xctx->symbols; ++i) {
+      dbg(1, ("mem_pop_undo(): hashing symbol: %s\n", xctx->sym[i].name));
+      int_hash_lookup(&sym_table, xctx->sym[i].name, i, XINSERT);
+    }
+
+    for(i = 0; i < xctx->uslot[undo_index].symbols; ++i) {
+      const char *sym = xctx->uslot[undo_index].symptr[i].name;
+      Int_hashentry *entry;
+      dbg(1, ("mem_pop_undo(): see if %s must be removed\n", sym));
+      if((entry = int_hash_lookup(&sym_table, sym, 0, XLOOKUP))) {
+        dbg(1, ("mem_pop_undo(): deleting symbol %s\n", entry->token));
+        remove_symbol(entry->value, 0); /* shift param set to 0. Leave all other symbols
+                                         * in place, do not shift back */
+        copy_symbol(entry->value, &xctx->sym[entry->value], &xctx->uslot[undo_index].symptr[i]);
+      }
+    }
+    int_hash_free(&sym_table);
+  }
+
   /* instances */
   xctx->maxi = xctx->instances = xctx->uslot[undo_index].instances;
   xctx->inst = my_calloc(_ALLOC_ID_, xctx->instances, sizeof(xInstance));
@@ -612,40 +648,6 @@ void mem_pop_undo(int redo, int set_modify_status)
     my_strdup2(_ALLOC_ID_, &xctx->inst[i].instname, xctx->uslot[undo_index].iptr[i].instname);
     my_strdup2(_ALLOC_ID_, &xctx->inst[i].lab, xctx->uslot[undo_index].iptr[i].lab);
     set_inst_flags(&xctx->inst[i]);
-  }
-
-  /* symbols */
-  dbg(1, ("mem_pop_undo(): uslot[%d].symbols=%d\n", undo_index, xctx->uslot[undo_index].symbols));
-  dbg(1, ("mem_pop_undo(): xctx->symbols=%d\n", xctx->symbols));
-  dbg(1, ("mem_pop_undo(): xctx->sym=%p\n", xctx->sym));
-  dbg(1, ("mem_pop_undo(): xctx->instances=%d\n", xctx->instances));
-  if(!xctx->sym) {
-    xctx->maxs = xctx->symbols = xctx->uslot[undo_index].symbols;
-    xctx->sym = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(xSymbol));
-    for(i = 0; i < xctx->uslot[undo_index].symbols; ++i) {
-        dbg(1, ("mem_pop_undo(): loading symbol: %d <-- %s\n",
-               i, xctx->uslot[undo_index].symptr[i].name));
-      copy_symbol(i, &xctx->sym[i], &xctx->uslot[undo_index].symptr[i]);
-    }
-  } else {
-    Int_hashtable sym_table = {NULL, 0};
-    int_hash_init(&sym_table, 367);
-
-    for(i = 0; i < xctx->symbols; ++i) {
-      int_hash_lookup(&sym_table, xctx->sym[i].name, i, XINSERT);
-    }
-
-    for(i = 0; i < xctx->uslot[undo_index].symbols; ++i) {
-      const char *sym = xctx->uslot[undo_index].symptr[i].name;
-      if(!int_hash_lookup(&sym_table, sym, 0, XLOOKUP)) {
-        check_symbol_storage();
-        dbg(1, ("mem_pop_undo(): adding symbol: %d <-- %s\n",
-               xctx->symbols, xctx->uslot[undo_index].symptr[i].name));
-        copy_symbol(xctx->symbols, &xctx->sym[xctx->symbols], &xctx->uslot[undo_index].symptr[i]);
-        xctx->symbols++;
-      }
-    }
-    int_hash_free(&sym_table);
   }
 
   /* texts */

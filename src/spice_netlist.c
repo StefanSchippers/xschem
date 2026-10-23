@@ -385,7 +385,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
      found_top_symbol = 3;
      err |= sym_vs_sch_pins(xctx->symbols - 1);
    }
-   remove_symbol(xctx->symbols - 1);
+   remove_symbol(xctx->symbols - 1, 1);
  }
  my_free(_ALLOC_ID_, &top_symbol_name);
  if(found_top_symbol != 3) {

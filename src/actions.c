@@ -673,8 +673,9 @@ void ask_new_file(int in_new_window, char *filename)
 /* remove symbol and decrement symbols */
 /* Warning: removing a symbol with a loaded schematic will make all symbol references corrupt */
 /* you should clear_drawing() first or load_schematic() or link_symbols_to_instances()
-   immediately afterwards */
-void remove_symbol(int j)
+ * immediately afterwards
+ * shift: if set to 0 do NOT shift back symbols following 'j' */
+void remove_symbol(int j, int shift)
 {
   int i,c;
   xSymbol save;
@@ -754,12 +755,15 @@ void remove_symbol(int j)
 
   xctx->sym[j].texts = 0;
 
-  save = xctx->sym[j]; /* save cleared symbol slot */
-  for(i = j + 1; i < xctx->symbols; ++i) {
-    xctx->sym[i-1] = xctx->sym[i];
+
+  if(shift) {
+    save = xctx->sym[j]; /* save cleared symbol slot */
+    for(i = j + 1; i < xctx->symbols; ++i) {
+      xctx->sym[i-1] = xctx->sym[i];
+    }
+    xctx->sym[xctx->symbols-1] = save; /* fill end with cleared symbol slot */
+    xctx->symbols--;
   }
-  xctx->sym[xctx->symbols-1] = save; /* fill end with cleared symbol slot */
-  xctx->symbols--;
 }
 
 void remove_symbols(void)
@@ -772,7 +776,7 @@ void remove_symbols(void)
   }
   for(j=xctx->symbols-1;j>=0;j--) {
     dbg(2, ("remove_symbols(): removing symbol %d\n",j));
-    remove_symbol(j);
+    remove_symbol(j, 1);
   }
   dbg(1, ("remove_symbols(): done\n"));
 }
@@ -1649,7 +1653,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   my_free(_ALLOC_ID_, &res);
   /* parameters like res.tcl(@value\) have been resolved, so reload symbol removing previous */
   if(strcmp(name, name1)) {
-    remove_symbol(i);
+    remove_symbol(i, 1);
     i = match_symbol(name);
   }
   xctx->inst[n].ptr = i;
@@ -2443,7 +2447,7 @@ void get_additional_symbols(int what)
     int_hash_free(&sym_table);
   } else { /* end */
     for(i = xctx->symbols - 1; i >= num_syms; --i) {
-      remove_symbol(i);
+      remove_symbol(i, 1);
     }
     xctx->symbols = num_syms;
   }
