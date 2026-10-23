@@ -729,6 +729,8 @@ int spice_block_netlist(FILE *fd, int i, int alert)
 
     if(tclgetboolvar("preserve_undo")) {
       save_undo_table(xctx->current_name, NULL, XGET);
+      dbg(1, ("spice_block_netlist(): current_name=%s, undo_initialized=%d\n", 
+               xctx->current_name, xctx->undo_initialized));
       xctx->pop_undo(2, 0);
     }
 

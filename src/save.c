@@ -133,6 +133,8 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
       Ptr_hashentry *entry;
       dbg(1, ("save_undo_table(): XLOOKUP|XGET, %s\n", winpath_sch));
       entry = ptr_hash_lookup(&undo_dir_hash, winpath_sch, NULL, XLOOKUP);
+      /* set undo_initialized to 0 otherwise if item not found will return as initialized */
+      if(what == XGET) xctx->undo_initialized = 0;
       if(entry ) {
         undo_save *undo_item = entry->value;
         dbg(1, ("  save_undo_table(): XLOOKUP|XGET found item\n"));
@@ -4048,7 +4050,6 @@ int load_schematic(int load_symbols, const char *fname, int reset_undo, int aler
   }
   else  {
     xctx->prev_set_modify = 0;           /* will prevent set_modify(0) from setting window title */
-    /* xctx->undo_initialized = 0; */    /* No!, will disallow pop_undo([6|2]) later on  when netlisting */
   }
   if(ffname && ffname[0]) {
     int generator = 0;
