@@ -108,11 +108,11 @@ static int tedax_block_netlist(FILE *fd, int i, int alert)
   my_free(_ALLOC_ID_, &extra);
   fprintf(fd, "\n");
 
-  if(tclgetboolvar("preserve_undo")) xctx->delete_undo();
   load_schematic(1,filename, 0, alert);
 
   if(tclgetboolvar("preserve_undo")) {
     save_undo_table(xctx->current_name, NULL, XGET);
+    xctx->pop_undo(2, 0);
   }
 
   get_additional_symbols(1);

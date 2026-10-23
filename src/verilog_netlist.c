@@ -501,11 +501,11 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
     my_strdup(_ALLOC_ID_, &extra2, get_tok_value(xctx->sym[i].prop_ptr, "verilog_extra", 0));
     fprintf(fd, "// sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
 
-    if(tclgetboolvar("preserve_undo")) xctx->delete_undo();
     verilog_stop? load_schematic(0,filename, 0, alert) : load_schematic(1,filename, 0, alert);
 
     if(tclgetboolvar("preserve_undo")) {
       save_undo_table(xctx->current_name, NULL, XGET);
+      xctx->pop_undo(2, 0);
     }
 
     get_additional_symbols(1);
