@@ -109,8 +109,8 @@ void hier_psprint(char **res, int what)  /* netlister driver */
 
             if(tclgetboolvar("preserve_undo")) {
               save_undo_table(xctx->current_name, NULL, XGET);
-              xctx->pop_undo(2, 0);
             }
+            xctx->pop_undo(2, 0);
 
             get_additional_symbols(1);
             /* do a zoom with draw, this is needed to load embedded images into r->extraptr
@@ -143,7 +143,6 @@ void hier_psprint(char **res, int what)  /* netlister driver */
   if(tclgetboolvar("preserve_undo")) {
     save_undo_table(xctx->current_name, NULL, XGET);
   }
-
   xctx->pop_undo(6, 0); /* use reserved slot 1 of undo stack */
   xctx->prev_set_modify = save_prev_mod;
   my_strncpy(xctx->current_name, rel_sym_path(xctx->sch[xctx->currsch]), S(xctx->current_name));
@@ -540,7 +539,6 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
    xctx->currsch--;
    unselect_all(1);
-   dbg(1, ("global_spice_netlist(): invoking pop_undo(0, 0)\n"));
    /* symbol vs schematic pin check, we do it here since now we have ALL symbols loaded */
    err |= sym_vs_sch_pins(-1);
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
@@ -548,10 +546,12 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    my_strncpy(xctx->current_name, topschname, S(xctx->current_name));
    if(tclgetboolvar("preserve_undo")) {
      save_undo_table(xctx->current_name, NULL, XGET);
-   }       
+   }
 
-   xctx->pop_undo(6, 0);  /* use reserved slot 1 of undo stack, to re-populate only used symbols */
+   dbg(1, ("global_spice_netlist(): invoking pop_undo(6, 0), undo_initialized=%d\n",
+          xctx->undo_initialized));
 
+   xctx->pop_undo(6, 0);
    xctx->prev_set_modify = save_prev_mod;
    if(web_url) {
      my_strncpy(xctx->current_dirname, current_dirname_save, S(xctx->current_dirname));
@@ -728,10 +728,7 @@ int spice_block_netlist(FILE *fd, int i, int alert)
     spice_stop ? load_schematic(0,filename, 0, alert) : load_schematic(1,filename, 0, alert);
 
     if(tclgetboolvar("preserve_undo")) {
-      save_undo_table(xctx->current_name, NULL, XGET);
-      dbg(1, ("spice_block_netlist(): current_name=%s, undo_initialized=%d\n", 
-               xctx->current_name, xctx->undo_initialized));
-      xctx->pop_undo(2, 0);
+      if(save_undo_table(xctx->current_name, NULL, XGET)) xctx->pop_undo(2, 0);
     }
 
     dbg(1, ("spice_block_netlist(): instances=%d symbols=%d\n", xctx->instances, xctx->symbols));

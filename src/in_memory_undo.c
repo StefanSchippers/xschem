@@ -602,9 +602,9 @@ void mem_pop_undo(int redo, int set_modify_status)
   dbg(1, ("mem_pop_undo(): xctx->symbols=%d\n", xctx->symbols));
   dbg(1, ("mem_pop_undo(): xctx->sym=%p\n", xctx->sym));
   dbg(1, ("mem_pop_undo(): xctx->instances=%d\n", xctx->instances));
-  if(!xctx->sym) { /* all symbols were deleted... */
+  if(!xctx->sym || xctx->symbols == 0) { /* all symbols were deleted... */
     xctx->maxs = xctx->symbols = xctx->uslot[undo_index].symbols;
-    xctx->sym = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(xSymbol));
+    if(!xctx->sym) xctx->sym = my_calloc(_ALLOC_ID_, xctx->symbols, sizeof(xSymbol));
     for(i = 0; i < xctx->uslot[undo_index].symbols; ++i) {
         dbg(1, ("mem_pop_undo(): loading symbol: %d <-- %s\n",
                i, xctx->uslot[undo_index].symptr[i].name));
@@ -627,6 +627,8 @@ void mem_pop_undo(int redo, int set_modify_status)
         dbg(1, ("mem_pop_undo(): deleting symbol %s\n", entry->token));
         remove_symbol(entry->value, 0); /* shift param set to 0. Leave all other symbols
                                          * in place, do not shift back */
+        dbg(1, ("mem_pop_undo(): copying symbol, lines[4]=%d\n",
+               xctx->uslot[undo_index].symptr[i].lines[4]));
         copy_symbol(entry->value, &xctx->sym[entry->value], &xctx->uslot[undo_index].symptr[i]);
       }
     }
