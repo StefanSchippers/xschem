@@ -5470,7 +5470,10 @@ const char *translate(int inst, const char *s, char **result)
           my_free(_ALLOC_ID_, &value1);
           value1 = tmp;
         } else {
-          my_strdup2(_ALLOC_ID_, &value1, value);
+          char *tmp = NULL;
+          my_strdup2(_ALLOC_ID_, &tmp, value);
+          my_free(_ALLOC_ID_, &value1);
+          value1 = tmp;
         }
       }
       dbg(1, ("translate(): 3 value1=%s\n", value1));

@@ -614,6 +614,7 @@ void mem_pop_undo(int redo, int set_modify_status)
     Int_hashtable sym_table = {NULL, 0};
     int_hash_init(&sym_table, 367);
 
+    /* hash all current symbols ... */
     for(i = 0; i < xctx->symbols; ++i) {
       dbg(1, ("mem_pop_undo(): hashing symbol: %s\n", xctx->sym[i].name));
       int_hash_lookup(&sym_table, xctx->sym[i].name, i, XINSERT);
@@ -622,6 +623,7 @@ void mem_pop_undo(int redo, int set_modify_status)
     for(i = 0; i < xctx->uslot[undo_index].symbols; ++i) {
       const char *sym = xctx->uslot[undo_index].symptr[i].name;
       Int_hashentry *entry;
+      /* ... if symbol is in undo buffer remove current and load from undo buffer */
       dbg(1, ("mem_pop_undo(): see if %s must be removed\n", sym));
       if((entry = int_hash_lookup(&sym_table, sym, 0, XLOOKUP))) {
         dbg(1, ("mem_pop_undo(): deleting symbol %s\n", entry->token));

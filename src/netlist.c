@@ -1872,10 +1872,22 @@ int sym_vs_sch_pins(int all)
         }
       }
       dbg(1, ("%s: rects=%d, unique_pins=%d\n", xctx->sym[i].name, rects, unique_pins));
+
       int_hash_free(&pin_table);
       /* pass through symbols, duplicated pins: do not check with schematic */
       if(rects > unique_pins) continue;
       get_sch_from_sym(filename, xctx->sym + i, -1, 0);
+
+      /* is there a copy of schematic in undo buffers? */
+      {
+        char *undo_dirname = NULL;
+        int undo_found = 0;
+        undo_found = save_undo_table(rel_sym_path(filename), &undo_dirname, XLOOKUP);
+        if(undo_found) {
+          dbg(1, ("sym_vs_sch_pins(): Warning: %s in undo buffer\n", rel_sym_path(filename)));
+        }
+      }
+
       if(!stat(filename, &buf) && (fd = my_fopen(filename, fopen_read_mode))) {
         pin_cnt = 0;
         endfile = 0;
@@ -1894,12 +1906,10 @@ int sym_vs_sch_pins(int all)
             case 'V':
             case 'K':
             case 'G':
+            case 'F': /* spectre global attribute */
               load_ascii_string(&tmp, fd);
               break;
             case '#':
-              read_line(fd, 1);
-              break;
-            case 'F': /* extension for future symbol floater labels */
               read_line(fd, 1);
               break;
             case 'L':
