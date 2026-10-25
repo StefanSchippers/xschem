@@ -3356,7 +3356,7 @@ static void draw_graph_points(int idx, int first, int last,
      * clamp y-value of waves to be inside graph area. Not a clean solution
      * but avoids drawing outside of graph area when moving vertically on Windows
      * platform where is no XSetClipRectangles()
-     * waveform points outise graph are drawn as a line on top or bottom of graph
+     * waveform points outide graph are drawn as a line on top or bottom of graph
      * <<<<< FIXME: remove these points completely
      */
     if(digital) {
