@@ -1889,16 +1889,20 @@ int sym_vs_sch_pins(int all)
             fd = open_read_undo_file(undo_dirname, &pid);
           }
         } else if(xctx->undo_type == 1 && undo_found) {
-          /* FIXME getting schematic from memory undo buffer not handled yet... */
-          continue;
-        }
+          undo_save *ptr;
+          save_undo_table(rel_sym_path(filename), &ptr, XGET_SAVE_UNDO_PTR);
+          if(ptr->modified) {
+            dbg(1, ("sym_vs_sch_pins(): sch=%s\n  modified=%d\n", ptr->sch, ptr->modified));
+            /* FIXME getting (modified) schematic from memory undo buffer not handled yet... */
+            continue;
+          }
+        }  
       }
 
       if(fd || (!stat(filename, &buf) && (fd = my_fopen(filename, fopen_read_mode)))) {
         char name[PATH_MAX];
         char *pin_name=NULL;
         char *pin_dir=NULL;
-        char *type = NULL;
         char f_version[100];
         int endfile = 0;
         char *tmp = NULL;
@@ -1908,6 +1912,7 @@ int sym_vs_sch_pins(int all)
         pin_cnt = 0;
         f_version[0] = '\0';
         while(!endfile) {
+          char *sch_pin_type = NULL;
           if(fscanf(fd," %c",tag)==EOF) break;
           switch(tag[0]) {
             case 'v':
@@ -2006,8 +2011,8 @@ int sym_vs_sch_pins(int all)
               }
 
               symbol = match_symbol(name);
-              my_strdup(_ALLOC_ID_, &type, xctx->sym[symbol].type);
-              if(type && IS_PIN(type)) {
+              my_strdup(_ALLOC_ID_, &sch_pin_type, xctx->sym[symbol].type);
+              if(sch_pin_type && IS_PIN(sch_pin_type)) {
                 int pin_match = 0;
                 my_strdup(_ALLOC_ID_, &lab, get_tok_value(tmp, "lab", 0));
                 if(pin_cnt >= lab_array_size) {
@@ -2029,21 +2034,21 @@ int sym_vs_sch_pins(int all)
                       my_snprintf(str, S(str), "Error: Symbol %s: No direction given for pin %s",
                                 xctx->sym[i].name, lab);
                       statusmsg(str,2);
-                      my_snprintf(str, S(str), "    %s <--> ???", type);
+                      my_snprintf(str, S(str), "    %s <--> ???", sch_pin_type);
                       statusmsg(str,2);
                       err |= 1;
                     }
                     else if(!(
-                          ( !strcmp(type, "ipin") && !strcmp(pin_dir, "in") ) ||
-                          ( !strcmp(type, "opin") && !strcmp(pin_dir, "out") ) ||
-                          ( !strcmp(type, "iopin") && !strcmp(pin_dir, "inout") )
+                          ( !strcmp(sch_pin_type, "ipin") && !strcmp(pin_dir, "in") ) ||
+                          ( !strcmp(sch_pin_type, "opin") && !strcmp(pin_dir, "out") ) ||
+                          ( !strcmp(sch_pin_type, "iopin") && !strcmp(pin_dir, "inout") )
                         )
                       ) {
                       char str[2048];
                       my_snprintf(str, S(str), "Error: Symbol %s: Unmatched subcircuit schematic pin direction: %s",
                                   xctx->sym[i].name, lab);
                       statusmsg(str,2);
-                      my_snprintf(str, S(str), "    %s <--> %s", type, pin_dir);
+                      my_snprintf(str, S(str), "    %s <--> %s", sch_pin_type, pin_dir);
                       statusmsg(str,2);
                       err |= 1;
                       for(j = 0; j < xctx->instances; ++j) {
@@ -2090,6 +2095,7 @@ int sym_vs_sch_pins(int all)
             my_snprintf(f_version, S(f_version), "1.0");
             dbg(1, ("sym_vs_sch_pins(): no file_version, assuming file_version=%s\n", f_version));
           }
+          my_free(_ALLOC_ID_, &sch_pin_type);
         } /* while(!endfile) */
         if(xctx->undo_type == 0 && undo_found) close_undo_file(fd, pid);
         else fclose(fd);
@@ -2136,7 +2142,6 @@ int sym_vs_sch_pins(int all)
         my_free(_ALLOC_ID_, &pin_name);
         my_free(_ALLOC_ID_, &pin_dir);
         my_free(_ALLOC_ID_, &tmp);
-        my_free(_ALLOC_ID_, &type);
       } /* if(fd || (!stat(filename, &buf) && (fd = my_fopen(...)))) */
       if(lab_array_size) {
         int k;

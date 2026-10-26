@@ -324,6 +324,7 @@ extern char win_temp_dir[PATH_MAX];
 #define XASK_SAVE 7
 #define XREPLACE_WINPATH 8
 #define XDELETE_ALL_CURRENT_WIN 9 /* delete all entries belonging to current tab/window */
+#define XGET_SAVE_UNDO_PTR 10
 
 /* Cairo text flags (.flags field) */
 #define TEXT_BOLD 1
@@ -710,6 +711,17 @@ typedef struct
   xSymbol *symptr;
 } Undo_slot;
 
+typedef struct undo_save {
+  int head_undo_ptr;
+  int cur_undo_ptr;
+  int tail_undo_ptr;
+  int saved_cur_undo_ptr; /* copy of xctx->saved_cur_undo_ptr */
+  int modified;
+  char *undo_dirname; /* directory containing undo states */
+  Undo_slot *uslot; /* undo states when memory undo is used */
+  char *sch; /* full path of schematic */
+} undo_save;
+          
 typedef struct
 { /* used for symbols containing schematics as instances (LCC, Local Custom Cell) */
   double x0;

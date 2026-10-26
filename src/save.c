@@ -25,18 +25,6 @@
 #include <sys/wait.h>  /* waitpid */
 #endif
 
-typedef struct undo_save {
-  int head_undo_ptr;
-  int cur_undo_ptr;
-  int tail_undo_ptr;
-  int saved_cur_undo_ptr; /* copy of xctx->saved_cur_undo_ptr */
-  int modified;
-  char *undo_dirname; /* directory containing undo states */
-  Undo_slot *uslot; /* undo states when memory undo is used */
-  char *sch; /* full path of schematic */
-} undo_save;
-
-
 static void save_undo_freefunc(void **ptr)
 {
   int i;
@@ -128,7 +116,7 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
       undo_dir_hash.table[idx] = entry;
       entry = next;
     }
-  } else if((what == XLOOKUP || what == XGET) && winpath_sch) {
+  } else if((what == XLOOKUP || what == XGET || what == XGET_SAVE_UNDO_PTR) && winpath_sch) {
     if(undo_dir_hash.table) {
       Ptr_hashentry *entry;
       dbg(1, ("save_undo_table(): XLOOKUP|XGET, %s\n", winpath_sch));
@@ -138,7 +126,9 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
       if(entry ) {
         undo_save *undo_item = entry->value;
         dbg(1, ("  save_undo_table(): XLOOKUP|XGET found item\n"));
-        if(what == XLOOKUP) {
+        if(what == XGET_SAVE_UNDO_PTR) {
+          *(undo_save **)ptr = (undo_save *) entry->value;
+        } else if(what == XLOOKUP) {
           if(ptr) {
             if(xctx->undo_type == 0) my_strdup2(_ALLOC_ID_, ptr, undo_item->undo_dirname); /* disk */
             else                     *(Undo_slot **)ptr = undo_item->uslot; /* memory */
