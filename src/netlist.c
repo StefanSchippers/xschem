@@ -1833,12 +1833,12 @@ static int check_pins(int nsym, int sch_pin_cnt,
                       char **sch_pin_array, char **sch_pin_type_array)
 {
   int i, j, err = 0;
-  char *sym_pin_dir = NULL;
   int sym_pin_cnt = xctx->sym[nsym].rects[PINLAYER];
   for(i = 0; i < sch_pin_cnt; i++) {
+    char *sym_pin_dir = NULL;
+    char *sym_pin_name = NULL;
     int pin_match = 0;
     for(j=0; j < sym_pin_cnt; ++j) {
-      char *sym_pin_name = NULL;
       my_strdup(_ALLOC_ID_, &sym_pin_name,
         get_tok_value(xctx->sym[nsym].rect[PINLAYER][j].prop_ptr, "name", 0));
       my_strdup(_ALLOC_ID_, &sym_pin_dir,
@@ -1877,8 +1877,9 @@ static int check_pins(int nsym, int sch_pin_cnt,
         pin_match++;
         break;
       }
-      my_free(_ALLOC_ID_, &sym_pin_name);
     }
+    if(sym_pin_name) my_free(_ALLOC_ID_, &sym_pin_name);
+    if(sym_pin_dir) my_free(_ALLOC_ID_, &sym_pin_dir);
     if(!pin_match) {
       char str[2048];
       my_snprintf(str, S(str), "Error: Symbol %s: schematic pin: %s not in symbol",
