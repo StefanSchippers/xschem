@@ -1826,6 +1826,119 @@ int warning_overlapped_symbols(int sel)
   return err;
 }
 
+/* check congruence between xtx->sym[nsym] and corresponsing schematic.
+ * schematic pins and pin types must be provided in arrays
+ * sch_pin_array and sch_pin_type_array */
+static int check_pins(int nsym, int sch_pin_cnt,
+                      char **sch_pin_array, char **sch_pin_type_array)
+{
+  int i, j, err = 0;
+  char *sym_pin_dir = NULL;
+  int sym_pin_cnt = xctx->sym[nsym].rects[PINLAYER];
+  for(i = 0; i < sch_pin_cnt; i++) {
+    int pin_match = 0;
+    for(j=0; j < sym_pin_cnt; ++j) {
+      char *sym_pin_name = NULL;
+      my_strdup(_ALLOC_ID_, &sym_pin_name,
+        get_tok_value(xctx->sym[nsym].rect[PINLAYER][j].prop_ptr, "name", 0));
+      my_strdup(_ALLOC_ID_, &sym_pin_dir,
+        get_tok_value(xctx->sym[nsym].rect[PINLAYER][j].prop_ptr, "dir", 0));
+
+      if( sym_pin_name && !strcmp(sym_pin_name, sch_pin_array[i])) {
+        if(!sym_pin_dir) {
+          char str[2048];
+          my_snprintf(str, S(str), "Error: Symbol %s: No direction given for pin %s",
+                    xctx->sym[nsym].name, sch_pin_array[i]);
+          statusmsg(str,2);
+          my_snprintf(str, S(str), "    %s <--> ???", sch_pin_type_array[i]);
+          statusmsg(str,2);
+          err |= 1;
+        }
+        else if(!(
+              ( !strcmp(sch_pin_type_array[i], "ipin") && !strcmp(sym_pin_dir, "in") ) ||
+              ( !strcmp(sch_pin_type_array[i], "opin") && !strcmp(sym_pin_dir, "out") ) ||
+              ( !strcmp(sch_pin_type_array[i], "iopin") && !strcmp(sym_pin_dir, "inout") )
+            )
+          ) {
+          char str[2048];
+          my_snprintf(str, S(str), "Error: Symbol %s: Unmatched subcircuit schematic pin direction: %s",
+                      xctx->sym[nsym].name, sch_pin_array[i]);
+          statusmsg(str,2);
+          my_snprintf(str, S(str), "    %s <--> %s", sch_pin_type_array[i], sym_pin_dir);
+          statusmsg(str,2);
+          err |= 1;
+          for(j = 0; j < xctx->instances; ++j) {
+            if(!xctx->x_strcmp(get_sym_name(j, 9999, 1, 0), xctx->sym[nsym].name)) {
+              xctx->inst[j].color = -PINLAYER;
+              xctx->hilight_nets=1;
+            }
+          }
+        }
+        pin_match++;
+        break;
+      }
+      my_free(_ALLOC_ID_, &sym_pin_name);
+    }
+    if(!pin_match) {
+      char str[2048];
+      my_snprintf(str, S(str), "Error: Symbol %s: schematic pin: %s not in symbol",
+                  xctx->sym[nsym].name, sch_pin_array[i]);
+      statusmsg(str,2);
+      err |= 1;
+      for(j = 0; j < xctx->instances; ++j) {
+        dbg(1, ("inst.name=%s, sym.name=%s\n", tcl_hook2(xctx->inst[j].name), xctx->sym[nsym].name));
+        if(!xctx->x_strcmp(get_sym_name(j, 9999, 1, 0), xctx->sym[nsym].name)) {
+          xctx->inst[j].color = -PINLAYER;
+          xctx->hilight_nets=1;
+        }
+      }
+    }
+  }
+
+  if(sch_pin_cnt != sym_pin_cnt) {
+    char str[2048];
+    my_snprintf(str, S(str), "Error: Symbol %s has %d pins, its schematic has %d pins",
+                xctx->sym[nsym].name, sym_pin_cnt, sch_pin_cnt);
+    statusmsg(str,2);
+    err |= 1;
+    for(j = 0; j < xctx->instances; ++j) {
+      if(!xctx->x_strcmp(get_sym_name(j, 9999, 1, 0), xctx->sym[nsym].name)) {
+        xctx->inst[j].color = -PINLAYER;
+        xctx->hilight_nets=1;
+      }
+    }
+  }
+  for(j=0; j < sym_pin_cnt; ++j) {
+    int k;
+    int pin_match = 0;
+    char *sym_pin_name = NULL;
+    my_strdup(_ALLOC_ID_, &sym_pin_name,
+       get_tok_value(xctx->sym[nsym].rect[PINLAYER][j].prop_ptr, "name", 0));
+    for(k=0; k<sch_pin_cnt; ++k) {
+      if(sym_pin_name && !strcmp(sch_pin_array[k], sym_pin_name)) {
+        pin_match++;
+        break;
+      }
+    }
+    if(!pin_match) {
+      char str[2048];
+      int k;
+      my_snprintf(str, S(str), "Error: Symbol %s: symbol pin: %s not in schematic",
+                  xctx->sym[nsym].name, sym_pin_name ? sym_pin_name : "<NULL>");
+      statusmsg(str,2);
+      err |= 1;
+      for(k = 0; k < xctx->instances; ++k) {
+        if(!xctx->x_strcmp(get_sym_name(k, 9999, 1, 0), xctx->sym[nsym].name)) {
+          xctx->inst[k].color = -PINLAYER;
+          xctx->hilight_nets=1;
+        }
+      }
+    }
+    my_free(_ALLOC_ID_, &sym_pin_name);
+  }
+  return err;
+}
+
 /* all: -1: check all symbols, otherwise check only indicated symbol
  * if invoked with non negatve all parameter, caller should load symbol if needed
  * and remove (if needed) afterwards
@@ -1834,9 +1947,6 @@ int sym_vs_sch_pins(int all)
 {
   int err = 0;
   int i;
-  struct stat buf;
-  char *lab=NULL;
-  char tag[1];
   int start = 0;
   int end = xctx->symbols;
   int n_syms = xctx->symbols;
@@ -1846,32 +1956,35 @@ int sym_vs_sch_pins(int all)
   }
   for(i = start; i < end; ++i)
   {
+    int sym_pin_cnt = xctx->sym[i].rects[PINLAYER];
     int undo_found = 0;
     FILE *fd = NULL;
     pid_t pid;
     if( xctx->sym[i].type && !strcmp(xctx->sym[i].type,"subcircuit")) {
+      struct stat buf;
       char filename[PATH_MAX];
-      int j, pin_cnt;
-      char **lab_array =NULL;
-      int lab_array_size = 0;
-      int rects = xctx->sym[i].rects[PINLAYER];
+      int j;
       /* Determine if symbol has pass-through pins (pins with identical name)
        * if any is found do not check with schematic */
       Int_hashtable pin_table = {NULL, 0};
       int p;
       int unique_pins = 0;
       int_hash_init(&pin_table, 367);
-      for(p = 0; p < rects; p++) {
+      for(p = 0; p < sym_pin_cnt; p++) {
         const char *pname = get_tok_value(xctx->sym[i].rect[PINLAYER][p].prop_ptr, "name", 0);
         if(!int_hash_lookup(&pin_table, pname, i, XINSERT_NOREPLACE)) {
           unique_pins++;
         }
       }
-      dbg(1, ("%s: rects=%d, unique_pins=%d\n", xctx->sym[i].name, rects, unique_pins));
+      dbg(1, ("%s: sym_pin_cnt=%d, unique_pins=%d\n", xctx->sym[i].name, sym_pin_cnt, unique_pins));
 
       int_hash_free(&pin_table);
       /* pass through symbols, duplicated pins: do not check with schematic */
-      if(rects > unique_pins) continue;
+      if(sym_pin_cnt > unique_pins) {
+        dbg(1, ("sym_vs_sch_pins(): Warning: %s has pass-through pins: do not check with schematic\n",
+                xctx->sym[i].name)); 
+        continue;
+      }
       get_sch_from_sym(filename, xctx->sym + i, -1, 0);
 
       /* is there a copy of schematic in undo buffers? */
@@ -1892,7 +2005,6 @@ int sym_vs_sch_pins(int all)
           undo_save *ptr;
           save_undo_table(rel_sym_path(filename), &ptr, XGET_SAVE_UNDO_PTR);
           if(ptr->modified) {
-            dbg(1, ("sym_vs_sch_pins(): sch=%s\n  modified=%d\n", ptr->sch, ptr->modified));
             /* FIXME getting (modified) schematic from memory undo buffer not handled yet... */
             continue;
           }
@@ -1900,18 +2012,19 @@ int sym_vs_sch_pins(int all)
       }
 
       if(fd || (!stat(filename, &buf) && (fd = my_fopen(filename, fopen_read_mode)))) {
+        char **sch_pin_array = NULL, **sch_pin_type_array = NULL;
+        int sch_pin_array_size = 0;
         char name[PATH_MAX];
-        char *pin_name=NULL;
-        char *pin_dir=NULL;
         char f_version[100];
         int endfile = 0;
         char *tmp = NULL;
         double tmpd;
         int symbol, tmpi;
         short tmps;
-        pin_cnt = 0;
+        int sch_pin_cnt = 0;
         f_version[0] = '\0';
         while(!endfile) {
+          char tag[1];
           char *sch_pin_type = NULL;
           if(fscanf(fd," %c",tag)==EOF) break;
           switch(tag[0]) {
@@ -2013,70 +2126,21 @@ int sym_vs_sch_pins(int all)
               symbol = match_symbol(name);
               my_strdup(_ALLOC_ID_, &sch_pin_type, xctx->sym[symbol].type);
               if(sch_pin_type && IS_PIN(sch_pin_type)) {
-                int pin_match = 0;
-                my_strdup(_ALLOC_ID_, &lab, get_tok_value(tmp, "lab", 0));
-                if(pin_cnt >= lab_array_size) {
-                  lab_array_size += CADCHUNKALLOC;
-                  my_realloc(_ALLOC_ID_, &lab_array, lab_array_size * sizeof(char *));
+                char *sch_pin_name = NULL;
+                my_strdup(_ALLOC_ID_, &sch_pin_name, get_tok_value(tmp, "lab", 0));
+                if(sch_pin_cnt >= sch_pin_array_size) {
+                  sch_pin_array_size += CADCHUNKALLOC;
+                  my_realloc(_ALLOC_ID_, &sch_pin_array, sch_pin_array_size * sizeof(char *));
+                  my_realloc(_ALLOC_ID_, &sch_pin_type_array, sch_pin_array_size * sizeof(char *));
                 }
-                lab_array[pin_cnt] = NULL;
-                my_strdup(_ALLOC_ID_, &(lab_array[pin_cnt]), lab);
-                pin_cnt++;
-                for(j=0; j < rects; ++j) {
-                  my_strdup(_ALLOC_ID_, &pin_name,
-                    get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0));
-                  my_strdup(_ALLOC_ID_, &pin_dir,
-                    get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "dir", 0));
-
-                  if( pin_name && !strcmp(pin_name, lab)) {
-                    if(!pin_dir) {
-                      char str[2048];
-                      my_snprintf(str, S(str), "Error: Symbol %s: No direction given for pin %s",
-                                xctx->sym[i].name, lab);
-                      statusmsg(str,2);
-                      my_snprintf(str, S(str), "    %s <--> ???", sch_pin_type);
-                      statusmsg(str,2);
-                      err |= 1;
-                    }
-                    else if(!(
-                          ( !strcmp(sch_pin_type, "ipin") && !strcmp(pin_dir, "in") ) ||
-                          ( !strcmp(sch_pin_type, "opin") && !strcmp(pin_dir, "out") ) ||
-                          ( !strcmp(sch_pin_type, "iopin") && !strcmp(pin_dir, "inout") )
-                        )
-                      ) {
-                      char str[2048];
-                      my_snprintf(str, S(str), "Error: Symbol %s: Unmatched subcircuit schematic pin direction: %s",
-                                  xctx->sym[i].name, lab);
-                      statusmsg(str,2);
-                      my_snprintf(str, S(str), "    %s <--> %s", sch_pin_type, pin_dir);
-                      statusmsg(str,2);
-                      err |= 1;
-                      for(j = 0; j < xctx->instances; ++j) {
-                        if(!xctx->x_strcmp(get_sym_name(j, 9999, 1, 0), xctx->sym[i].name)) {
-                          xctx->inst[j].color = -PINLAYER;
-                          xctx->hilight_nets=1;
-                        }
-                      }
-                    }
-                    pin_match++;
-                    break;
-                  }
-                }
-                if(!pin_match) {
-                  char str[2048];
-                  my_snprintf(str, S(str), "Error: Symbol %s: schematic pin: %s not in symbol",
-                              xctx->sym[i].name, lab);
-                  statusmsg(str,2);
-                  err |= 1;
-                  for(j = 0; j < xctx->instances; ++j) {
-                    dbg(1, ("inst.name=%s, sym.name=%s\n", tcl_hook2(xctx->inst[j].name), xctx->sym[i].name));
-                    if(!xctx->x_strcmp(get_sym_name(j, 9999, 1, 0), xctx->sym[i].name)) {
-                      xctx->inst[j].color = -PINLAYER;
-                      xctx->hilight_nets=1;
-                    }
-                  }
-                }
+                sch_pin_array[sch_pin_cnt] = NULL;
+                sch_pin_type_array[sch_pin_cnt] = NULL;
+                my_strdup(_ALLOC_ID_, &(sch_pin_array[sch_pin_cnt]), sch_pin_name);
+                my_strdup(_ALLOC_ID_, &(sch_pin_type_array[sch_pin_cnt]), sch_pin_type);
+                sch_pin_cnt++;
+                my_free(_ALLOC_ID_, &sch_pin_name);
               }
+              my_free(_ALLOC_ID_, &sch_pin_type);
               break;
             case '[':
               load_sym_def(name, fd);
@@ -2095,68 +2159,30 @@ int sym_vs_sch_pins(int all)
             my_snprintf(f_version, S(f_version), "1.0");
             dbg(1, ("sym_vs_sch_pins(): no file_version, assuming file_version=%s\n", f_version));
           }
-          my_free(_ALLOC_ID_, &sch_pin_type);
         } /* while(!endfile) */
         if(xctx->undo_type == 0 && undo_found) close_undo_file(fd, pid);
         else fclose(fd);
-        if(pin_cnt != rects) {
-          int j;
-          char str[2048];
-          my_snprintf(str, S(str), "Error: Symbol %s has %d pins, its schematic has %d pins",
-                      xctx->sym[i].name, rects, pin_cnt);
-          statusmsg(str,2);
-          err |= 1;
-          for(j = 0; j < xctx->instances; ++j) {
-            if(!xctx->x_strcmp(get_sym_name(j, 9999, 1, 0), xctx->sym[i].name)) {
-              xctx->inst[j].color = -PINLAYER;
-              xctx->hilight_nets=1;
-            }
-          }
-        }
-        for(j=0; j < rects; ++j) {
-          int k;
-          int pin_match = 0;
-          my_strdup(_ALLOC_ID_, &pin_name,
-             get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0));
-          for(k=0; k<pin_cnt; ++k) {
-            if(pin_name && !strcmp(lab_array[k], pin_name)) {
-              pin_match++;
-              break;
-            }
-          }
-          if(!pin_match) {
-            char str[2048];
-            int k;
-            my_snprintf(str, S(str), "Error: Symbol %s: symbol pin: %s not in schematic",
-                        xctx->sym[i].name, pin_name ? pin_name : "<NULL>");
-            statusmsg(str,2);
-            err |= 1;
-            for(k = 0; k < xctx->instances; ++k) {
-              if(!xctx->x_strcmp(get_sym_name(k, 9999, 1, 0), xctx->sym[i].name)) {
-                xctx->inst[k].color = -PINLAYER;
-                xctx->hilight_nets=1;
-              }
-            }
-          }
-        }
-        my_free(_ALLOC_ID_, &pin_name);
-        my_free(_ALLOC_ID_, &pin_dir);
+
+        err |= check_pins(i, sch_pin_cnt, sch_pin_array, sch_pin_type_array);
+
         my_free(_ALLOC_ID_, &tmp);
-      } /* if(fd || (!stat(filename, &buf) && (fd = my_fopen(...)))) */
-      if(lab_array_size) {
-        int k;
-        for(k=0;k<pin_cnt; ++k) {
-          my_free(_ALLOC_ID_, &(lab_array[k]));
+
+        if(sch_pin_array_size) {
+          int k;
+          for(k=0;k<sch_pin_cnt; ++k) {
+            my_free(_ALLOC_ID_, &(sch_pin_array[k]));
+            my_free(_ALLOC_ID_, &(sch_pin_type_array[k]));
+          }
+          my_free(_ALLOC_ID_, &sch_pin_array);
+          my_free(_ALLOC_ID_, &sch_pin_type_array);
+          sch_pin_array_size = 0;
+          sch_pin_cnt=0;
         }
-        my_free(_ALLOC_ID_, &lab_array);
-        lab_array_size = 0;
-        pin_cnt=0;
-      }
+      } /* if(fd || (!stat(filename, &buf) && (fd = my_fopen(...)))) */
     } /* if( ... "subcircuit"... ) */
-    my_free(_ALLOC_ID_, &lab);
   } /* for(i=0;i<n_syms; ++i) */
 
-  /* remove symbols loaded by this function if all == -1 */
+  /* remove symbols loaded by this function if all == -1. See comment at beginning of function */
   if(all == -1) while(xctx->symbols > n_syms) remove_symbol(xctx->symbols - 1, 1);
   return err;
 }
