@@ -1893,7 +1893,7 @@ static int check_pins(int nsym, int sch_pin_cnt,
         }
       }
     }
-  }
+  } /* for(i = 0; i < sch_pin_cnt; i++) */
 
   if(sch_pin_cnt != sym_pin_cnt) {
     char str[2048];
@@ -1961,6 +1961,9 @@ int sym_vs_sch_pins(int all)
     FILE *fd = NULL;
     pid_t pid;
     if( xctx->sym[i].type && !strcmp(xctx->sym[i].type,"subcircuit")) {
+      char **sch_pin_array = NULL, **sch_pin_type_array = NULL;
+      int sch_pin_array_size = 0, sch_pin_cnt = 0;
+      undo_save *memory_undo_ptr = NULL;
       struct stat buf;
       char filename[PATH_MAX];
       int j;
@@ -1969,6 +1972,7 @@ int sym_vs_sch_pins(int all)
       Int_hashtable pin_table = {NULL, 0};
       int p;
       int unique_pins = 0;
+
       int_hash_init(&pin_table, 367);
       for(p = 0; p < sym_pin_cnt; p++) {
         const char *pname = get_tok_value(xctx->sym[i].rect[PINLAYER][p].prop_ptr, "name", 0);
@@ -2002,183 +2006,214 @@ int sym_vs_sch_pins(int all)
             fd = open_read_undo_file(undo_dirname, &pid);
           }
         } else if(xctx->undo_type == 1 && undo_found) {
-          undo_save *ptr;
-          save_undo_table(rel_sym_path(filename), &ptr, XGET_SAVE_UNDO_PTR);
-          if(ptr->modified) {
-            /* FIXME getting (modified) schematic from memory undo buffer not handled yet... */
-            continue;
+          save_undo_table(rel_sym_path(filename), &memory_undo_ptr, XGET_SAVE_UNDO_PTR);
+          if(!memory_undo_ptr->modified) {
+            memory_undo_ptr = NULL; /* read from file */
           }
         }  
       }
 
-      if(fd || (!stat(filename, &buf) && (fd = my_fopen(filename, fopen_read_mode)))) {
-        char **sch_pin_array = NULL, **sch_pin_type_array = NULL;
-        int sch_pin_array_size = 0;
-        char name[PATH_MAX];
-        char f_version[100];
-        int endfile = 0;
-        char *tmp = NULL;
-        double tmpd;
-        int symbol, tmpi;
-        short tmps;
-        int sch_pin_cnt = 0;
-        f_version[0] = '\0';
-        while(!endfile) {
-          char tag[1];
-          char *sch_pin_type = NULL;
-          if(fscanf(fd," %c",tag)==EOF) break;
-          switch(tag[0]) {
-            case 'v':
-             load_ascii_string(&tmp, fd);
-             my_snprintf(f_version, S(f_version), "%s",
-                         get_tok_value(tmp, "file_version", 0));
-            break;
-
-            case 'E':
-            case 'S':
-            case 'V':
-            case 'K':
-            case 'G':
-            case 'F': /* spectre global attribute */
-              load_ascii_string(&tmp, fd);
-              break;
-            case '#':
-              read_line(fd, 1);
-              break;
-            case 'L':
-            case 'B':
-              if(fscanf(fd, "%d",&tmpi)< 1) {
-                 info("sym_vs_sch_pins(): WARNING:  missing fields for LINE/BOX object, ignoring\n");
-                 read_line(fd, 0);
-                 break;
-              }
-            case 'N':
-              if(fscanf(fd, "%lf %lf %lf %lf ",&tmpd, &tmpd, &tmpd, &tmpd) < 4) {
-                 info("sym_vs_sch_pins(): WARNING:  missing fields for LINE/BOX object, ignoring\n");
-                 read_line(fd, 0);
-                 break;
-              }
-              load_ascii_string(&tmp, fd);
-              break;
-            case 'P':
-              if(fscanf(fd, "%d %d",&tmpi, &tmpi)<2) {
-                info("sym_vs_sch_pins(): WARNING: missing fields for POLYGON object, ignoring.\n");
-                read_line(fd, 0);
-                break;
-              }
-              for(j=0;j<tmpi; ++j) {
-                if(fscanf(fd, "%lf %lf ",&tmpd, &tmpd)<2) {
-                  info("sym_vs_sch_pins(): WARNING: missing fields for POLYGON points, ignoring.\n");
-                  read_line(fd, 0);
-                }
-              }
-              load_ascii_string( &tmp, fd);
-              break;
-            case 'A':
-              if(fscanf(fd, "%d",&tmpi)< 1) {
-                 info("sym_vs_sch_pins(): WARNING:  missing fields for ARC object, ignoring\n");
-                 read_line(fd, 0);
-                 break;
-              }
-              if(fscanf(fd, "%lf %lf %lf %lf %lf ",&tmpd, &tmpd, &tmpd, &tmpd, &tmpd) < 5) {
-                info("sym_vs_sch_pins(): WARNING:  missing fields for ARC object, ignoring\n");
-                read_line(fd, 0);
-                break;
-              }
-              load_ascii_string(&tmp, fd);
-              break;
-            case 'T':
-              load_ascii_string(&tmp,fd);
-              if(fscanf(fd, "%lf %lf %hd %hd %lf %lf ", &tmpd, &tmpd, &tmps, &tmps, &tmpd, &tmpd) < 6 ) {
-                info("sym_vs_sch_pins(): WARNING:  missing fields for TEXT object, ignoring\n");
-                read_line(fd, 0);
-                break;
-              }
-              load_ascii_string(&tmp,fd);
-              break;
-            case 'C':
-              load_ascii_string(&tmp, fd);
-              /* my_strncpy(name, tmp, S(name)); */
-              my_strncpy(name, tcl_hook2(tmp), S(name));
-
-              if(!strcmp(f_version,"1.0") ) {
-                dbg(1, ("sym_vs_sch_pins(): add_ext(name,\".sym\") = %s\n", add_ext(name, ".sym") ));
-                my_strncpy(name, add_ext(name, ".sym"), S(name));
-              }
-
-              if(fscanf(fd, "%lf %lf %hd %hd", &tmpd, &tmpd, &tmps, &tmps) < 4) {
-                info("sym_vs_sch_pins() WARNING: missing fields for INST object, filename=%s\n",
-                  filename);
-                read_line(fd, 0);
-                break;
-              }
-              load_ascii_string(&tmp,fd);
-
-              /* generators or names with @ characters in general need translate() to process
-               * arguments. This can not be done in this context (the current schematic we are looking
-               * into is not loaded), so skip test */
-              if( strpbrk(name, "@%")) {
-                dbg(1, ("sym_vs_sch_pins(): symbol reference %s skipped (need to translate() tokens)\n",
-                   name));
-                break;
-              }
-
-              symbol = match_symbol(name);
-              my_strdup(_ALLOC_ID_, &sch_pin_type, xctx->sym[symbol].type);
-              if(sch_pin_type && IS_PIN(sch_pin_type)) {
-                char *sch_pin_name = NULL;
-                my_strdup(_ALLOC_ID_, &sch_pin_name, get_tok_value(tmp, "lab", 0));
-                if(sch_pin_cnt >= sch_pin_array_size) {
-                  sch_pin_array_size += CADCHUNKALLOC;
-                  my_realloc(_ALLOC_ID_, &sch_pin_array, sch_pin_array_size * sizeof(char *));
-                  my_realloc(_ALLOC_ID_, &sch_pin_type_array, sch_pin_array_size * sizeof(char *));
-                }
-                sch_pin_array[sch_pin_cnt] = NULL;
-                sch_pin_type_array[sch_pin_cnt] = NULL;
-                my_strdup(_ALLOC_ID_, &(sch_pin_array[sch_pin_cnt]), sch_pin_name);
-                my_strdup(_ALLOC_ID_, &(sch_pin_type_array[sch_pin_cnt]), sch_pin_type);
-                sch_pin_cnt++;
-                my_free(_ALLOC_ID_, &sch_pin_name);
-              }
-              my_free(_ALLOC_ID_, &sch_pin_type);
-              break;
-            case '[':
-              load_sym_def(name, fd);
-              break;
-            case ']':
-              read_line(fd, 0);
-              endfile=1;
-              break;
-            default:
-              if( tag[0] == '{' ) ungetc(tag[0], fd);
-              read_record(tag[0], fd, 0);
-              break;
+      if(memory_undo_ptr) { /* get schematic pin list from memory undo slot */
+        int j;
+        int instances = memory_undo_ptr->uslot[0].instances;
+        xInstance *inst = memory_undo_ptr->uslot[0].iptr;
+        xSymbol *sym = memory_undo_ptr->uslot[0].symptr;
+        char *sch_pin_type = NULL;
+        /*
+         * need to assign sch_pin_array, sch_pin_type_array, sch_pin_array_size, sch_pin_cnt,
+         * reading sch data from memory_undo_ptr->uslot[0]
+         * then call: err |= check_pins(i, sch_pin_cnt, sch_pin_array, sch_pin_type_array);
+         */
+        for(j = 0; j < instances; j++) {
+          dbg(1, ("inst %d: %s ( %s)\n", j, inst[j].instname, inst[j].name));
+          dbg(1, ("  sym type: %s\n", sym[inst[j].ptr].type));
+          my_strdup(_ALLOC_ID_, &sch_pin_type, sym[inst[j].ptr].type);
+          if(sch_pin_type && IS_PIN(sch_pin_type)) {
+            char *sch_pin_name = NULL;
+            my_strdup(_ALLOC_ID_, &sch_pin_name, inst[j].lab);
+            if(sch_pin_cnt >= sch_pin_array_size) {
+              sch_pin_array_size += CADCHUNKALLOC;
+              my_realloc(_ALLOC_ID_, &sch_pin_array, sch_pin_array_size * sizeof(char *));
+              my_realloc(_ALLOC_ID_, &sch_pin_type_array, sch_pin_array_size * sizeof(char *));
+            }
+            sch_pin_array[sch_pin_cnt] = NULL;
+            sch_pin_type_array[sch_pin_cnt] = NULL;
+            my_strdup(_ALLOC_ID_, &(sch_pin_array[sch_pin_cnt]), sch_pin_name);
+            my_strdup(_ALLOC_ID_, &(sch_pin_type_array[sch_pin_cnt]), sch_pin_type);
+            sch_pin_cnt++;
+            my_free(_ALLOC_ID_, &sch_pin_name);
           }
-          read_line(fd, 0); /* discard any remaining characters till (but not including) newline */
-          if(!f_version[0]) {
-            my_snprintf(f_version, S(f_version), "1.0");
-            dbg(1, ("sym_vs_sch_pins(): no file_version, assuming file_version=%s\n", f_version));
-          }
-        } /* while(!endfile) */
-        if(xctx->undo_type == 0 && undo_found) close_undo_file(fd, pid);
-        else fclose(fd);
-
-        err |= check_pins(i, sch_pin_cnt, sch_pin_array, sch_pin_type_array);
-
-        my_free(_ALLOC_ID_, &tmp);
-
-        if(sch_pin_array_size) {
-          int k;
-          for(k=0;k<sch_pin_cnt; ++k) {
-            my_free(_ALLOC_ID_, &(sch_pin_array[k]));
-            my_free(_ALLOC_ID_, &(sch_pin_type_array[k]));
-          }
-          my_free(_ALLOC_ID_, &sch_pin_array);
-          my_free(_ALLOC_ID_, &sch_pin_type_array);
-          sch_pin_array_size = 0;
-          sch_pin_cnt=0;
+          my_free(_ALLOC_ID_, &sch_pin_type);
         }
-      } /* if(fd || (!stat(filename, &buf) && (fd = my_fopen(...)))) */
+        err |= check_pins(i, sch_pin_cnt, sch_pin_array, sch_pin_type_array);
+      } else { /* get schematic pin list reading the schematic file (or disk undo file) */
+        if(fd || (!stat(filename, &buf) && (fd = my_fopen(filename, fopen_read_mode)))) {
+          char name[PATH_MAX];
+          char f_version[100];
+          int endfile = 0;
+          char *tmp = NULL;
+          double tmpd;
+          int symbol, tmpi;
+          short tmps;
+          f_version[0] = '\0';
+          while(!endfile) {
+            char tag[1];
+            char *sch_pin_type = NULL;
+            if(fscanf(fd," %c",tag)==EOF) break;
+            switch(tag[0]) {
+              case 'v':
+               load_ascii_string(&tmp, fd);
+               my_snprintf(f_version, S(f_version), "%s",
+                           get_tok_value(tmp, "file_version", 0));
+              break;
+  
+              case 'E':
+              case 'S':
+              case 'V':
+              case 'K':
+              case 'G':
+              case 'F': /* spectre global attribute */
+                load_ascii_string(&tmp, fd);
+                break;
+              case '#':
+                read_line(fd, 1);
+                break;
+              case 'L':
+              case 'B':
+                if(fscanf(fd, "%d",&tmpi)< 1) {
+                   info("sym_vs_sch_pins(): WARNING:  missing fields for LINE/BOX object, ignoring\n");
+                   read_line(fd, 0);
+                   break;
+                }
+              case 'N':
+                if(fscanf(fd, "%lf %lf %lf %lf ",&tmpd, &tmpd, &tmpd, &tmpd) < 4) {
+                   info("sym_vs_sch_pins(): WARNING:  missing fields for LINE/BOX object, ignoring\n");
+                   read_line(fd, 0);
+                   break;
+                }
+                load_ascii_string(&tmp, fd);
+                break;
+              case 'P':
+                if(fscanf(fd, "%d %d",&tmpi, &tmpi)<2) {
+                  info("sym_vs_sch_pins(): WARNING: missing fields for POLYGON object, ignoring.\n");
+                  read_line(fd, 0);
+                  break;
+                }
+                for(j=0;j<tmpi; ++j) {
+                  if(fscanf(fd, "%lf %lf ",&tmpd, &tmpd)<2) {
+                    info("sym_vs_sch_pins(): WARNING: missing fields for POLYGON points, ignoring.\n");
+                    read_line(fd, 0);
+                  }
+                }
+                load_ascii_string( &tmp, fd);
+                break;
+              case 'A':
+                if(fscanf(fd, "%d",&tmpi)< 1) {
+                   info("sym_vs_sch_pins(): WARNING:  missing fields for ARC object, ignoring\n");
+                   read_line(fd, 0);
+                   break;
+                }
+                if(fscanf(fd, "%lf %lf %lf %lf %lf ",&tmpd, &tmpd, &tmpd, &tmpd, &tmpd) < 5) {
+                  info("sym_vs_sch_pins(): WARNING:  missing fields for ARC object, ignoring\n");
+                  read_line(fd, 0);
+                  break;
+                }
+                load_ascii_string(&tmp, fd);
+                break;
+              case 'T':
+                load_ascii_string(&tmp,fd);
+                if(fscanf(fd, "%lf %lf %hd %hd %lf %lf ", &tmpd, &tmpd, &tmps, &tmps, &tmpd, &tmpd) < 6 ) {
+                  info("sym_vs_sch_pins(): WARNING:  missing fields for TEXT object, ignoring\n");
+                  read_line(fd, 0);
+                  break;
+                }
+                load_ascii_string(&tmp,fd);
+                break;
+              case 'C':
+                load_ascii_string(&tmp, fd);
+                /* my_strncpy(name, tmp, S(name)); */
+                my_strncpy(name, tcl_hook2(tmp), S(name));
+  
+                if(!strcmp(f_version,"1.0") ) {
+                  dbg(1, ("sym_vs_sch_pins(): add_ext(name,\".sym\") = %s\n", add_ext(name, ".sym") ));
+                  my_strncpy(name, add_ext(name, ".sym"), S(name));
+                }
+  
+                if(fscanf(fd, "%lf %lf %hd %hd", &tmpd, &tmpd, &tmps, &tmps) < 4) {
+                  info("sym_vs_sch_pins() WARNING: missing fields for INST object, filename=%s\n",
+                    filename);
+                  read_line(fd, 0);
+                  break;
+                }
+                load_ascii_string(&tmp,fd);
+  
+                /* generators or names with @ characters in general need translate() to process
+                 * arguments. This can not be done in this context (the current schematic we are looking
+                 * into is not loaded), so skip test */
+                if( strpbrk(name, "@%")) {
+                  dbg(1, ("sym_vs_sch_pins(): symbol reference %s skipped (need to translate() tokens)\n",
+                     name));
+                  break;
+                }
+  
+                symbol = match_symbol(name);
+                my_strdup(_ALLOC_ID_, &sch_pin_type, xctx->sym[symbol].type);
+                if(sch_pin_type && IS_PIN(sch_pin_type)) {
+                  char *sch_pin_name = NULL;
+                  my_strdup(_ALLOC_ID_, &sch_pin_name, get_tok_value(tmp, "lab", 0));
+                  if(sch_pin_cnt >= sch_pin_array_size) {
+                    sch_pin_array_size += CADCHUNKALLOC;
+                    my_realloc(_ALLOC_ID_, &sch_pin_array, sch_pin_array_size * sizeof(char *));
+                    my_realloc(_ALLOC_ID_, &sch_pin_type_array, sch_pin_array_size * sizeof(char *));
+                  }
+                  sch_pin_array[sch_pin_cnt] = NULL;
+                  sch_pin_type_array[sch_pin_cnt] = NULL;
+                  my_strdup(_ALLOC_ID_, &(sch_pin_array[sch_pin_cnt]), sch_pin_name);
+                  my_strdup(_ALLOC_ID_, &(sch_pin_type_array[sch_pin_cnt]), sch_pin_type);
+                  sch_pin_cnt++;
+                  my_free(_ALLOC_ID_, &sch_pin_name);
+                }
+                my_free(_ALLOC_ID_, &sch_pin_type);
+                break;
+              case '[':
+                load_sym_def(name, fd);
+                break;
+              case ']':
+                read_line(fd, 0);
+                endfile=1;
+                break;
+              default:
+                if( tag[0] == '{' ) ungetc(tag[0], fd);
+                read_record(tag[0], fd, 0);
+                break;
+            }
+            read_line(fd, 0); /* discard any remaining characters till (but not including) newline */
+            if(!f_version[0]) {
+              my_snprintf(f_version, S(f_version), "1.0");
+              dbg(1, ("sym_vs_sch_pins(): no file_version, assuming file_version=%s\n", f_version));
+            }
+          } /* while(!endfile) */
+          if(xctx->undo_type == 0 && undo_found) close_undo_file(fd, pid);
+          else fclose(fd);
+  
+          err |= check_pins(i, sch_pin_cnt, sch_pin_array, sch_pin_type_array);
+
+          my_free(_ALLOC_ID_, &tmp);
+        } /* if(fd || (!stat(filename, &buf) && (fd = my_fopen(...)))) */
+      } /* get_from_memory_undo == 0 */
+
+      if(sch_pin_array_size) {
+        int k;
+        for(k=0;k<sch_pin_cnt; ++k) {
+          my_free(_ALLOC_ID_, &(sch_pin_array[k]));
+          my_free(_ALLOC_ID_, &(sch_pin_type_array[k]));
+        }
+        my_free(_ALLOC_ID_, &sch_pin_array);
+        my_free(_ALLOC_ID_, &sch_pin_type_array);
+        sch_pin_array_size = 0;
+        sch_pin_cnt=0;
+      }
+
     } /* if( ... "subcircuit"... ) */
   } /* for(i=0;i<n_syms; ++i) */
 
