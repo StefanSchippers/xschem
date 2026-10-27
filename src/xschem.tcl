@@ -7368,7 +7368,7 @@ proc ask_save_optional { {ask {Save file?}} {cancel 1}} {
   }
 }
 
-proc ask_save { {ask {save file?}} {cancel 1}} {
+proc ask_save { {ask {Save file?}} {cancel 1}} {
   global wm_fix
   set tctx::rcode {}
   if { [winfo exists .dialog] } return

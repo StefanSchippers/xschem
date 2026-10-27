@@ -235,19 +235,20 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
       }
     }
     res = 1;
-  } else if(what == XASK_SAVE || what ==XDELETE_ALL_CURRENT_WIN) {
+  } else if(what == XASK_SAVE || what == XDELETE_ALL_CURRENT_WIN) {
       if(undo_dir_hash.table) {
       int i;
       Ptr_hashentry *entry, *tmp;
       undo_save *undo_item;
       Xschem_ctx **save_xctx;
 
+      res = 1;
       dbg(1, ("save_undo_table(): XASK_SAVE\n"));
       save_xctx = get_save_xctx();
-      for(i = 0; i < undo_dir_hash.size; ++i)
+      for(i = 0; res == 1 && i < undo_dir_hash.size; ++i)
       {
         entry = undo_dir_hash.table[i];
-        while( entry ) {
+        while( res == 1 && entry ) {
           int j, found;
           undo_item = entry->value;
           /* skip hierarchy schematics of other tabs/window */
@@ -262,7 +263,7 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
              * is already handled. Skip here */
             for(j = 0; j < MAX_NEW_WINDOWS; ++j) {
               char *wp = NULL; /*window path, like .drw, .x1.drw etc */
-              char *wp_sch = NULL; /* window path followed by _ and schematic name */
+              char *wp_sch = NULL; /* window path followed by / and schematic name */
               Xschem_ctx * ctx;
               ctx = save_xctx[j];
               /* if only one schematic it is not yet saved in save_xctx */
@@ -297,7 +298,7 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
 
               if(has_x) {
                 char *cmd = NULL;
-                my_mstrcat(_ALLOC_ID_, &cmd, "ask_save {Save schematic: ", entry->token, " ?} 0", NULL);
+                my_mstrcat(_ALLOC_ID_, &cmd, "ask_save {Save schematic: ", entry->token, " ?} 1", NULL);
                 tcleval(cmd);
                 my_free(_ALLOC_ID_, &cmd);
                 if(!strcmp(tclresult(), "yes") ) {
@@ -323,19 +324,23 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
 
                   delete_schematic_data(0);
                   xctx = xctx_save;
+                } else if(!strcmp(tclresult(), "") ) { /* Cancel */
+                  res = 0;
                 }
               }
             }
           } /* if(undo_item->cur_undo_ptr != undo_item->saved_cur_undo_ptr) */
 
           tmp = entry->next;
-          /* delete entries, already used no more necessary */
-          dbg(1, ("save_undo_table(..., XASK_SAVE): deleting %s\n", entry->token));
-          save_undo_freefunc((void **)&entry->value);
-          ptr_hash_lookup(&undo_dir_hash, entry->token, NULL, XDELETE);
-          xctx->uslot = NULL;
-          my_free(_ALLOC_ID_, &xctx->undo_dirname);
-          xctx->undo_initialized = 0;
+          if(res == 1) { /* used did not cancel */
+            /* delete entries, already used no more necessary */
+            dbg(1, ("save_undo_table(..., XASK_SAVE): deleting %s\n", entry->token));
+            save_undo_freefunc((void **)&entry->value);
+            ptr_hash_lookup(&undo_dir_hash, entry->token, NULL, XDELETE);
+            xctx->uslot = NULL;
+            my_free(_ALLOC_ID_, &xctx->undo_dirname);
+            xctx->undo_initialized = 0;
+          }
           entry = tmp;
         } /* while( entry ) */
       }
