@@ -3411,7 +3411,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         int i = get_symbol(rel_sym_path(argv[2]));
         if(i < 0 ) {
           if(!stat(argv[2], &buf)) { /* file exists */
-            res = load_sym_def(rel_sym_path(argv[2]), NULL);
+            res = load_sym_def(rel_sym_path(argv[2]), NULL, NULL);
             if(res == 0) res = -1;
           } else {
             res = -3;

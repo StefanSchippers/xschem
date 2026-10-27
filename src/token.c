@@ -219,7 +219,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
       }
     }
 
-    load_sym_def(name, fd); /* append another symbol to the xctx->sym[] array */
+    load_sym_def(name, NULL, fd); /* append another symbol to the xctx->sym[] array */
 
     if(fd) close_undo_file(fd, pid);
     if(undo_dirname) my_free(_ALLOC_ID_, &undo_dirname);

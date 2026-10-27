@@ -2177,7 +2177,7 @@ int sym_vs_sch_pins(int all)
                 my_free(_ALLOC_ID_, &sch_pin_type);
                 break;
               case '[':
-                load_sym_def(name, fd);
+                load_sym_def(name, fd, NULL);
                 break;
               case ']':
                 read_line(fd, 0);

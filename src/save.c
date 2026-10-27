@@ -3679,7 +3679,7 @@ static void read_xschem_file(FILE *fd)
         }
         read_line(fd, 0); /* skip garbage after '[' */
         if(!found) {
-          load_sym_def(xctx->inst[xctx->instances-1].name, fd);
+          load_sym_def(xctx->inst[xctx->instances-1].name, fd, NULL);
           found = 2;
         }
       }
@@ -4835,7 +4835,7 @@ int is_from_web(const char *f)
  * xctx->symbols
  * has_x
  */
-int load_sym_def(const char *name, FILE *embed_fd)
+int load_sym_def(const char *name, FILE *embed_fd, FILE *read_from)
 {
   static int recursion_counter=0; /* safe to keep even with multiple schematics, operation not interruptable */
   Lcc *lcc; /* size = level */
@@ -4904,7 +4904,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
       lcc[level].fd = NULL;
     }
     my_free(_ALLOC_ID_, &translated_cmd);
-  } else if(!embed_fd) { /* regular symbol: open file */
+  } else if(!embed_fd && !read_from) { /* regular symbol: open file */
     if(!strcmp(xctx->file_version,"1.0")) {
       my_strncpy(sympath, abs_sym_path(transl_name, ".sym"), S(sympath));
     } else {
@@ -4922,9 +4922,12 @@ int load_sym_def(const char *name, FILE *embed_fd)
       }
     }
     dbg(1, ("l_s_d(): fopen1(%s), level=%d, fd=%p\n",sympath, level, lcc[level].fd));
-  } else { /* embedded symbol (defined after instantiation within [...] ) */
+  } else if(embed_fd) { /* embedded symbol (defined after instantiation within [...] ) */
     dbg(1, ("l_s_d(): getting embed_fd, level=%d\n", level));
     lcc[level].fd = embed_fd;
+  } else { /* read_from */
+    dbg(1, ("l_s_d(): getting read_from, level=%d\n", level));
+    lcc[level].fd = read_from;
   }
   if(lcc[level].fd==NULL) {
     /* issue warning only on top level symbol loading */
@@ -5445,7 +5448,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
            continue;
          }
 
-         if(generator) {
+         if(generator || read_from) { /* can not use fseek / ftell on pipes (read_from) */
            /* for generators (data from a pipe) can not inspect next line (fseek/ftell) looking for
             * embedded symbols. Assume no embedded symbol follows */
            fd_tmp = NULL;
@@ -5579,7 +5582,7 @@ int load_sym_def(const char *name, FILE *embed_fd)
     else
       read_line(lcc[level].fd, 0); /* discard any remaining characters till (but not including) newline */
   } /* while(1) */
-  if(!embed_fd) {
+  if(!embed_fd && !read_from) {
     dbg(1, ("l_s_d(): fclose2, level=%d, fd=%p\n", level, lcc[0].fd));
     if(generator) pclose(lcc[0].fd);
     else fclose(lcc[0].fd);

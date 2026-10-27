@@ -28,12 +28,12 @@
 
 #if HAS_PIPE == 1
 /* fdopen() */
-#define _POSIX_C_SOURCE 200112L
+#define _POSIX_C_SOURCE  2 /* 200112L */
 #endif
 
 #if  HAS_POPEN==1
 /* popen() , pclose(), */
-#define _POSIX_C_SOURCE 200112L
+#define _POSIX_C_SOURCE 2 /* 200112L */
 #endif
 
 #define TCL_WIDE_INT_TYPE long
@@ -1628,7 +1628,7 @@ extern void get_sym_type(const char *symname, char **type,
                          Int_hashtable *pintable, FILE *embed_fd, int *sym_n_pins);
 extern int is_from_web(const char *f);
 extern void calc_symbol_bbox(int pos);
-extern int load_sym_def(const char name[], FILE *embed_fd);
+extern int load_sym_def(const char name[], FILE *embed_fd, FILE *read_from);
 extern int descend_symbol(void);
 extern int place_symbol(int pos, const char *symbol_name, double x, double y, short rot, short flip,
                          const char *inst_props, int draw_sym, int first_call, int to_push_undo);

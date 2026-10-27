@@ -373,7 +373,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
  my_strdup2(_ALLOC_ID_, &top_symbol_name, abs_sym_path(add_ext(xctx->current_name, ".sym"), ""));
  if(!stat(top_symbol_name, &buf)) { /* if top level has a symbol use the symbol for pin ordering */
    dbg(1, ("found top level symbol %s\n", top_symbol_name));
-   load_sym_def(top_symbol_name, NULL);
+   load_sym_def(top_symbol_name, NULL, NULL);
    found_top_symbol = 1;
    if(xctx->sym[xctx->symbols - 1].type != NULL &&
      /* only use the symbol if it has pins and is a subcircuit ? */

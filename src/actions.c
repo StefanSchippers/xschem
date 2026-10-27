@@ -2908,7 +2908,7 @@ void go_back(int what)
     /* when returning after editing an embedded symbol
      * load immediately symbol definition before going back (.xschem_embedded... file will be lost)
      */
-    load_sym_def(xctx->sch[xctx->currsch], NULL);
+    load_sym_def(xctx->sch[xctx->currsch], NULL, NULL);
     from_embedded_sym=1;
   }
   my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
