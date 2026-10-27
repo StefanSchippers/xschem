@@ -1433,7 +1433,7 @@ extern int copy_hierarchy_data(const char *from_win_path, const char *to_win_pat
 extern int schematic_in_new_window(int new_process, int dr, int force);
 extern void symbol_in_new_window(int new_process);
 extern void new_xschem_process(const char *cell, int symbol);
-extern void ask_new_file(int in_new_window, char *filename);
+extern int ask_new_file(int in_new_window, char *filename);
 extern int saveas(const char *f, int type);
 extern const char *get_file_path(char *f);
 extern int save(int confirm, int fast);
@@ -1660,8 +1660,8 @@ extern void mem_clear_undo(void);
 extern int load_schematic(int load_symbol, const char *fname, int reset_undo, int alert);
 /* check if filename already in an open window/tab */
 extern int get_tab_or_window_number(const char *win_path);
-extern void swap_tabs(void);
-extern char *swap_windows(int dr);
+extern char *swap_tabs(void);
+extern char *swap_windows(int dr, char **geom);
 extern Xschem_ctx *check_loaded(Xschem_ctx *ctx, const char *f);
 extern char *get_last_created_window_path(void);
 extern int get_last_created_window(void);

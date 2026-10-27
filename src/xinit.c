@@ -2022,26 +2022,25 @@ int get_tab_or_window_number(const char *win_path)
 
 /* swap primary view (.drw) with first valid tab (x1.drw, x2.drw, ...)
  * used for window close ('xschem exit' command) */
-void swap_tabs(void)
+char *swap_tabs(void)
 {
+  int i = 0, j;
   int wc = window_count;
-  if(!tclgetboolvar("tabbed_interface")) return;
+  if(!tclgetboolvar("tabbed_interface")) return NULL;
   if(wc) {
     Xschem_ctx *ctx;
     char *tmp;
     char *wp_i = NULL, *wp_j = NULL;
-    int i = 0;
-    int j;
     for(j = 1; j < MAX_NEW_WINDOWS; j++) {
       if(save_xctx[j]) break;
     }
     if(j >= MAX_NEW_WINDOWS) {
       info("swap_tabs(): no tab to swap to found\n");
-      return;
+      return NULL;
     }
     if(!save_xctx[i]) {
       info("swap_tabs(): no tab to swap from found\n");
-      return;
+      return NULL;
     }
 
     my_strdup2(_ALLOC_ID_, &wp_i, save_xctx[i]->current_win_path);
@@ -2089,6 +2088,8 @@ void swap_tabs(void)
     my_free(_ALLOC_ID_, &wp_i);
     my_free(_ALLOC_ID_, &wp_j);
   }
+  dbg(1, ("swap_tabs: returning: %s\n", save_xctx[j]->current_win_path));
+  return save_xctx[j]->current_win_path;
 }
 
 /* swap primary view (.drw) with first valid window (x1.drw, x2.drw, ...)
@@ -2097,16 +2098,18 @@ void swap_tabs(void)
  * primary windows is about to be deleted
  * return:
  *   the geometry of the next window that will become the main window after main window deletion */
-char *swap_windows(int dr)
+char *swap_windows(int dr, char **geom)
 {
+  int i = 0, j;
   int wc = window_count;
-  if(tclgetboolvar("tabbed_interface")) return "";
+
+  if(geom) *geom = "";
+  if(tclgetboolvar("tabbed_interface")) return NULL;
   if(wc) {
     Xschem_ctx *ctx;
     char *tmp;
     char *wp_i = NULL, *wp_j = NULL;
     Window window;
-    int i = 0, j;
     static char next_win_geometry[80];
 
     for(j = 1; j < MAX_NEW_WINDOWS; j++) {
@@ -2114,11 +2117,11 @@ char *swap_windows(int dr)
     }
     if(j >= MAX_NEW_WINDOWS) {
       info("swap_windows(): no tab to swap to found\n");
-      return "";
+      return NULL;
     }
     if(!save_xctx[i]) {
       info("swap_windows(): no tab to swap from found\n");
-      return "";
+      return NULL;
     }
 
     my_strdup2(_ALLOC_ID_, &wp_i, save_xctx[i]->current_win_path);
@@ -2129,7 +2132,7 @@ char *swap_windows(int dr)
     /* get sub-window geometry and position. primary window wp_i will be sized and moved there. */
     tclvareval("wm geometry ", save_xctx[j]->top_path, NULL);
     my_snprintf(next_win_geometry, S(next_win_geometry), "%s", tclresult());
-    dbg(1, ("next_win_geometry=%s\n", next_win_geometry));
+    dbg(1, ("next_win_geometry(%s) = %s\n", save_xctx[j]->current_win_path, next_win_geometry));
 
     if(tclgetboolvar("preserve_undo")) {
       /* update undo pointers in save table, swap winpath in keys */
@@ -2172,9 +2175,10 @@ char *swap_windows(int dr)
     my_free(_ALLOC_ID_, &wp_j);
     my_strdup2(_ALLOC_ID_, &old_win_path, "");
     if(dr) draw();
-    return next_win_geometry;
+    if(geom) *geom =  next_win_geometry;
   }
-  return "";
+  dbg(1, ("swap_windows: returning: %s\n", save_xctx[j]->current_win_path));
+  return save_xctx[j]->current_win_path;
 }
 
 /* check if filename is already loaded into a tab or window */
@@ -2576,17 +2580,27 @@ static void create_new_tab(int *window_count, const char *noconfirm, const char 
 
 static void destroy_window(int *window_count, const char *win_path)
 {
-  int i, n;
+  int i, n, res = 1, destroyed = 0;
   Xschem_ctx *savectx;
   Tk_Window tkwin=NULL;
   savectx = xctx;
   if(*window_count) {
+    char *geom = NULL;
     int close = 0;
     dbg(1, ("new_schematic() destroy {%s}\n", win_path));
     if(!win_path) {
       info("destroy_window(): no window path given\n");
       return;
     }
+
+    /* ask to save modified hierarchy schematics not displayed */
+    if(tclgetboolvar("preserve_undo")) {
+      res = save_undo_table(NULL, NULL, XASK_SAVE);
+    }
+  
+    if(res == 0) return; /* user cancel */
+
+    dbg(1, ("destroy_window(): win_path=%s\n", win_path));
     if(xctx->modified && has_x) {
       tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
               "[get_cell [xschem get schname] 0]"
@@ -2594,14 +2608,10 @@ static void destroy_window(int *window_count, const char *win_path)
       if(strcmp(tclresult(),"ok")==0) close = 1;
     }
     else close = 1;
+    if(close && !strcmp(win_path, ".drw")) win_path = swap_windows(0, &geom);
     Tcl_ResetResult(interp);
     if(close) {
 
-      /* ask to save modified hierarchy schematics not displayed */
-      if(tclgetboolvar("preserve_undo")) {
-        save_undo_table(NULL, NULL, XASK_SAVE);
-      }
-  
       if(has_x) {
         tkwin =  Tk_NameToWindow(interp, win_path, mainwindow); /* NULL if win_path not existing */
         if(!tkwin) info("new_schematic(\"destroy\", ...): Warning: %s has been destroyed\n", win_path);
@@ -2620,6 +2630,9 @@ static void destroy_window(int *window_count, const char *win_path)
       }
       if(tkwin && n >= 1 && n < MAX_NEW_WINDOWS) {
         char *toplevel = NULL;
+        char *win_path_copy = NULL; /* need a copy since we are deleting it */
+
+        my_strdup2(_ALLOC_ID_, &win_path_copy, win_path);
         /* delete Tcl context of deleted schematic window */
         tclvareval("delete_ctx ", win_path, NULL);
         xctx = save_xctx[n];
@@ -2634,15 +2647,18 @@ static void destroy_window(int *window_count, const char *win_path)
 
         save_xctx[n] = NULL;
         if(has_x) {
-          tclvareval("winfo toplevel ", win_path, NULL);
+          tclvareval("winfo toplevel ", win_path_copy, NULL);
           my_strdup2(_ALLOC_ID_, &toplevel, tclresult());
-          Tk_DestroyWindow(Tk_NameToWindow(interp, win_path, mainwindow));
+          Tk_DestroyWindow(Tk_NameToWindow(interp, win_path_copy, mainwindow));
           tclvareval("destroy ", toplevel, NULL);
           my_free(_ALLOC_ID_, &toplevel);
         }
+        my_free(_ALLOC_ID_, &win_path_copy);
         (*window_count)--;
         if(has_x && *window_count == 0)
           tcleval(".menubar.view entryconfigure {Tabbed interface} -state normal");
+
+        destroyed = 1;
       }
     }
     /* following 3 lines must be done also if window not closed */
@@ -2650,6 +2666,10 @@ static void destroy_window(int *window_count, const char *win_path)
     if(xctx->current_win_path)
       tclvareval("restore_ctx ", xctx->current_win_path, " ; housekeeping_ctx", NULL);
     set_modify(-1); /* sets window title */
+
+    if(destroyed && geom) { /* window was closed, user did not cancel */
+      tclvareval("wm withdraw .; update; wm geometry . ", geom, "; wm deiconify .", NULL);
+    }
   } else {
     info("new_schematic() destroy_window: there are no additional windows\n");
   }
@@ -2657,7 +2677,7 @@ static void destroy_window(int *window_count, const char *win_path)
 
 static void destroy_tab(int *window_count, const char *win_path)
 {
-  int i, n, prev;
+  int i, n, prev, res = 1;
   if(*window_count) {
     int close = 0;
     dbg(1, ("new_schematic() destroy_tab %s\n", win_path));
@@ -2670,6 +2690,13 @@ static void destroy_tab(int *window_count, const char *win_path)
       info("new_schematic(\"destroy_tab\", %s): must be in this tab to destroy\n", win_path);
       return;
     }
+
+    /* ask to save modified hierarchy schematics not displayed */
+    if(tclgetboolvar("preserve_undo")) {
+      res = save_undo_table(NULL, NULL, XASK_SAVE);
+    }
+    if(res == 0) return; /* user cancel */
+
     if(xctx->modified && has_x) {
       tcleval("tk_messageBox -type okcancel  -parent [xschem get topwindow] -message \""
               "[get_cell [xschem get schname] 0]"
@@ -2677,14 +2704,10 @@ static void destroy_tab(int *window_count, const char *win_path)
       if(strcmp(tclresult(),"ok")==0) close = 1;
     }
     else close = 1;
+    if(close && !strcmp(win_path, ".drw")) win_path = swap_tabs(); 
     Tcl_ResetResult(interp);
     if(close) {
       char *new_path = NULL;
-
-      /* ask to save modified hierarchy schematics not displayed */
-      if(tclgetboolvar("preserve_undo")) {
-        save_undo_table(NULL, NULL, XASK_SAVE);
-      }
 
       n = -1;
       for(i = 1; i < MAX_NEW_WINDOWS; ++i) {
@@ -2739,7 +2762,7 @@ static void destroy_tab(int *window_count, const char *win_path)
 
 static void destroy_all_windows(int *window_count, int force)
 {
-  int i;
+  int i, res = 1;
   char *window_path = NULL;
   Xschem_ctx *savectx;
   Tk_Window tkwin=NULL;
@@ -2754,6 +2777,7 @@ static void destroy_all_windows(int *window_count, int force)
         my_strdup2(_ALLOC_ID_, &window_path, "");
       }
       if(window_path[0]) {
+
         if(has_x) {
           tkwin = Tk_NameToWindow(interp, window_path, mainwindow); /* NULL if win_path not existing */
         }
@@ -2761,6 +2785,17 @@ static void destroy_all_windows(int *window_count, int force)
         else {
           xctx = save_xctx[i];
           close = 0;
+
+          /* ask to save modified hierarchy schematics not displayed */
+          if(tclgetboolvar("preserve_undo")) {
+            res = save_undo_table(NULL, NULL, XASK_SAVE);
+          }
+          if(res == 0) {
+            my_free(_ALLOC_ID_, &window_path);
+            return;
+          }
+
+
           xctx->semaphore++; /* to avoid context switches when dialog below is shown */
           /* reset old focused window so callback() will force repaint on expose events */
           dbg(1, ("destroy_all_windows(): top_path=%s\n", xctx->top_path));
@@ -2775,11 +2810,6 @@ static void destroy_all_windows(int *window_count, int force)
           Tcl_ResetResult(interp);
           if(close) {
             char *toplevel = NULL;
-
-            /* ask to save modified hierarchy schematics not displayed */
-            if(tclgetboolvar("preserve_undo")) {
-              save_undo_table(NULL, NULL, XASK_SAVE);
-            }
 
             if(has_x) {
               tclvareval("winfo toplevel ", window_path, NULL);
@@ -2840,7 +2870,7 @@ static void switch_window_info(int *window_count)
 
 static void destroy_all_tabs(int *window_count, int force)
 {
-  int i;
+  int i, res = 1;
   char *window_path = NULL;
   Xschem_ctx *savectx;
   savectx = xctx;
@@ -2856,6 +2886,16 @@ static void destroy_all_tabs(int *window_count, int force)
       } 
       if(window_path[0]) {
         xctx = save_xctx[i];
+
+        /* ask to save modified hierarchy schematics not displayed */
+        if(tclgetboolvar("preserve_undo")) {
+          res = save_undo_table(NULL, NULL, XASK_SAVE);
+        }
+        if(res == 0) {
+          my_free(_ALLOC_ID_, &window_path);
+          return;
+        }
+
         close = 0;
         /* reset old focused window so callback() will force repaint on expose events */
         if(!force && xctx->modified && has_x) {
@@ -2867,11 +2907,6 @@ static void destroy_all_tabs(int *window_count, int force)
         else close = 1;
         Tcl_ResetResult(interp);
         if(close) {
-
-          /* ask to save modified hierarchy schematics not displayed */
-          if(tclgetboolvar("preserve_undo")) {
-            save_undo_table(NULL, NULL, XASK_SAVE);
-          }
 
           /* delete Tcl context of deleted schematic window */
           tclvareval("delete_ctx ", window_path, NULL);

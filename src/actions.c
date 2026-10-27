@@ -615,16 +615,21 @@ int saveas(const char *f, int type) /*  changed name from ask_save_file to savea
     return saved;
 }
 
-void ask_new_file(int in_new_window, char *filename)
+int ask_new_file(int in_new_window, char *filename)
 {
     char f[PATH_MAX]; /*  overflow safe 20161125 */
+    int res = 1;
+    if(!has_x) return 0;
+    if(!(in_new_window || tclgetboolvar("open_in_new_window"))) {
 
-    if(!has_x) return;
-    if(!(in_new_window || tclgetboolvar("open_in_new_window")) && xctx->modified) {
-      if(save(1, 0) == -1 ) return; /*  user cancels save, so do nothing. */
-    }
-    if(tclgetboolvar("preserve_undo")) { /* ask to save modified hierarchy schematics not displayed */
-      save_undo_table(NULL, NULL, XASK_SAVE);
+      if(tclgetboolvar("preserve_undo")) { /* ask to save modified hierarchy schematics not displayed */
+        res = save_undo_table(NULL, NULL, XASK_SAVE);
+      }
+      if(res == 0) return 0;
+
+      if(xctx->modified) {
+        if(save(1, 0) == -1 ) return 0; /*  user cancels save, so do nothing. */
+      }
     }
     if(!filename || !filename[0]) {
       tcleval("load_file_dialog {Load file} *.\\{sch,sym,tcl\\} INITIALLOADDIR");
@@ -668,6 +673,7 @@ void ask_new_file(int in_new_window, char *filename)
         }
       }
     }
+    return 1;
 }
 
 /* remove symbol and decrement symbols */
@@ -2947,14 +2953,17 @@ void go_back(int what)
 /* cancel == 1: ask confirmation */
 void clear_schematic(int cancel, int symbol)
 {
- int result;
+ int result, res = 1;
  if(cancel) result=save(1, 0);
  if(result != -1) { /* -1 means user cancel save request */
    if(tclgetboolvar("preserve_undo") && cancel == 1) {
      xctx->push_undo(0); /* push current state so we can retrieve it later from undo if needed */
    }
    xctx->delete_undo();
-   if(cancel == 1) save_undo_table(xctx->current_name, NULL, XASK_SAVE);
+   if(cancel == 1) {
+     res = save_undo_table(xctx->current_name, NULL, XASK_SAVE);
+   }
+   if(res ==0) return; /* user cancel */
    /* if no confirmation dialog for save is presented delete completely undo buffer
     * for all hierarchies in current window / tab */
    else if(cancel == 0) save_undo_table(xctx->current_name, NULL, XDELETE_ALL_CURRENT_WIN);

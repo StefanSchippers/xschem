@@ -3503,8 +3503,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
     case 'o':
       if(EQUAL_MODMASK) { /* load in new tab/window */
         xctx->semaphore--;
-        ask_new_file(1, NULL);
-        tcleval("load_additional_files");
+        if(ask_new_file(1, NULL)) tcleval("load_additional_files");
         xctx->semaphore++;
       }
       else if(rstate == ControlMask) { /* load */
@@ -3513,8 +3512,7 @@ static void handle_key_press(int event, KeySym key, int state, int rstate, int m
           tcleval("file_chooser");
         } else {
           xctx->semaphore--;
-          ask_new_file(0, NULL);
-          tcleval("load_additional_files");
+          if(ask_new_file(0, NULL)) tcleval("load_additional_files");
           xctx->semaphore++;
         }
       }

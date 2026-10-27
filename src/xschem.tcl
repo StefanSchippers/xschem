@@ -7377,8 +7377,10 @@ proc ask_save { {ask {Save file?}} {cancel 1}} {
   wm title .dialog {Ask Save}
   wm transient .dialog [xschem get topwindow]
 
-  set X [expr {[winfo pointerx .dialog] - 60}]
-  set Y [expr {[winfo pointery .dialog] - 35}]
+  set X [expr {[winfo rootx .] + [winfo width .]/2 - 60}]
+  set Y [expr {[winfo rooty .] + [winfo height .]/2 - 35}]
+  # set X [expr {[winfo pointerx .dialog] - 60}]
+  # set Y [expr {[winfo pointery .dialog] - 35}]
   if { $wm_fix } { tkwait visibility .dialog }
 
   wm geometry .dialog "+$X+$Y"
@@ -11715,9 +11717,11 @@ proc quit_xschem { {force {}}} {
   global tabbed_interface
 
   xschem new_schematic switch .drw
-  xschem new_schematic destroy_all $force
+  set remaining [xschem new_schematic destroy_all $force]
   if {[winfo exists .ins]} { .ins.bottom.dismiss invoke }
-  set remaining [xschem exit closewindow $force]
+  if {$remaining == 0} {
+    set remaining [xschem exit closewindow $force]
+  }
   return $remaining
 }
 

@@ -236,13 +236,13 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
     }
     res = 1;
   } else if(what == XASK_SAVE || what == XDELETE_ALL_CURRENT_WIN) {
-      if(undo_dir_hash.table) {
+    res = 1;
+    if(undo_dir_hash.table) {
       int i;
       Ptr_hashentry *entry, *tmp;
       undo_save *undo_item;
       Xschem_ctx **save_xctx;
 
-      res = 1;
       dbg(1, ("save_undo_table(): XASK_SAVE\n"));
       save_xctx = get_save_xctx();
       for(i = 0; res == 1 && i < undo_dir_hash.size; ++i)
@@ -294,7 +294,7 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
             /* ok, this is a schematic down or up in hierarchy that is modified and that is not
              * currently displayed in window / tab. Need to handle save here */
             if(!found && what == XASK_SAVE) {
-              info("\nWARNING:  %s\n  %s\n  needs to be saved\n", entry->token, undo_item->sch);
+              dbg(1, ("\nWARNING:  %s\n  %s\n  needs to be saved\n", entry->token, undo_item->sch));
 
               if(has_x) {
                 char *cmd = NULL;
