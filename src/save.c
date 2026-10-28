@@ -243,7 +243,7 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
       undo_save *undo_item;
       Xschem_ctx **save_xctx;
 
-      dbg(1, ("save_undo_table(): XASK_SAVE\n"));
+      dbg(1, ("save_undo_table(): XASK_SAVE | XDELETE_ALL_CURRENT_WIN, what=%d\n", what));
       save_xctx = get_save_xctx();
       for(i = 0; res == 1 && i < undo_dir_hash.size; ++i)
       {
@@ -332,7 +332,7 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
           } /* if(undo_item->cur_undo_ptr != undo_item->saved_cur_undo_ptr) */
 
           tmp = entry->next;
-          if(res == 1) { /* used did not cancel */
+          if(res == 1) { /* used did not cancel, always executed if what == XDELETE_ALL_CURRENT_WIN */
             /* delete entries, already used no more necessary */
             dbg(1, ("save_undo_table(..., XASK_SAVE): deleting %s\n", entry->token));
             save_undo_freefunc((void **)&entry->value);

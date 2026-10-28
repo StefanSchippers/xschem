@@ -2958,9 +2958,13 @@ void clear_schematic(int cancel, int symbol)
  int result, res = 1;
  if(cancel) result=save(1, 0);
  if(result != -1) { /* -1 means user cancel save request */
+
+   #if 0 /* not needed. undo buffer will be wiped out */
    if(tclgetboolvar("preserve_undo") && cancel == 1) {
      xctx->push_undo(0); /* push current state so we can retrieve it later from undo if needed */
    }
+   #endif
+
    xctx->delete_undo();
    if(cancel == 1) {
      res = save_undo_table(xctx->current_name, NULL, XASK_SAVE);
