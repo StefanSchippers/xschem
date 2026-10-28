@@ -2077,6 +2077,7 @@ static void copy_symbol_from_uslot(int i, xSymbol *dest_sym, xSymbol *src_sym, U
       my_strdup2(_ALLOC_ID_, &dest_sym->text[j].font, uslot.tptr[j].font);
       my_strdup2(_ALLOC_ID_, &dest_sym->text[j].floater_instname, uslot.tptr[j].floater_instname);
     }
+
     set_sym_flags(dest_sym);
     calc_symbol_bbox(i);
 }
@@ -2087,6 +2088,7 @@ void copy_symbol(int i, xSymbol *dest_sym, xSymbol *src_sym)
   int undo_found = 0;
   Undo_slot *uslot = NULL;
 
+  dbg(1, ("copy_symbol(): <-- %s\n", src_sym->name));
   /* if a symbol has been edited, preserve_undo is set, we are assigning to xctx->sym[i] and
    * undo_type==1 (memory undo) *THEN* read symbol data from uslot[0] */
   if(dest_sym == &xctx->sym[i] && xctx->undo_type == 1 && tclgetboolvar("preserve_undo")) {
@@ -2829,7 +2831,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    if(descend_ok) {
 
      if(tclgetboolvar("preserve_undo")) {
-       save_undo_table(xctx->current_name, NULL, XGET);
+       save_undo_table(xctx->current_name, NULL, XGET); /* sets xctx->undo_initialized = 0 if not found */
        xctx->pop_undo(2, 0);
      }
 
@@ -2929,7 +2931,7 @@ void go_back(int what)
     xctx->modified=save_modified; /* to force ask save embedded sym in parent schematic */
 
   if(tclgetboolvar("preserve_undo")) {
-    save_undo_table(xctx->current_name, NULL, XGET);
+    save_undo_table(xctx->current_name, NULL, XGET); /* sets xctx->undo_initialized = 0 if not found */
     xctx->pop_undo(2, 0);
   }
 

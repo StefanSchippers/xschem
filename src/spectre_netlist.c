@@ -412,7 +412,7 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
 
    my_strncpy(xctx->current_name, topschname, S(xctx->current_name));
    if(tclgetboolvar("preserve_undo")) {
-     save_undo_table(xctx->current_name, NULL, XGET);
+     save_undo_table(xctx->current_name, NULL, XGET); /* sets xctx->undo_initialized = 0 if not found */
    }       
 
    xctx->pop_undo(6, 0); /* use reserved slot 1 of undo stack */
@@ -596,7 +596,7 @@ int spectre_block_netlist(FILE *fd, int i, int alert)
     spectre_stop ? load_schematic(0,filename, 0, alert) : load_schematic(1,filename, 0, alert);
 
     if(tclgetboolvar("preserve_undo")) {
-      save_undo_table(xctx->current_name, NULL, XGET);
+      save_undo_table(xctx->current_name, NULL, XGET); /* sets xctx->undo_initialized = 0 if not found */
       xctx->pop_undo(2, 0);
     }
 

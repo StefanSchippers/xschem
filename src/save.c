@@ -5923,7 +5923,7 @@ int descend_symbol(void)
   set_tcl_netlist_type(xctx);
 
   if(tclgetboolvar("preserve_undo")) {
-    save_undo_table(xctx->current_name, NULL, XGET);
+    save_undo_table(xctx->current_name, NULL, XGET); /* sets xctx->undo_initialized = 0 if not found */
     xctx->pop_undo(2, 0);
   }
 

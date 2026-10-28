@@ -108,7 +108,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
             load_schematic(1,filename, 0, 1);
 
             if(tclgetboolvar("preserve_undo")) {
-              save_undo_table(xctx->current_name, NULL, XGET);
+              save_undo_table(xctx->current_name, NULL, XGET); /* sets xctx->undo_initialized = 0 if not found */
             }
             xctx->pop_undo(2, 0);
 
@@ -141,7 +141,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
 
   my_strncpy(xctx->current_name, topschname, S(xctx->current_name));
   if(tclgetboolvar("preserve_undo")) {
-    save_undo_table(xctx->current_name, NULL, XGET);
+    save_undo_table(xctx->current_name, NULL, XGET); /* sets xctx->undo_initialized = 0 if not found */
   }
   xctx->pop_undo(6, 0); /* use reserved slot 1 of undo stack */
   xctx->prev_set_modify = save_prev_mod;
@@ -545,7 +545,7 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
 
    my_strncpy(xctx->current_name, topschname, S(xctx->current_name));
    if(tclgetboolvar("preserve_undo")) {
-     save_undo_table(xctx->current_name, NULL, XGET);
+     save_undo_table(xctx->current_name, NULL, XGET); /* sets xctx->undo_initialized = 0 if not found */
    }
 
    dbg(1, ("global_spice_netlist(): invoking pop_undo(6, 0), undo_initialized=%d\n",
@@ -727,8 +727,8 @@ int spice_block_netlist(FILE *fd, int i, int alert)
 
     spice_stop ? load_schematic(0,filename, 0, alert) : load_schematic(1,filename, 0, alert);
 
-    if(tclgetboolvar("preserve_undo")) {
-      if(save_undo_table(xctx->current_name, NULL, XGET)) xctx->pop_undo(2, 0);
+    if(tclgetboolvar("preserve_undo")) { /* sets xctx->undo_initialized = 0 if not found */
+      xctx->pop_undo(2, 0);
     }
 
     dbg(1, ("spice_block_netlist(): instances=%d symbols=%d\n", xctx->instances, xctx->symbols));
