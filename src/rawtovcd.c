@@ -126,7 +126,10 @@ int read_dataset(void)
     if(!strncmp(line, "Binary:", 7)) break; /* start of binary block */
     if(transient) {
       if(variables) {
-        sscanf(line, "%d %s", &i, varname); /* read index and name of saved waveform */
+        if(sscanf(line, "%d %s", &i, varname) != 2 || i < 0 || i >= nvars) {
+          fprintf(stderr, "rawtovcd: bad variable record, index out of range: %s", line);
+          continue;
+        }
         names[i] = malloc(strlen(varname) + 1);
         strcpy(names[i], varname);
         replace_bracket(names[i]);

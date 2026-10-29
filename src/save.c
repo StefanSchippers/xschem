@@ -3655,6 +3655,11 @@ static void read_xschem_file(FILE *fd)
       load_inst(inst_cnt++, fd);
       break;
      case '[':
+      if(xctx->instances <= 0) {
+        dbg(0, ("read_xschem_file(): embedded symbol block with no preceding instance; skipping\n"));
+        read_record('[', fd, 0);
+        break;
+      }
       found=0;
       my_strdup(_ALLOC_ID_, &xctx->inst[xctx->instances-1].prop_ptr,
                 subst_token(xctx->inst[xctx->instances-1].prop_ptr, "embed", "true"));
