@@ -213,13 +213,14 @@ static void mem_init_undo(void)
    * xctx->uslot[slot].symptr, ...
    */
   if(xctx->no_undo == 0 && !xctx->undo_initialized) {
-    xctx->uslot = my_calloc(_ALLOC_ID_, MAX_UNDO, sizeof(Undo_slot));
-    dbg(1, ("mem_init_undo(): xctx->uslot=%p, size=%ld, %s\n",
-        xctx->uslot, MAX_UNDO * sizeof(Undo_slot), xctx->current_name));
     /* delete previous if any */
     if(tclgetboolvar("preserve_undo")) {
       save_undo_table(xctx->current_name, NULL, XDELETE);
     }
+    /* alloc new */
+    xctx->uslot = my_calloc(_ALLOC_ID_, MAX_UNDO, sizeof(Undo_slot));
+    dbg(1, ("mem_init_undo(): xctx->uslot=%p, size=%ld, %s\n",
+        xctx->uslot, MAX_UNDO * sizeof(Undo_slot), xctx->current_name));
     for(slot = 0;slot<MAX_UNDO; slot++) {
       xctx->uslot[slot].lines = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
       xctx->uslot[slot].rects = my_calloc(_ALLOC_ID_, cadlayers, sizeof(int));
