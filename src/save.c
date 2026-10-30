@@ -4891,7 +4891,7 @@ int load_sym_def(const char *name, FILE *embed_fd, FILE *read_from)
   check_symbol_storage();
   symbol = xctx->sym;
   symbols = xctx->symbols;
-  dbg(1, ("l_s_d(): recursion_counter=%d, name=%s\n", recursion_counter, name));
+  dbg(1, ("l_s_d(): recursion_counter=%d, name=%s read_from=%p\n", recursion_counter, name, read_from));
   recursion_counter++;
   lcc=NULL;
   my_realloc(_ALLOC_ID_, &lcc, (level + 1) * sizeof(Lcc));

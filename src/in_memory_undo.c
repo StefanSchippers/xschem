@@ -117,79 +117,6 @@ static void free_undo_instances(Undo_slot *uslot, int slot)
 }
 
 
-static void free_undo_symbol(xSymbol *sym)
-{
-    int j, c;
-    my_free(_ALLOC_ID_, &sym->name);
-    my_free(_ALLOC_ID_, &sym->prop_ptr);
-    my_free(_ALLOC_ID_, &sym->type);
-    my_free(_ALLOC_ID_, &sym->templ);
-    my_free(_ALLOC_ID_, &sym->parent_prop_ptr);
-
-    for(c = 0;c < cadlayers; ++c) {
-      for(j = 0;j < sym->polygons[c]; ++j) {
-        if(sym->poly[c][j].prop_ptr != NULL) {
-          my_free(_ALLOC_ID_, &sym->poly[c][j].prop_ptr);
-        }
-        my_free(_ALLOC_ID_, &sym->poly[c][j].x);
-        my_free(_ALLOC_ID_, &sym->poly[c][j].y);
-        my_free(_ALLOC_ID_, &sym->poly[c][j].selected_point);
-      }
-      my_free(_ALLOC_ID_, &sym->poly[c]);
-      sym->polygons[c] = 0;
-
-      for(j = 0;j < sym->lines[c]; ++j) {
-        if(sym->line[c][j].prop_ptr != NULL) {
-          my_free(_ALLOC_ID_, &sym->line[c][j].prop_ptr);
-        }
-      }
-      my_free(_ALLOC_ID_, &sym->line[c]);
-      sym->lines[c] = 0;
-
-      for(j = 0;j < sym->arcs[c]; ++j) {
-        if(sym->arc[c][j].prop_ptr != NULL) {
-          my_free(_ALLOC_ID_, &sym->arc[c][j].prop_ptr);
-        }
-      }
-      my_free(_ALLOC_ID_, &sym->arc[c]);
-      sym->arcs[c] = 0;
-
-      for(j = 0;j < sym->rects[c]; ++j) {
-        if(sym->rect[c][j].prop_ptr != NULL) {
-          my_free(_ALLOC_ID_, &sym->rect[c][j].prop_ptr);
-        }
-      }
-      my_free(_ALLOC_ID_, &sym->rect[c]);
-      sym->rects[c] = 0;
-    }
-    for(j = 0;j < sym->texts; ++j) {
-      if(sym->text[j].prop_ptr != NULL) {
-        my_free(_ALLOC_ID_, &sym->text[j].prop_ptr);
-      }
-      if(sym->text[j].txt_ptr != NULL) {
-        my_free(_ALLOC_ID_, &sym->text[j].txt_ptr);
-      }
-      if(sym->text[j].font != NULL) {
-        my_free(_ALLOC_ID_, &sym->text[j].font);
-      }
-      if(sym->text[j].floater_instname != NULL) {
-        my_free(_ALLOC_ID_, &sym->text[j].floater_instname);
-      }
-      if(sym->text[j].floater_ptr != NULL) {
-        my_free(_ALLOC_ID_, &sym->text[j].floater_ptr);
-      }
-    }
-    my_free(_ALLOC_ID_, &sym->text);
-    sym->texts = 0;
-    my_free(_ALLOC_ID_, &sym->line);
-    my_free(_ALLOC_ID_, &sym->rect);
-    my_free(_ALLOC_ID_, &sym->poly);
-    my_free(_ALLOC_ID_, &sym->arc);
-    my_free(_ALLOC_ID_, &sym->lines);
-    my_free(_ALLOC_ID_, &sym->rects);
-    my_free(_ALLOC_ID_, &sym->polygons);
-    my_free(_ALLOC_ID_, &sym->arcs);
-}
 
 static void free_undo_symbols(Undo_slot *uslot, int slot)
 {
@@ -198,7 +125,7 @@ static void free_undo_symbols(Undo_slot *uslot, int slot)
 
   for(i = 0; i < symbols; ++i) {
     xSymbol *sym = &uslot[slot].symptr[i];
-    free_undo_symbol(sym);
+    free_symbol(sym);
   }
   my_free(_ALLOC_ID_, &uslot[slot].symptr);
   uslot[slot].symbols = 0;
@@ -628,7 +555,7 @@ void mem_pop_undo(int redo, int set_modify_status)
       dbg(1, ("mem_pop_undo(): see if %s must be removed\n", sym));
       if((entry = int_hash_lookup(&sym_table, sym, 0, XLOOKUP))) {
         dbg(1, ("mem_pop_undo(): deleting symbol %s\n", entry->token));
-        remove_symbol(entry->value, 0); /* shift param set to 0. Leave all other symbols
+        free_symbol(&xctx->sym[entry->value]); /* shift param set to 0. Leave all other symbols
                                          * in place, do not shift back */
         dbg(1, ("mem_pop_undo(): copying symbol, lines[4]=%d\n",
                xctx->uslot[undo_index].symptr[i].lines[4]));

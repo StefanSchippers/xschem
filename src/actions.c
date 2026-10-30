@@ -675,6 +675,91 @@ int ask_new_file(int in_new_window, char *filename)
     }
     return 1;
 }
+/* deep free all data associated to xctx->sym[j] */
+void free_symbol(xSymbol *sym)
+{
+    int j, c;
+
+    for(j = 0; xctx && j < xctx->instances; ++j) {
+      if(xctx->inst[j].ptr >= 0 && &xctx->sym[xctx->inst[j].ptr] == sym) {
+        dbg(1, ("free_symbol(): unlinking symbol %d, %s from instances\n", j, xctx->inst[j].name));
+        delete_inst_node(j); /* must be deleted before symbols are deleted */
+        xctx->inst[j].ptr = -1; /* clear symbol reference on instances */
+        xctx->prep_net_structs=0;
+        xctx->prep_hi_structs=0;
+      }
+    }
+
+    my_free(_ALLOC_ID_, &sym->name);
+    my_free(_ALLOC_ID_, &sym->prop_ptr);
+    my_free(_ALLOC_ID_, &sym->type);
+    my_free(_ALLOC_ID_, &sym->templ);
+    my_free(_ALLOC_ID_, &sym->parent_prop_ptr);
+
+    for(c = 0;c < cadlayers; ++c) {
+      for(j = 0;j < sym->polygons[c]; ++j) {
+        if(sym->poly[c][j].prop_ptr != NULL) {
+          my_free(_ALLOC_ID_, &sym->poly[c][j].prop_ptr);
+        }
+        my_free(_ALLOC_ID_, &sym->poly[c][j].x);
+        my_free(_ALLOC_ID_, &sym->poly[c][j].y);
+        my_free(_ALLOC_ID_, &sym->poly[c][j].selected_point);
+      }
+      my_free(_ALLOC_ID_, &sym->poly[c]);
+      sym->polygons[c] = 0;
+
+      for(j = 0;j < sym->lines[c]; ++j) {
+        if(sym->line[c][j].prop_ptr != NULL) {
+          my_free(_ALLOC_ID_, &sym->line[c][j].prop_ptr);
+        }
+      }
+      my_free(_ALLOC_ID_, &sym->line[c]);
+      sym->lines[c] = 0;
+
+      for(j = 0;j < sym->arcs[c]; ++j) {
+        if(sym->arc[c][j].prop_ptr != NULL) {
+          my_free(_ALLOC_ID_, &sym->arc[c][j].prop_ptr);
+        }
+      }
+      my_free(_ALLOC_ID_, &sym->arc[c]);
+      sym->arcs[c] = 0;
+
+      for(j = 0;j < sym->rects[c]; ++j) {
+        if(sym->rect[c][j].prop_ptr != NULL) {
+          my_free(_ALLOC_ID_, &sym->rect[c][j].prop_ptr);
+        }
+      }
+      my_free(_ALLOC_ID_, &sym->rect[c]);
+      sym->rects[c] = 0;
+    }
+    for(j = 0;j < sym->texts; ++j) {
+      if(sym->text[j].prop_ptr != NULL) {
+        my_free(_ALLOC_ID_, &sym->text[j].prop_ptr);
+      }
+      if(sym->text[j].txt_ptr != NULL) {
+        my_free(_ALLOC_ID_, &sym->text[j].txt_ptr);
+      }
+      if(sym->text[j].font != NULL) {
+        my_free(_ALLOC_ID_, &sym->text[j].font);
+      }
+      if(sym->text[j].floater_instname != NULL) {
+        my_free(_ALLOC_ID_, &sym->text[j].floater_instname);
+      }
+      if(sym->text[j].floater_ptr != NULL) {
+        my_free(_ALLOC_ID_, &sym->text[j].floater_ptr);
+      }
+    }
+    my_free(_ALLOC_ID_, &sym->text);
+    sym->texts = 0;
+    my_free(_ALLOC_ID_, &sym->line);
+    my_free(_ALLOC_ID_, &sym->rect);
+    my_free(_ALLOC_ID_, &sym->arc);
+    my_free(_ALLOC_ID_, &sym->poly);
+    my_free(_ALLOC_ID_, &sym->lines);
+    my_free(_ALLOC_ID_, &sym->polygons);
+    my_free(_ALLOC_ID_, &sym->arcs);
+    my_free(_ALLOC_ID_, &sym->rects);
+}
 
 /* remove symbol and decrement symbols */
 /* Warning: removing a symbol with a loaded schematic will make all symbol references corrupt */
@@ -683,84 +768,10 @@ int ask_new_file(int in_new_window, char *filename)
  * shift: if set to 0 do NOT shift back symbols following 'j' */
 void remove_symbol(int j, int shift)
 {
-  int i,c;
+  int i /*, c */;
   xSymbol save;
 
-  dbg(1,("clearing symbol %d: %s\n", j, xctx->sym[j].name));
-  my_free(_ALLOC_ID_, &xctx->sym[j].prop_ptr);
-  my_free(_ALLOC_ID_, &xctx->sym[j].templ);
-  my_free(_ALLOC_ID_, &xctx->sym[j].parent_prop_ptr);
-  my_free(_ALLOC_ID_, &xctx->sym[j].type);
-  my_free(_ALLOC_ID_, &xctx->sym[j].name);
-  /*  /20150409 */
-  for(c=0;c<cadlayers; ++c) {
-    for(i=0;i<xctx->sym[j].polygons[c]; ++i) {
-      if(xctx->sym[j].poly[c][i].prop_ptr != NULL) {
-        my_free(_ALLOC_ID_, &xctx->sym[j].poly[c][i].prop_ptr);
-      }
-      my_free(_ALLOC_ID_, &xctx->sym[j].poly[c][i].x);
-      my_free(_ALLOC_ID_, &xctx->sym[j].poly[c][i].y);
-      my_free(_ALLOC_ID_, &xctx->sym[j].poly[c][i].selected_point);
-    }
-    my_free(_ALLOC_ID_, &xctx->sym[j].poly[c]);
-    xctx->sym[j].polygons[c] = 0;
-
-    for(i=0;i<xctx->sym[j].lines[c]; ++i) {
-      if(xctx->sym[j].line[c][i].prop_ptr != NULL) {
-        my_free(_ALLOC_ID_, &xctx->sym[j].line[c][i].prop_ptr);
-      }
-    }
-    my_free(_ALLOC_ID_, &xctx->sym[j].line[c]);
-    xctx->sym[j].lines[c] = 0;
-
-    for(i=0;i<xctx->sym[j].arcs[c]; ++i) {
-      if(xctx->sym[j].arc[c][i].prop_ptr != NULL) {
-        my_free(_ALLOC_ID_, &xctx->sym[j].arc[c][i].prop_ptr);
-      }
-    }
-    my_free(_ALLOC_ID_, &xctx->sym[j].arc[c]);
-    xctx->sym[j].arcs[c] = 0;
-
-    for(i=0;i<xctx->sym[j].rects[c]; ++i) {
-      if(xctx->sym[j].rect[c][i].prop_ptr != NULL) {
-        my_free(_ALLOC_ID_, &xctx->sym[j].rect[c][i].prop_ptr);
-      }
-      set_rect_extraptr(0, &xctx->sym[j].rect[c][i]);
-    }
-    my_free(_ALLOC_ID_, &xctx->sym[j].rect[c]);
-    xctx->sym[j].rects[c] = 0;
-  }
-  for(i=0;i<xctx->sym[j].texts; ++i) {
-    if(xctx->sym[j].text[i].prop_ptr != NULL) {
-      my_free(_ALLOC_ID_, &xctx->sym[j].text[i].prop_ptr);
-    }
-    if(xctx->sym[j].text[i].txt_ptr != NULL) {
-      my_free(_ALLOC_ID_, &xctx->sym[j].text[i].txt_ptr);
-      dbg(1, ("remove_symbol(): freeing symbol %d text_ptr %d\n", j, i));
-    }
-    if(xctx->sym[j].text[i].font != NULL) {
-      my_free(_ALLOC_ID_, &xctx->sym[j].text[i].font);
-    }
-    if(xctx->sym[j].text[i].floater_instname != NULL) {
-      my_free(_ALLOC_ID_, &xctx->sym[j].text[i].floater_instname);
-    }
-    if(xctx->sym[j].text[i].floater_ptr != NULL) {
-      my_free(_ALLOC_ID_, &xctx->sym[j].text[i].floater_ptr);
-    }
-  }
-  my_free(_ALLOC_ID_, &xctx->sym[j].text);
-
-  my_free(_ALLOC_ID_, &xctx->sym[j].line);
-  my_free(_ALLOC_ID_, &xctx->sym[j].rect);
-  my_free(_ALLOC_ID_, &xctx->sym[j].arc);
-  my_free(_ALLOC_ID_, &xctx->sym[j].poly);
-  my_free(_ALLOC_ID_, &xctx->sym[j].lines);
-  my_free(_ALLOC_ID_, &xctx->sym[j].polygons);
-  my_free(_ALLOC_ID_, &xctx->sym[j].arcs);
-  my_free(_ALLOC_ID_, &xctx->sym[j].rects);
-
-  xctx->sym[j].texts = 0;
-
+  free_symbol(&xctx->sym[j]);
 
   if(shift) {
     save = xctx->sym[j]; /* save cleared symbol slot */
@@ -776,14 +787,10 @@ void remove_symbols(void)
 {
   int j;
 
-  for(j = 0; j < xctx->instances; ++j) {
-    delete_inst_node(j); /* must be deleted before symbols are deleted */
-    xctx->inst[j].ptr = -1; /* clear symbol reference on instanecs */
-  }
-  for(j=xctx->symbols-1;j>=0;j--) {
-    dbg(2, ("remove_symbols(): removing symbol %d\n",j));
-    remove_symbol(j, 1);
-  }
+  for(j=0; j < xctx->symbols; j++) {
+    free_symbol(&xctx->sym[j]);
+  } 
+  xctx->symbols = 0;
   dbg(1, ("remove_symbols(): done\n"));
 }
 
@@ -1582,6 +1589,7 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
  char name[PATH_MAX];
  char name1[PATH_MAX];
  char *res = NULL;
+ int need_relink_symbols = 0;
 
  if(symbol_name==NULL) {
    tcleval("load_file_dialog {Choose symbol} *.\\{sym,tcl\\} INITIALINSTDIR");
@@ -1652,15 +1660,19 @@ int place_symbol(int pos, const char *symbol_name, double x, double y, short rot
   dbg(1, ("place_symbol(): done set_inst_prop()\n"));  /*  03-02-2000 */
 
 
-  xctx->instances++;/* translate expects the correct balue of xctx->instances */
+  xctx->instances++;/* translate expects the correct value of xctx->instances */
   /* After having assigned prop_ptr to new instance translate symbol reference
    * to resolve @params  --> res.tcl(@value\) --> res.tcl(100) */
   my_strncpy(name, translate(n, name, &res), S(name));
   my_free(_ALLOC_ID_, &res);
   /* parameters like res.tcl(@value\) have been resolved, so reload symbol removing previous */
   if(strcmp(name, name1)) {
+    if(i != xctx->symbols -1) need_relink_symbols = 1;
     remove_symbol(i, 1);
     i = match_symbol(name);
+  }
+  if(need_relink_symbols) {
+    link_symbols_to_instances(-1);
   }
   xctx->inst[n].ptr = i;
   set_inst_flags(&xctx->inst[n]);
@@ -1990,7 +2002,7 @@ static void copy_symbol_from_uslot(int i, xSymbol *dest_sym, xSymbol *src_sym, U
 {
     int c, j;
 
-    dbg(1, ("%s: fetched from uslot[0] ...\n",src_sym->name));
+    dbg(0, ("%s: fetched from uslot[0] ...\n",src_sym->name));
     /* need calc_symbol_bbox()  and set_sym_flags() after doing copy*/
     #if 0
     dest_sym->minx = src_sym->minx;

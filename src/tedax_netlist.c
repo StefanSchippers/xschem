@@ -111,8 +111,7 @@ static int tedax_block_netlist(FILE *fd, int i, int alert)
   load_schematic(1,filename, 0, alert);
 
   if(tclgetboolvar("preserve_undo")) {
-    save_undo_table(xctx->current_name, NULL, XGET); /* sets xctx->undo_initialized = 0 if not found */
-    xctx->pop_undo(2, 0);
+    if(save_undo_table(xctx->current_name, NULL, XGET)) xctx->pop_undo(2, 0);
   }
 
   get_additional_symbols(1);

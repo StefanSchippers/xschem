@@ -108,9 +108,8 @@ void hier_psprint(char **res, int what)  /* netlister driver */
             load_schematic(1,filename, 0, 1);
 
             if(tclgetboolvar("preserve_undo")) {
-              save_undo_table(xctx->current_name, NULL, XGET); /* sets xctx->undo_initialized = 0 if not found */
+              if(save_undo_table(xctx->current_name, NULL, XGET)) xctx->pop_undo(2, 0);
             }
-            xctx->pop_undo(2, 0);
 
             get_additional_symbols(1);
             /* do a zoom with draw, this is needed to load embedded images into r->extraptr
@@ -728,7 +727,7 @@ int spice_block_netlist(FILE *fd, int i, int alert)
     spice_stop ? load_schematic(0,filename, 0, alert) : load_schematic(1,filename, 0, alert);
 
     if(tclgetboolvar("preserve_undo")) { /* sets xctx->undo_initialized = 0 if not found */
-      xctx->pop_undo(2, 0);
+      if(save_undo_table(xctx->current_name, NULL, XGET)) xctx->pop_undo(2, 0);
     }
 
     dbg(1, ("spice_block_netlist(): instances=%d symbols=%d\n", xctx->instances, xctx->symbols));

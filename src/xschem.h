@@ -1623,6 +1623,7 @@ extern int spice_block_netlist(FILE *fd, int i, int alert);
 extern int spectre_block_netlist(FILE *fd, int i, int alert);
 extern void remove_symbols(void);
 extern void remove_symbol(int i, int shift);
+extern void free_symbol(xSymbol *sym);
 extern void clear_drawing(void);
 extern void get_sym_type(const char *symname, char **type,       
                          Int_hashtable *pintable, FILE *embed_fd, int *sym_n_pins);
