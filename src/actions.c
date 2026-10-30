@@ -2893,9 +2893,14 @@ void go_back(int what)
       int confirm = what & 1;
 
       if(has_x && confirm) {
-        tcleval("ask_save");
-        if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
-        else if(!strcmp(tclresult(), "") ) return;
+        if(!strstr(xctx->sch[xctx->currsch], ".xschem_embedded_")) {
+          tcleval("ask_save");
+          if(!strcmp(tclresult(), "yes") ) save_ok = save_schematic(xctx->sch[xctx->currsch], 0);
+          else if(!strcmp(tclresult(), "") ) return;
+        } else { /* for embedded symbols do not ask to save, will be asked at parent level that
+                  * actually contains the symbol definition */
+          save_schematic(xctx->sch[xctx->currsch], 0);
+        }
       }
       /* do not automatically save if confirm==0. Script developers should take care of this */
       /*
@@ -2939,9 +2944,10 @@ void go_back(int what)
   /* if we are returning from a symbol created from a generator don't set modified flag on parent
    * as these symbols can not be edited / saved as embedded
    * xctx->sch_inst_number[xctx->currsch] == -1 --> we came from an inst with no embed flag set */
-  if(from_embedded_sym && xctx->sch_inst_number[xctx->currsch] != -1)
+  if(from_embedded_sym && xctx->sch_inst_number[xctx->currsch] != -1) {
     xctx->modified=save_modified; /* to force ask save embedded sym in parent schematic */
-
+    if(xctx->modified) set_modify(-1); /* update tab and window modified information */
+  }
   if(tclgetboolvar("preserve_undo")) {
     save_undo_table(xctx->current_name, NULL, XGET); /* sets xctx->undo_initialized = 0 if not found */
     xctx->pop_undo(2, 0);
