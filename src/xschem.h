@@ -1644,6 +1644,7 @@ extern char *get_generator_command(const char *str);
 extern int match_symbol(const char name[]);
 extern Sch_pin_record *sort_schematic_pins(int *npins);
 extern int save_schematic(const char *, int fast); /*  20171020 added return value */
+extern void copy_symbol_from_uslot(int i, xSymbol *dest_sym, const char *name, Undo_slot uslot);
 extern void copy_symbol(int i, xSymbol *dest_sym, xSymbol *src_sym);
 extern FILE *open_write_undo_file(const char *name, pid_t *pid_ptr);
 extern FILE *open_read_undo_file(const char *name, pid_t *pid_ptr);

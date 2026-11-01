@@ -1188,6 +1188,7 @@ int connect_by_kissing(void)
   /* add wires to moving instance pins */
   for(j=0;j<k; ++j) if(xctx->sel_array[j].type==ELEMENT) {
     int inst = xctx->sel_array[j].n;
+    if(xctx->inst[inst].ptr < 0) continue;
     symbol = xctx->sym + xctx->inst[inst].ptr;
     npin = symbol->rects[PINLAYER];
     for(i=0;i<npin; ++i) {
@@ -1313,6 +1314,7 @@ int unselect_partial_sel_wires(void)
   /* unselect wires attached to moved instance pins */
   for(j=0;j<k; ++j) if(xctx->sel_array[j].type==ELEMENT) {
     int inst = xctx->sel_array[j].n;
+    if(xctx->inst[inst].ptr < 0) continue;
     symbol = xctx->sym + xctx->inst[inst].ptr;
     npin = symbol->rects[PINLAYER];
     for(i=0;i<npin; ++i) {
@@ -1401,6 +1403,7 @@ void attach_labels_to_inst(int interactive) /*  offloaded from callback.c 201710
     first_call=1;
     prepare_netlist_structs(0);
     for(j=0;j<k; ++j) if(xctx->sel_array[j].type==ELEMENT) {
+      if(xctx->inst[xctx->sel_array[j].n].ptr < 0) continue;
       found=1;
       my_strdup(_ALLOC_ID_, &prop, xctx->inst[xctx->sel_array[j].n].instname);
       my_strcat(_ALLOC_ID_, &prop, "_");
@@ -1901,7 +1904,7 @@ void launcher(void)
     n=xctx->sel_array[0].n;
     c=xctx->sel_array[0].col;
     
-    if(xctx->sel_array[0].type==ELEMENT) {
+    if(xctx->sel_array[0].type==ELEMENT && xctx->inst[n].ptr >= 0) {
       prop_ptr = xctx->inst[n].prop_ptr;
       inst = n;
     } else if(xctx->sel_array[0].type==xRECT)   prop_ptr = xctx->rect[c][n].prop_ptr;
@@ -1998,28 +2001,19 @@ const char *get_sym_name(int inst, int ndir, int ext, int abs_path)
   else return get_cell(sym, ndir);
 }
 
-static void copy_symbol_from_uslot(int i, xSymbol *dest_sym, xSymbol *src_sym, Undo_slot uslot)
+void copy_symbol_from_uslot(int i, xSymbol *dest_sym, const char *name, Undo_slot uslot)
 {
     int c, j;
 
-    dbg(0, ("%s: fetched from uslot[0] ...\n",src_sym->name));
-    /* need calc_symbol_bbox()  and set_sym_flags() after doing copy*/
-    #if 0
-    dest_sym->minx = src_sym->minx;
-    dest_sym->maxx = src_sym->maxx;
-    dest_sym->miny = src_sym->miny;
-    dest_sym->maxy = src_sym->maxy;
-    dest_sym->flags = src_sym->flags;
-    #endif
+    dbg(1, ("%s: fetched from uslot[0] ...\n",name));
     dest_sym->texts = uslot.texts;
     dest_sym->name = NULL;
     dest_sym->base_name = NULL; /* this is not allocated and points to the base symbol */
     dest_sym->prop_ptr = NULL;
+    dest_sym->parent_prop_ptr = NULL;
     /* dest_sym->type = NULL; */   /* done in set_sym_flags() at end */
     /* dest_sym->templ = NULL; */  /* done in set_sym_flags() at end */
-    dest_sym->parent_prop_ptr = NULL;
-    my_strdup2(_ALLOC_ID_, &dest_sym->name, src_sym->name); /* this will not change vs original */
-    my_strdup(_ALLOC_ID_, &dest_sym->parent_prop_ptr, src_sym->parent_prop_ptr);
+    my_strdup2(_ALLOC_ID_, &dest_sym->name, name); /* this will not change vs original */
     my_strdup2(_ALLOC_ID_, &dest_sym->prop_ptr, uslot.kptr);
   
     dest_sym->line = my_calloc(_ALLOC_ID_, cadlayers, sizeof(xLine *));
@@ -2108,7 +2102,7 @@ void copy_symbol(int i, xSymbol *dest_sym, xSymbol *src_sym)
   }
 
   if(undo_found) {
-    copy_symbol_from_uslot(i, dest_sym, src_sym, uslot[0]);
+    copy_symbol_from_uslot(i, dest_sym, src_sym->name, uslot[0]);
   } else {
     dest_sym->minx = src_sym->minx;
     dest_sym->maxx = src_sym->maxx;
@@ -2683,7 +2677,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    }
 
    n = xctx->sel_array[0].n;
-
+   if(xctx->inst[n].ptr < 0 ) return 0;
    /*  do not descend if not subcircuit */
    if( (xctx->inst[n].ptr+ xctx->sym)->type &&
        strcmp( (xctx->inst[n].ptr+ xctx->sym)->type, "subcircuit") &&
@@ -3163,6 +3157,7 @@ void calc_drawing_bbox(xRect *boundbox, int selected)
 
   if(selected == 2) {
     int found;
+    if(xctx->inst[i].ptr < 0) continue;
     type = (xctx->inst[i].ptr+ xctx->sym)->type;
     found = 0;
     if( type && IS_LABEL_OR_PIN(type)) {

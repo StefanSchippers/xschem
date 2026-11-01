@@ -131,7 +131,8 @@ Hilight_hashentry *inst_hilight_hash_lookup(int i,  int value, int what)
   char *inst_tok = NULL;
   size_t len = strlen(token) + 3; /* token plus two more character and \0 */
   int label = 0;
-  Hilight_hashentry *entry;
+  Hilight_hashentry *entry = NULL;
+  if(xctx->inst[i].ptr < 0) return NULL;
   if(IS_LABEL_SH_OR_PIN( (xctx->inst[i].ptr+xctx->sym)->type )) label = 1;
   dbg(1, ("inst_hilight_hash_lookup: token=%s value=%d what=%d\n", token, value, what));
   inst_tok = my_malloc(_ALLOC_ID_, len);
@@ -568,6 +569,7 @@ void hilight_net_pin_mismatches(void)
   for(k=0; k<xctx->lastsel; ++k) {
     if(xctx->sel_array[k].type!=ELEMENT) continue;
     j = xctx->sel_array[k].n ;
+    if(xctx->inst[j].ptr < 0) continue;
     my_strdup(_ALLOC_ID_, &type,(xctx->inst[j].ptr+ xctx->sym)->type);
     if( type && IS_LABEL_SH_OR_PIN(type)) break;
     symbol = xctx->sym + xctx->inst[j].ptr;
@@ -604,8 +606,9 @@ void hilight_parent_pins(void)
  int net_mult, inst_number;
 
  if(!xctx->hilight_nets) return;
- prepare_netlist_structs(0);
  i=xctx->previous_instance[xctx->currsch];
+ if(xctx->inst[i].ptr < 0) return;
+ prepare_netlist_structs(0);
  inst_number = xctx->sch_inst_number[xctx->currsch];
 
  /* may be set to -1 by descend_symbol to notify we are
@@ -699,6 +702,7 @@ void hilight_child_pins(void)
  if(!xctx->hilight_nets) {
    return;
  }
+ if(xctx->inst[i].ptr < 0) return;
  prepare_netlist_structs(0);
  rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
  inst_number = xctx->sch_inst_number[xctx->currsch-1];
@@ -858,7 +862,7 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
      if(!strcmp(tok,"cell::name")) {
        has_token = (xctx->inst[i].name != NULL) && xctx->inst[i].name[0];
        str = xctx->inst[i].name;
-     } else if(!strcmp(tok,"cell::propstring")) {
+     } else if(!strcmp(tok,"cell::propstring") && xctx->inst[i].ptr >= 0) {
        has_token = (str = (xctx->inst[i].ptr+ xctx->sym)->prop_ptr) ? 1 : 0;
      } else if(!strncmp(tok,"cell::", 6)) { /* cell::xxx looks for xxx in global symbol attributes */
        my_strdup(_ALLOC_ID_, &tmpname,get_tok_value(xctx->sym[xctx->inst[i].ptr].prop_ptr,tok+6,0));
@@ -890,7 +894,7 @@ int search(const char *tok, const char *val, int sub, int sel, int match_case, i
            (sub && !bus && !comparefn(str, val)) || (sub && bus && substrfn(str,val)))
        #endif
        {
-         if(!sel) {
+         if(!sel && xctx->inst[i].ptr >= 0) {
            type = (xctx->inst[i].ptr+ xctx->sym)->type;
            if( !strcmp(tok, "lab") && type && xctx->inst[i].node && IS_LABEL_SH_OR_PIN(type) ) {
              bus_hilight_hash_lookup(xctx->inst[i].node[0], col, XINSERT_NOREPLACE); /* sets xctx->hilight_nets=1; */
@@ -1135,6 +1139,7 @@ static void drill_hilight(int mode)
     found=0;
     for(i=0; i<xctx->instances; ++i) {
       /* expandlabel(xctx->inst[i].instname, &instmult); */
+      if(xctx->inst[i].ptr < 0) continue;
       symbol = xctx->inst[i].ptr+xctx->sym;
       npin = symbol->rects[PINLAYER];
       rct=symbol->rect[PINLAYER];
@@ -1733,7 +1738,10 @@ static void create_simdata(void)
   xctx->simdata_ninst =  xctx->instances;
   for(i = 0; i < xctx->instances; ++i) {
     xSymbol *symbol = xctx->inst[i].ptr + xctx->sym;
-    int npin = symbol->rects[PINLAYER];
+    int npin;
+
+    if(xctx->inst[i].ptr < 0) npin = 0;
+    else npin = symbol->rects[PINLAYER];
     xctx->simdata[i].pin = NULL;
     if(npin) my_realloc(_ALLOC_ID_, &xctx->simdata[i].pin, npin * sizeof(Simdata_pin));
     xctx->simdata[i].npin = npin;
@@ -1929,9 +1937,11 @@ void logic_set(int value, int num, const char *net_name)
           node = xctx->wire[n].node;
           break;
         case ELEMENT:
-          type = (xctx->inst[n].ptr+ xctx->sym)->type;
-          if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
-            node = xctx->inst[n].node[0];
+          if(xctx->inst[n].ptr >= 0) {
+            type = (xctx->inst[n].ptr+ xctx->sym)->type;
+            if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
+              node = xctx->inst[n].node[0];
+            }
           }
           break;
         default:
@@ -1994,6 +2004,7 @@ void hilight_net(int viewer)
      }
      break;
     case ELEMENT:
+     if(xctx->inst[n].ptr < 0) break;
      type = (xctx->inst[n].ptr+ xctx->sym)->type;
      if( type && xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
            /* sets xctx->hilight_nets=1 */
@@ -2051,6 +2062,7 @@ void unhilight_net(void)
       bus_hilight_hash_lookup(xctx->wire[n].node, xctx->hilight_color, XDELETE);
      break;
     case ELEMENT:
+     if(xctx->inst[n].ptr < 0) break;
      type = (xctx->inst[n].ptr+ xctx->sym)->type;
      if( type) {
        if( xctx->inst[n].node && IS_LABEL_SH_OR_PIN(type) ) { /* instance must have a pin! */
@@ -2098,7 +2110,7 @@ void select_hilight_net(void)
    }
  }
  for(i=0;i<xctx->instances; ++i) {
-
+  if(xctx->inst[i].ptr < 0) continue;
   type = (xctx->inst[i].ptr+ xctx->sym)->type;
   hilight_connected_inst = en_hi &&
     ((xctx->inst[i].flags & HILIGHT_CONN) || ((xctx->inst[i].ptr+ xctx->sym)->flags & HILIGHT_CONN));
@@ -2297,7 +2309,7 @@ void draw_hilight_net(int on_window)
        ++i;
        if(i >= xctx->instances) break;
      }
-     if(xctx->inst[i].color != -10000)
+     if(xctx->inst[i].ptr >= 0 && xctx->inst[i].color != -10000)
      {
       int col = get_color(xctx->inst[i].color);
       symptr = (xctx->inst[i].ptr+ xctx->sym);

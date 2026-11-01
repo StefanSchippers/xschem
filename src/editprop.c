@@ -1555,6 +1555,7 @@ int drc_check(int i)
     end = i + 1;
   }
   for(j = start; j < end; j++) {
+    if(xctx->inst[j].ptr < 0) continue;
     my_strdup(_ALLOC_ID_, &drc, get_tok_value(xctx->sym[xctx->inst[j].ptr].prop_ptr, "drc", 2));
     if(drc) {
       my_strdup(_ALLOC_ID_, &res, translate3(drc, j, 1,
@@ -1646,6 +1647,7 @@ static int update_symbol(const char *result, int x, int selected_inst)
     dbg(1, ("update_symbol(): for k loop: k=%d\n", k));
     if(xctx->sel_array[k].type != ELEMENT) continue;
     *ii=xctx->sel_array[k].n;
+    if(xctx->inst[*ii].ptr < 0) continue;
     old_prefix=(get_tok_value(xctx->sym[xctx->inst[*ii].ptr].templ, "name",0))[0];
     /* 20171220 calculate bbox before changes to correctly redraw areas */
     /* must be recalculated as cairo text extents vary with zoom factor. */
@@ -1774,6 +1776,7 @@ static int edit_symbol_property(int x, int first_sel)
    int modified = 0;
 
    *ii=xctx->sel_array[first_sel].n;
+   if(xctx->inst[*ii].ptr < 0) return modified;
    *netl_com = 0;
    if ((xctx->inst[*ii].ptr + xctx->sym)->type!=NULL)
      *netl_com =
@@ -2072,7 +2075,7 @@ void edit_property(int x)
    /* the xctx->schvhdlprop string. 04102001 */
    for(j=0;j<xctx->instances; ++j)
    {
-    if( xctx->inst[j].ptr !=-1 &&
+    if( xctx->inst[j].ptr >= 0 &&
         (xctx->inst[j].ptr+ xctx->sym)->type &&
         !strcmp( (xctx->inst[j].ptr+ xctx->sym)->type, "architecture") )
     {

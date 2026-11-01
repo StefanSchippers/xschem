@@ -196,7 +196,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
     }
   }
   if(!found) {
-    int undo_found = 0;
+    int undo_found = 0, mem_undo_found = 0;
     char *undo_dirname = NULL;
     FILE *fd = NULL;
     pid_t pid;
@@ -219,7 +219,21 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
       }
     }
 
-    load_sym_def(name, NULL, fd); /* append another symbol to the xctx->sym[] array */
+    if(xctx->undo_type == 1 && tclgetboolvar("preserve_undo")) {
+      Undo_slot *uslot = NULL;
+      mem_undo_found = save_undo_table(name, &uslot, XLOOKUP);
+      if(mem_undo_found) {
+        check_symbol_storage();
+        memset(&xctx->sym[xctx->symbols], 0, sizeof(xSymbol));
+        dbg(1, ("match_symbol: get from memory undo uslot[0]: %s\n", name));
+        copy_symbol_from_uslot(i, &xctx->sym[xctx->symbols], name, uslot[0]);
+        xctx->symbols++;
+      }
+    }
+
+    if(!mem_undo_found) {
+      load_sym_def(name, NULL, fd); /* append another symbol to the xctx->sym[] array */
+    }
 
     if(fd) close_undo_file(fd, pid);
     if(undo_dirname) my_free(_ALLOC_ID_, &undo_dirname);

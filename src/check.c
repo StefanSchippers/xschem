@@ -557,6 +557,7 @@ void break_wires_at_pins(int remove)
   /* break wires that touch selected instance pins */
   for(j=0;j<xctx->lastsel; ++j) if(xctx->sel_array[j].type==ELEMENT) {
     k = xctx->sel_array[j].n;
+    if(xctx->inst[k].ptr < 0) continue;
     if( (rects = (xctx->inst[k].ptr+ xctx->sym)->rects[PINLAYER]) > 0 )
     {
       for(r=0;r<rects;r++) {

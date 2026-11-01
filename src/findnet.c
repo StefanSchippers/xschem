@@ -222,6 +222,7 @@ int find_closest_net_or_symbol_pin(double mx, double my, double *x, double *y)
     xInstance * const inst = xctx->inst;
     if( !(instanceptr = inst_iterator_next(&ctx))) break;
     i = instanceptr->n;
+    if(inst[i].ptr < 0) continue;
     if(!((inst[i].ptr+ xctx->sym)->type)) continue;
     rects = (inst[i].ptr+ xctx->sym)->rects[PINLAYER];
     for(j = 0; j < rects; j++) {
@@ -269,69 +270,6 @@ int find_closest_net_or_symbol_pin(double mx, double my, double *x, double *y)
   *y = min_dist_y;
   return found_net_or_pin;
 }
-
-#if 0
-void xfind_closest_net_or_symbol_pin(double mx, double my, double *x, double *y)
-{
-  int i, j, no_of_pin_rects;
-  double x0, x1, x2, y0, y1, y2, xx, yy, dist, min_dist_x = 0, min_dist_y = 0;
-  xRect rect;
-  short rot, flip;
-  char *type = NULL;
-  double curr_dist;
-
-  curr_dist = DBL_MAX;
-  for(i = 0;i < xctx->instances; ++i) {
-    x0=xctx->inst[i].x0;
-    y0=xctx->inst[i].y0;
-    rot = xctx->inst[i].rot;
-    flip = xctx->inst[i].flip;
-    my_strdup(_ALLOC_ID_, &type, (xctx->inst[i].ptr+ xctx->sym)->type);
-    if(!type) continue;
-
-    no_of_pin_rects = (xctx->inst[i].ptr+ xctx->sym)->rects[PINLAYER];
-    if(IS_LABEL_OR_PIN(type)) no_of_pin_rects=1;
-    for(j=0; j<no_of_pin_rects; ++j) {
-      rect = ((xctx->inst[i].ptr+ xctx->sym)->rect[PINLAYER])[j];
-      ROTATION(rot, flip, 0.0, 0.0, rect.x1, rect.y1, x1, y1);
-      ROTATION(rot, flip, 0.0, 0.0, rect.x2, rect.y2, x2, y2);
-      x1 += x0;
-      y1 += y0;
-      x2 += x0;
-      y2 += y0;
-      xx = (x1+x2)/2;
-      yy = (y1+y2)/2;
-      dist = (mx - xx) * (mx - xx) + (my - yy) * (my - yy);
-      if(dist < curr_dist) {
-        curr_dist = dist;
-        min_dist_x = xx;
-        min_dist_y = yy;
-      }
-    }
-  }
-  for(i = 0;i < xctx->wires; ++i) {
-    xx = xctx->wire[i].x1;
-    yy = xctx->wire[i].y1;
-    dist = (mx - xx) * (mx - xx) + (my - yy) * (my - yy);
-    if(dist < curr_dist) {
-      curr_dist = dist;
-      min_dist_x = xx;
-      min_dist_y = yy;
-    }
-    xx = xctx->wire[i].x2;
-    yy = xctx->wire[i].y2;
-    dist = (mx - xx) * (mx - xx) + (my - yy) * (my - yy);
-    if(dist < curr_dist) {
-      curr_dist = dist;
-      min_dist_x = xx;
-      min_dist_y = yy;
-    }
-  }
-  *x = min_dist_x;
-  *y = min_dist_y;
-  my_free(_ALLOC_ID_, &type);
-}
-#endif
 
 static void find_closest_arc(double mx, double my, int override_lock)
 {

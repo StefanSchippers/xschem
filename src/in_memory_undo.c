@@ -555,8 +555,7 @@ void mem_pop_undo(int redo, int set_modify_status)
       dbg(1, ("mem_pop_undo(): see if %s must be removed\n", sym));
       if((entry = int_hash_lookup(&sym_table, sym, 0, XLOOKUP))) {
         dbg(1, ("mem_pop_undo(): deleting symbol %s\n", entry->token));
-        free_symbol(&xctx->sym[entry->value]); /* shift param set to 0. Leave all other symbols
-                                         * in place, do not shift back */
+        free_symbol(&xctx->sym[entry->value]);
         dbg(1, ("mem_pop_undo(): copying symbol, lines[4]=%d\n",
                xctx->uslot[undo_index].symptr[i].lines[4]));
         copy_symbol(entry->value, &xctx->sym[entry->value], &xctx->uslot[undo_index].symptr[i]);

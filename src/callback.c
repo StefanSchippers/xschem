@@ -2098,6 +2098,7 @@ static int add_wire_from_inst(Selected *sel, double mx, double my)
     int n = sel->n;
     xSymbol *symbol = xctx->sym + xctx->inst[n].ptr;
     int npin = symbol->rects[PINLAYER];
+    if(xctx->inst[n].ptr < 0) return res;
     for(i = 0; i < npin; ++i) {
       get_inst_pin_coord(n, i, &pinx0, &piny0);
       if(pinx0 == mx && piny0 == my) {
