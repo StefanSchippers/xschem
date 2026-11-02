@@ -554,11 +554,13 @@ void mem_pop_undo(int redo, int set_modify_status)
       /* ... if symbol is in undo buffer remove current and load from undo buffer */
       dbg(1, ("mem_pop_undo(): see if %s must be removed\n", sym));
       if((entry = int_hash_lookup(&sym_table, sym, 0, XLOOKUP))) {
-        dbg(1, ("mem_pop_undo(): deleting symbol %s\n", entry->token));
-        free_symbol(&xctx->sym[entry->value]);
-        dbg(1, ("mem_pop_undo(): copying symbol, lines[4]=%d\n",
-               xctx->uslot[undo_index].symptr[i].lines[4]));
-        copy_symbol(entry->value, &xctx->sym[entry->value], &xctx->uslot[undo_index].symptr[i]);
+        if(!(xctx->sym[entry->value].flags & EMBEDDED)) { /* already loaded: do not ovrwrt */
+          dbg(1, ("mem_pop_undo(): deleting symbol %s\n", entry->token));
+          free_symbol(&xctx->sym[entry->value]);
+          dbg(1, ("mem_pop_undo(): copying symbol, lines[4]=%d\n",
+                 xctx->uslot[undo_index].symptr[i].lines[4]));
+          copy_symbol(entry->value, &xctx->sym[entry->value], &xctx->uslot[undo_index].symptr[i]);
+        }
       }
     }
     int_hash_free(&sym_table);

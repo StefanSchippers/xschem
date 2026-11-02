@@ -3219,6 +3219,7 @@ static void write_xschem_file(FILE *fd)
   char *tmpstring = NULL;
   size_t tmpstring_size;
   char *header_ptr = xctx->header_text ? xctx->header_text : "";
+  dbg(1, ("write_xschem_file(): %s\n", xctx->current_name));
   tmpstring_size = strlen(header_ptr) + 100;
   tmpstring = my_malloc(_ALLOC_ID_, tmpstring_size);
   if(xctx->header_text && xctx->header_text[0]) {
@@ -3583,7 +3584,7 @@ static void read_xschem_file(FILE *fd)
   size_t ty=0;
   char *ptr = NULL, *ptr2;
 
-  dbg(2, ("read_xschem_file(): start\n"));
+  dbg(1, ("read_xschem_file(): start\n"));
   inst_cnt = endfile = 0;
   xctx->file_version[0] = '\0';
   while(!endfile)
@@ -4003,9 +4004,9 @@ void link_symbols_to_instances(int from)
     merge = 0;
   }
   for(i = from; i < xctx->instances; ++i) {
-    dbg(2, ("link_symbols_to_instances(): inst=%d\n", i));
-    dbg(2, ("link_symbols_to_instances(): matching inst %d name=%s \n",i, xctx->inst[i].name));
-    dbg(2, ("link_symbols_to_instances(): -------\n"));
+    dbg(1, ("link_symbols_to_instances(): inst=%d\n", i));
+    dbg(1, ("link_symbols_to_instances(): matching inst %d name=%s \n",i, xctx->inst[i].name));
+    dbg(1, ("link_symbols_to_instances(): -------\n"));
     my_strdup2(_ALLOC_ID_, &name, tcl_hook2(translate(i, xctx->inst[i].name, &res)));
     my_free(_ALLOC_ID_, &res);
     xctx->inst[i].ptr = match_symbol(name);

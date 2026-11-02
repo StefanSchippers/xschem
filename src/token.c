@@ -226,7 +226,7 @@ int match_symbol(const char *name)  /* never returns -1, if symbol not found loa
         check_symbol_storage();
         memset(&xctx->sym[xctx->symbols], 0, sizeof(xSymbol));
         dbg(1, ("match_symbol: get from memory undo uslot[0]: %s\n", name));
-        copy_symbol_from_uslot(i, &xctx->sym[xctx->symbols], name, uslot[0]);
+        copy_symbol_from_uslot(xctx->symbols, &xctx->sym[xctx->symbols], name, uslot[0]);
         xctx->symbols++;
       }
     }

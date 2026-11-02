@@ -2918,10 +2918,50 @@ void go_back(int what)
   if(!tclgetboolvar("keep_symbols")) remove_symbols();
   from_embedded_sym=0;
   if(strstr(xctx->sch[xctx->currsch], ".xschem_embedded_")) {
+    int undo_found = 0, mem_undo_found = 0;
+    char *undo_dirname = NULL;
+    struct stat buf;
+    FILE *fd = NULL;
+    pid_t pid;
+
     /* when returning after editing an embedded symbol
      * load immediately symbol definition before going back (.xschem_embedded... file will be lost)
      */
-    load_sym_def(xctx->sch[xctx->currsch], NULL, NULL);
+
+    if(tclgetboolvar("preserve_undo")) {
+      if(xctx->undo_type == 0 ) { /* disk undo  and preserve_undo */
+        undo_found = save_undo_table(xctx->current_name, &undo_dirname, XLOOKUP);
+        if(undo_found) {
+          my_mstrcat(_ALLOC_ID_, &undo_dirname, "/undo0", NULL);
+          dbg(1, ("undo_dirname=%s\n", undo_dirname));
+          if(stat(undo_dirname, &buf)) {
+            /* entry found in save_undo_table, but file not existing */
+            undo_found = 0;
+          } else {
+            fd = open_read_undo_file(undo_dirname, &pid);
+          }
+        }
+      }
+      else if(xctx->undo_type == 1) {
+        Undo_slot *uslot = NULL;
+        mem_undo_found = save_undo_table(xctx->current_name, &uslot, XLOOKUP);
+        if(mem_undo_found) {
+          check_symbol_storage();
+          memset(&xctx->sym[xctx->symbols], 0, sizeof(xSymbol));
+          dbg(1, ("match_symbol: get from memory undo uslot[0]: %s\n", xctx->current_name));
+          copy_symbol_from_uslot(xctx->symbols, &xctx->sym[xctx->symbols], xctx->current_name, uslot[0]);
+          xctx->sym[xctx->symbols].flags |= EMBEDDED; /* so copy_symbol will not overwrite in mem_pop_undo() */
+          xctx->symbols++;
+        }
+      }
+    }
+    if(!mem_undo_found) {
+      load_sym_def(xctx->sch[xctx->currsch], NULL, fd);
+    }
+
+    if(fd) close_undo_file(fd, pid);
+    if(undo_dirname) my_free(_ALLOC_ID_, &undo_dirname);
+
     from_embedded_sym=1;
   }
   my_free(_ALLOC_ID_, &xctx->sch[xctx->currsch]);
