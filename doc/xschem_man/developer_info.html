@@ -775,13 +775,13 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    flatten to current level selected instance texts </pre>
    <li><kbd>       fork_sch what sch_name [flags]</kbd></li><pre>
    what:
-   1: insert current schematic
-   2: insert copy of current schematic
-   3: lookup schematic indicated in `sch_name` and switch to it
-   4: free data
-   5: get info
-   6: free indicated `sch_name`
-   7: lookup sch_name, return 1 if found, 0 if not
+   1 or "store"    : insert current schematic
+   2 or "copy"     : insert copy of current schematic
+   3 or "restore"  : lookup schematic indicated in `sch_name` and switch to it
+   4 or "clear_all": free data
+   5 or "info"     : get info
+   6 or "clear"    : free indicated `sch_name`
+   7 or "check"    : lookup sch_name, return 1 if found, 0 if not
        flags: 
    1: set window title [default]
    2: copy only metadata (yields an empty schematic)

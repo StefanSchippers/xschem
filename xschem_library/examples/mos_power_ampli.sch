@@ -486,7 +486,7 @@ C {ngspice_get_expr.sym} 130 -730 0 1 {name=r21
 node="[format %.4g [expr [ngspice::get_current \{q7[ic]\}] / [ngspice::get_current \{q7[ib]\}] ] ]"
 descr = beta
 }
-C {launcher.sym} 460 -190 0 0 {name=h5
+C {launcher.sym} 430 -180 0 0 {name=h5
 descr=hi_current
 tclcommand="
 set incr_hilight 0
@@ -514,4 +514,21 @@ foreach \{n s t\} [xschem instance_list] \{
 xschem redraw
 
 "
+}
+C {launcher.sym} 570 -210 0 0 {name=h6
+descr="Run top level sim, reload annotation data" 
+tclcommand="
+# save current schematic 
+xschem save
+
+# generate top level netlist
+execute_wait 0  xschem -x -r -q -n poweramp.sch
+
+# simulate
+execute_wait 0 $terminal -e sh -c \\"cd $netlist_dir; ngspice -i poweramp.spice -a\\"
+
+# annotate data, specifying top level raw filename and hierarchy level.
+xschem annotate_op $netlist_dir/poweramp.raw 0
+"
+
 }

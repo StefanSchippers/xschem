@@ -1720,7 +1720,7 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
     }
     if(!is_empty_schematic(xctx) && !ptr_hash_lookup(&fork_table, sch_name, NULL, XLOOKUP)) {
       ret = 1;
-      dbg(0, ("Saving: %p  %s as %s\n", xctx, xctx->current_name, sch_name));
+      dbg(1, ("Saving: %p  %s as %s\n", xctx, xctx->current_name, sch_name));
       /* my_strncpy(xctx->current_name, sch_name, S(xctx->current_name)); */
       ptr_hash_lookup(&fork_table, sch_name, xctx, XINSERT_NOREPLACE);
 
@@ -1730,7 +1730,7 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
       sch_deep_copy(xctx, xctx_save, "", 2 | flags); /* 2 flag: don't copy schematic data */
       set_unique_sch_name(xctx, "untitled.sch");
       update_save_xctx(xctx, xctx_save);
-      dbg(0, ("creating: %p  %s\n", xctx, xctx->current_name));
+      dbg(1, ("creating: %p  %s\n", xctx, xctx->current_name));
       if(has_x) {
         if(flags & 1) set_modify(-1);
         if(flags & 4) draw();
@@ -1774,7 +1774,7 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
         if((flags & 64) || is_empty_schematic(xctx) || !modified) { /* shred current schematic*/
           if(!is_in_fork_sch(xctx)) {
             schedule_delete = 1;
-            dbg(0, ("schedule deletion of empty or unmodified schematic: %p  %s\n",
+            dbg(1, ("schedule deletion of empty or unmodified schematic: %p  %s\n",
                     xctx, xctx->current_name));
           }
         }
@@ -1787,7 +1787,7 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
           update_save_xctx(new_xctx, xctx);
         }
         if(schedule_delete) {
-          dbg(0, ("deleting empty or unmodified schematic: %p  %s\n", xctx, xctx->current_name));
+          dbg(1, ("deleting empty or unmodified schematic: %p  %s\n", xctx, xctx->current_name));
           delete_schematic_data(0); /* no reason to save empty junk */
         }
         if((flags & 64) || !modified) {
@@ -1821,13 +1821,13 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
         if( new_xctx != xctx && check_in_save_xctx(new_xctx) < 0) {
           Xschem_ctx *xctx_save = xctx;
           xctx = new_xctx;
-          dbg(0, ("deleting: %p  %s saved as %s\n", xctx, xctx->current_name, entry->token));
+          dbg(1, ("deleting: %p  %s saved as %s\n", xctx, xctx->current_name, entry->token));
           delete_schematic_data(0);
           ret = 1;
           xctx = xctx_save;
         } else {
           dbg(dbglev, 
-            ("Can not delete the schematic we are in or presentin another window/tab\n"));
+            ("Can not delete the schematic we are in or present in another window/tab\n"));
         }
         entry = entry->next;
       }
@@ -1864,7 +1864,7 @@ int fork_sch(int what, const char *sch_name, int flags, int dbglev)
         Xschem_ctx *xctx_save = xctx; /* save current schematic */
         ptr_hash_lookup(&fork_table, sch_name, NULL, XDELETE);
         xctx = new_xctx;
-        dbg(0, ("deleting: %p  %s saved as %s\n", xctx, xctx->current_name, sch_name));
+        dbg(1, ("deleting: %p  %s saved as %s\n", xctx, xctx->current_name, sch_name));
         delete_schematic_data(0);
         ret = 1;
         xctx = xctx_save; /* restore current schematic */

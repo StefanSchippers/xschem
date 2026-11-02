@@ -1,4 +1,4 @@
-v {xschem version=3.4.6 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -23,6 +23,7 @@ G {}
 K {}
 V {}
 S {}
+F {}
 E {}
 B 2 520 -415 630 -315 {name=l4
 flags=graph,unlocked
@@ -61,3 +62,48 @@ C {vsource.sym} 150 -210 1 0 {name=V2 value=0}
 C {scope_ammeter.sym} 500 -290 0 0 {name=l4
 attach=l4
 device=R1}
+C {launcher.sym} 580 -100 0 0 {name=h6
+descr="Run top level sim, reload annotation data" 
+tclcommand="
+
+proc netlist_top \{\} \{
+  global sim netlist_dir
+
+  # set foreground spice simulation
+  set_sim_defaults ;# populate sim() array
+  set sim(spice,0,fg) 1
+
+  # save current schematic 
+  xschem save
+
+  # get schname (relative to search paths, no full path)
+  set schname [xschem get current_name]
+
+  # get full pathname of parent schematic
+  set top_full_schname [xschem get schname 0]
+
+  # store current schematic and create empty window
+  xschem fork_sch store
+
+  # load toplevel
+  xschem load $top_full_schname
+
+  xschem netlist
+  xschem simulate
+
+  # put back saved schematic
+  xschem fork_sch restore $schname
+
+  # load simulation data 
+  xschem raw read $netlist_dir/[file rootname [file tail $top_full_schname]].raw tran
+
+  # fix hierarchy level where simulation was run 
+  xschem set raw_level 0
+
+  xschem fork_sch clear $schname 32
+  xschem redraw
+\}
+netlist_top
+"
+
+}

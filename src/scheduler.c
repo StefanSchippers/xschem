@@ -1419,13 +1419,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
 
     /* fork_sch what sch_name [flags]
      *   what:
-     *   1: insert current schematic
-     *   2: insert copy of current schematic
-     *   3: lookup schematic indicated in `sch_name` and switch to it
-     *   4: free data
-     *   5: get info
-     *   6: free indicated `sch_name`
-     *   7: lookup sch_name, return 1 if found, 0 if not
+     *   1 or "store"    : insert current schematic
+     *   2 or "copy"     : insert copy of current schematic
+     *   3 or "restore"  : lookup schematic indicated in `sch_name` and switch to it
+     *   4 or "clear_all": free data
+     *   5 or "info"     : get info
+     *   6 or "clear"    : free indicated `sch_name`
+     *   7 or "check"    : lookup sch_name, return 1 if found, 0 if not
      * flags: 
      *   1: set window title [default]
      *   2: copy only metadata (yields an empty schematic)
@@ -1460,7 +1460,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 3) {
         my_strdup2(_ALLOC_ID_, &sch_name, argv[3]);
       }
-      what = atoi(argv[2]);
+
+      if(!strcmp(argv[2], "store"))           what = 1;
+      else if(!strcmp(argv[2], "copy"))       what = 2;
+      else if(!strcmp(argv[2], "restore"))    what = 3;
+      else if(!strcmp(argv[2], "clear_all"))  what = 4;
+      else if(!strcmp(argv[2], "info"))       what = 5;
+      else if(!strcmp(argv[2], "clear"))      what = 6;
+      else if(!strcmp(argv[2], "check"))      what = 7;
+      else what = atoi(argv[2]);
       ret = fork_sch(what, sch_name, flags, dbglev);
       my_free(_ALLOC_ID_, &sch_name);
       Tcl_SetResult(interp, my_itoa(ret), TCL_VOLATILE);
@@ -5834,7 +5842,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             int n = atoi(argv[3]);
             if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
             if(n >= 0 && n <= xctx->currsch) {
-              xctx->raw->level = atoi(argv[3]);
+              xctx->raw->level = n;
               my_strdup2(_ALLOC_ID_, &xctx->raw->schname, xctx->sch[xctx->raw->level]);
               Tcl_SetResult(interp, my_itoa(n), TCL_VOLATILE);
             } else {
