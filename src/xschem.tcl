@@ -2937,6 +2937,15 @@ proc gaw_cmd {cmd} {
   unset gaw_fd
 }
 
+## Entry point for the 'Layout' menubar button.
+## Placeholder: will eventually launch the open source layout generator.
+proc layout_from_button {} {
+  set schname [xschem get schname]
+  puts "Layout button pressed for: $schname"
+  tk_messageBox -parent [xschem get topwindow] -type ok -icon info \
+    -title {Layout} -message "Layout generation not implemented yet.\nSchematic: $schname"
+}
+
 proc waves {{type {}}} {
   ## $N : netlist file full path (/home/schippes/simulations/opamp.spice)
   ## $n : netlist file full path with extension chopped (/home/schippes/simulations/opamp)
@@ -4472,121 +4481,450 @@ namespace eval c_toolbar {
 }
 ## end c_toolbar namespace
 
-proc file_dialog_set_colors1 {} {
-  global file_dialog_files1 dircolor file_dialog_names1
-  set def_fg [option get . foreground {}]
-  set def_bg [option get . background {}]
-  for {set i 0} { $i< [.load.l.paneleft.list index end] } { incr i} {
-    set name "[lindex $file_dialog_files1 $i]"
-    set col {}
-    set bg {}
-    set maxlen 0
-    foreach j [array names dircolor] {
-      set pattern $j
-      set color [lindex $dircolor($j) 0]
-      set background [lindex $dircolor($j) 1]
-      set len [string length [regexp -inline $pattern [lindex $file_dialog_names1 $i]]]
-      if { $len > $maxlen } {
-        set col $color
-        set bg $background
-        set maxlen $len
-      }
+## ---------------------------------------------------------------------------
+## File dialog used by load_file_dialog / save_file_dialog.
+## Left pane:  ttk::treeview with one root node per library path (XSCHEM_LIBRARY_PATH).
+##             Sub directories are read lazily when a node is expanded.
+## Right pane: ttk::treeview listing the files of the selected directory.
+## ---------------------------------------------------------------------------
+
+## draw the small icons used in the file dialog (no external image files needed)
+proc file_dialog_create_icons {} {
+  if {[lsearch -exact [image names] fd_folder] >= 0} return
+  # folders: tab + body. fd_lib is used for library root nodes
+  foreach {img fill edge} {fd_folder #e8b84a #a87b12 fd_lib #6b9bd8 #2f5f9e} {
+    image create photo $img -width 16 -height 16
+    $img put $edge -to 1 2 7 5
+    $img put $fill -to 2 3 6 5
+    $img put $edge -to 1 4 15 14
+    $img put $fill -to 2 5 14 13
+  }
+  # parent directory: up arrow
+  image create photo fd_up -width 16 -height 16
+  for {set i 0} {$i < 6} {incr i} {
+    fd_up put #3a8a3a -to [expr {7 - $i}] [expr {2 + $i}] [expr {9 + $i}] [expr {3 + $i}]
+  }
+  fd_up put #3a8a3a -to 6 8 10 14
+  # files: page with a colored band telling the file type
+  foreach {img band} {fd_sym #3a9a3a fd_sch #3a6ad8 fd_tcl #d8822a fd_file #9a9a9a} {
+    image create photo $img -width 16 -height 16
+    $img put #6a6a6a -to 3 1 13 15
+    $img put #ffffff -to 4 2 12 14
+    $img put #b0b0b0 -to 5 4 11 5
+    $img put #b0b0b0 -to 5 6 9 7
+    $img put $band -to 5 8 11 12
+  }
+  # double icon size on high dpi / big font setups
+  if {[font metrics TkDefaultFont -linespace] > 24} {
+    foreach img {fd_folder fd_lib fd_up fd_sym fd_sch fd_tcl fd_file} {
+      set tmp [image create photo]
+      $tmp copy $img -zoom 2
+      $img blank
+      $img configure -width 32 -height 32
+      $img copy $tmp
+      image delete $tmp
     }
-    if {$col eq {}} {set col $def_fg}
-    if {$bg eq {}} {set bg $def_bg}
-    .load.l.paneleft.list itemconfigure $i -foreground $col   -selectforeground $col \
-                                           -background $bg
   }
 }
 
-proc file_dialog_set_colors2 {} {
-  global file_dialog_index1 file_dialog_files2 dircolor file_dialog_files1 file_dialog_names1
+proc file_dialog_style {} {
   global dark_gui_colorscheme
-  set dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
-  set maxlen 0
-  set col [option get . foreground {}]
+  set rh [expr {[font metrics TkDefaultFont -linespace] + 6}]
+  if {$rh < 20} {set rh 20}
+  if {[image height fd_folder] + 4 > $rh} {set rh [expr {[image height fd_folder] + 4}]}
+  if {$dark_gui_colorscheme} {
+    set bg [option get . background {}]
+    set fg [option get . foreground {}]
+    if {$bg eq {}} {set bg #303030}
+    if {$fg eq {}} {set fg #e0e0e0}
+  } else {
+    set bg white
+    set fg black
+  }
+  ttk::style configure FileDialog.Treeview -rowheight $rh -background $bg \
+    -fieldbackground $bg -foreground $fg -borderwidth 0
+}
+
+## return {color background} from the dircolor() array for given directory
+proc file_dialog_dircolor {name} {
+  global dircolor
+  set col {}
   set bg {}
-  set name1 [lindex $file_dialog_names1 $file_dialog_index1]
-  foreach j [array names dircolor] {
-    set pattern $j
-    set color [lindex $dircolor($j) 0]
-    set background [lindex $dircolor($j) 1]
-    set len [string length [regexp -inline $pattern $name1]]
+  set maxlen 0
+  foreach pattern [array names dircolor] {
+    set len [string length [regexp -inline $pattern $name]]
     if { $len > $maxlen } {
-      set col $color
-      set bg $background
+      set col [lindex $dircolor($pattern) 0]
+      set bg [lindex $dircolor($pattern) 1]
       set maxlen $len
     }
   }
-  set def_bg [option get . background {}]
-  if {$dark_gui_colorscheme} { set dircol {cyan} } else { set dircol {blue} }
-  # puts "$name1 $col $bg"
-  for {set i 0} { $i< [.load.l.paneright.f.list index end] } {incr i} {
-    set name "$dir1/[lindex $file_dialog_files2 $i]"
-    if {[ file isdirectory $name]} {
-      .load.l.paneright.f.list itemconfigure $i -foreground $dircol -selectforeground $dircol \
-                   -background $def_bg 
-    } else {
-      if {$bg ne {}} {
-        .load.l.paneright.f.list itemconfigure $i -foreground $col -selectforeground $col \
-                                                  -background $bg  
-      } else {
-        .load.l.paneright.f.list itemconfigure $i -foreground $col    -selectforeground $col \
-                                                  -background $def_bg 
+  return [list $col $bg]
+}
+
+## path of $dir relative to $root, {} if equal, - if $dir is not inside $root
+proc file_dialog_relpath {root dir} {
+  if {$dir eq $root} {return {}}
+  if {[string index $root end] eq {/}} {set pre $root} else {set pre $root/}
+  if {[string first $pre $dir] == 0} {return [string range $dir [string length $pre] end]}
+  return -
+}
+
+## replace home directory with ~ for display
+proc file_dialog_tilde {p} {
+  global env
+  if {![info exists env(HOME)]} {return $p}
+  set home [file normalize $env(HOME)]
+  set rel [file_dialog_relpath $home $p]
+  if {$rel eq {-}} {return $p}
+  if {$rel eq {}} {return ~}
+  return ~/$rel
+}
+
+## normalized, existing, unique directories of the library search path
+proc file_dialog_root_paths {} {
+  global pathlist
+  set curr_dirname [xschem get current_dirname]
+  set out {}
+  foreach p $pathlist {
+    if {$p eq {.}} {set p $curr_dirname}
+    set p [file normalize [abs_sym_path $p]]
+    if {[file isdirectory $p] && [lsearch -exact $out $p] < 0} {lappend out $p}
+  }
+  return $out
+}
+
+## display names for library root nodes: full path or library name (+ parent dir if ambiguous)
+proc file_dialog_root_labels {paths} {
+  global load_file_dialog_fullpath lib_alias
+  set labels {}
+  foreach p $paths {
+    if {$load_file_dialog_fullpath == 1} {lappend labels $p} else {lappend labels [get_cell $p 0]}
+  }
+  if {$load_file_dialog_fullpath != 1} {
+    foreach l $labels {incr cnt($l)}
+    set new {}
+    foreach p $paths l $labels {
+      if {$cnt($l) > 1} {set l [get_cell $p 1]}
+      lappend new $l
+    }
+    set labels $new
+  }
+  set out {}
+  foreach l $labels {
+    if {[info exists lib_alias($l)]} {set l $lib_alias($l)}
+    lappend out $l
+  }
+  return $out
+}
+
+proc file_dialog_has_subdirs {dir} {
+  return [expr {[llength [glob -nocomplain -directory $dir -types d *]] > 0}]
+}
+
+## add a directory node; a 'dummy' child makes the expand arrow visible until the node is opened
+proc file_dialog_tree_insert {parent path label image tags} {
+  global file_dialog_tree_path
+  set t .load.l.paneleft.tree
+  set id [$t insert $parent end -text " $label" -image $image -tags $tags]
+  set file_dialog_tree_path($id) $path
+  if {[file_dialog_has_subdirs $path]} {$t insert $id end -tags dummy}
+  return $id
+}
+
+proc file_dialog_tree_build {} {
+  global file_dialog_tree_path file_dialog_extra_root
+  set t .load.l.paneleft.tree
+  $t delete [$t children {}]
+  array unset file_dialog_tree_path
+  set file_dialog_extra_root {}
+  set paths [file_dialog_root_paths]
+  set n 0
+  foreach p $paths l [file_dialog_root_labels $paths] {
+    lassign [file_dialog_dircolor $p] col bg
+    set tags {}
+    if {$col ne {} || $bg ne {}} {
+      set tags [list col$n]
+      if {$col ne {}} {$t tag configure col$n -foreground $col}
+      if {$bg ne {}} {$t tag configure col$n -background $bg}
+    }
+    file_dialog_tree_insert {} $p $l fd_lib $tags
+    incr n
+  }
+}
+
+## update library root labels after toggling the 'Full paths' checkbutton
+proc file_dialog_relabel_roots {} {
+  global file_dialog_tree_path file_dialog_extra_root
+  set t .load.l.paneleft.tree
+  set ids {}
+  set paths {}
+  foreach id [$t children {}] {
+    if {$id eq $file_dialog_extra_root} continue
+    lappend ids $id
+    lappend paths $file_dialog_tree_path($id)
+  }
+  foreach id $ids l [file_dialog_root_labels $paths] {
+    $t item $id -text " $l"
+  }
+}
+
+## lazy loading of sub directories
+proc file_dialog_tree_expand {id} {
+  global file_dialog_tree_path
+  set t .load.l.paneleft.tree
+  if {$id eq {}} return
+  set kids [$t children $id]
+  if {[llength $kids] != 1 || ![$t tag has dummy [lindex $kids 0]]} return
+  $t delete $kids
+  set dir $file_dialog_tree_path($id)
+  set tags [$t item $id -tags]
+  foreach d [lsort -dictionary [glob -nocomplain -directory $dir -tails -types d *]] {
+    file_dialog_tree_insert $id [file join $dir $d] $d fd_folder $tags
+  }
+}
+
+## re-read sub directories of $dir (after creating / deleting a directory)
+proc file_dialog_tree_reload {dir} {
+  global file_dialog_tree_path
+  set t .load.l.paneleft.tree
+  foreach id [array names file_dialog_tree_path] {
+    if {$file_dialog_tree_path($id) eq $dir && [$t exists $id]} {
+      $t delete [$t children $id]
+      if {[file_dialog_has_subdirs $dir]} {$t insert $id end -tags dummy}
+      $t item $id -open 0
+    }
+  }
+}
+
+## open nodes from $id following relative path $rel, return node or {} if not found
+proc file_dialog_tree_walk {id rel} {
+  global file_dialog_tree_path
+  set t .load.l.paneleft.tree
+  foreach comp [file split $rel] {
+    file_dialog_tree_expand $id
+    set next {}
+    foreach c [$t children $id] {
+      if {[info exists file_dialog_tree_path($c)] && [file tail $file_dialog_tree_path($c)] eq $comp} {
+        set next $c
+        break
       }
     }
+    if {$next eq {}} {return {}}
+    $t item $id -open 1
+    set id $next
   }
+  return $id
 }
 
-proc file_dialog_set_names1 {} {
-  global file_dialog_names1 file_dialog_files1 load_file_dialog_fullpath lib_alias
-
-  set file_dialog_names1 {}
-  foreach i $file_dialog_files1 {
-    if { $load_file_dialog_fullpath == 1} {
-      set item $i
-    } else {
-      set item [get_cell $i 0]
-    }
-    if {[info exists lib_alias($item)]} {
-      set item $lib_alias($item)
-    }
-    lappend file_dialog_names1 $item
-  }
-}
-
+## select $dir in the tree, opening parent nodes as needed.
+## Directories outside the library paths get their own root node at the top.
 proc file_dialog_set_home {dir} {
-  global pathlist  file_dialog_files1 file_dialog_index1 file_dialog_names1
-
-  set curr_dirname [xschem get current_dirname]
-  .load.l.paneleft.list selection clear 0 end
-  if { $dir eq {.}} { set dir $curr_dirname}
-  # puts "set home: dir=$dir, pathlist=$pathlist"
-  set pl {}
-  foreach path_elem $pathlist {
-    if { ![string compare $path_elem .]} {
-      set path_elem $curr_dirname
+  global file_dialog_tree_path file_dialog_extra_root
+  set t .load.l.paneleft.tree
+  if { $dir eq {.} || $dir eq {}} { set dir [xschem get current_dirname]}
+  set dir [file normalize $dir]
+  set best {}
+  set bestlen -1
+  foreach id [$t children {}] {
+    set p $file_dialog_tree_path($id)
+    if {[file_dialog_relpath $p $dir] ne {-} && [string length $p] > $bestlen} {
+      set best $id
+      set bestlen [string length $p]
     }
-    lappend pl $path_elem
   }
-  set i [lsearch -exact $pl $dir]
-  if { $i>=0 } {
-    set file_dialog_files1 $pathlist
-    file_dialog_set_names1
-    update
-    file_dialog_set_colors1
-    .load.l.paneleft.list xview moveto 1
-    set file_dialog_index1 $i
-    .load.l.paneleft.list selection set $file_dialog_index1
+  set id {}
+  if {$best ne {}} {
+    set id [file_dialog_tree_walk $best [file_dialog_relpath $file_dialog_tree_path($best) $dir]]
+  }
+  if {$id eq {}} {
+    if {$file_dialog_extra_root ne {} && [$t exists $file_dialog_extra_root]} {
+      $t delete $file_dialog_extra_root
+    }
+    set file_dialog_extra_root [file_dialog_tree_insert {} $dir [file_dialog_tilde $dir] fd_folder {}]
+    $t move $file_dialog_extra_root {} 0
+    set id $file_dialog_extra_root
+  }
+  $t selection set [list $id]
+  $t focus $id
+  $t see $id
+}
+
+proc file_dialog_tree_select {} {
+  global file_dialog_tree_path file_dialog_dir1
+  set t .load.l.paneleft.tree
+  set id [lindex [$t selection] 0]
+  if {$id eq {} || ![info exists file_dialog_tree_path($id)]} return
+  set dir $file_dialog_tree_path($id)
+  if {$dir eq $file_dialog_dir1} return
+  set file_dialog_dir1 $dir
+  file_dialog_clear_preview
+  file_dialog_refresh_files
+}
+
+## show full path of library tree nodes in a tooltip
+proc file_dialog_tree_tooltip {t x y} {
+  global file_dialog_tree_path file_dialog_tip_item file_dialog_tip_after
+  set id [$t identify item $x $y]
+  if {[info exists file_dialog_tip_item] && $id eq $file_dialog_tip_item} return
+  set file_dialog_tip_item $id
+  if {[info exists file_dialog_tip_after]} {after cancel $file_dialog_tip_after}
+  destroy $t.balloon
+  if {$id ne {} && [info exists file_dialog_tree_path($id)]} {
+    set file_dialog_tip_after [after 800 [list balloon_show $t $file_dialog_tree_path($id) 0]]
+  }
+}
+
+proc file_dialog_tree_tooltip_hide {t} {
+  global file_dialog_tip_item file_dialog_tip_after
+  if {[info exists file_dialog_tip_after]} {after cancel $file_dialog_tip_after}
+  set file_dialog_tip_item {}
+  destroy $t.balloon
+}
+
+proc file_dialog_home {} {
+  global file_dialog_tree_path file_dialog_extra_root file_dialog_dir1
+  set t .load.l.paneleft.tree
+  file_dialog_clear_preview
+  foreach id [$t children {}] {
+    if {$id eq $file_dialog_extra_root} continue
+    set file_dialog_dir1 $file_dialog_tree_path($id)
+    $t selection set [list $id]
+    $t focus $id
+    $t see $id
+    break
+  }
+  .load.l.paneright.f.list selection set {}
+  file_dialog_refresh_files
+}
+
+proc file_dialog_restore_sashes {} {
+  global file_dialog_sp0 file_dialog_sp1 file_dialog_v_sp0 file_dialog_loadfile file_dialog_sashes_ready
+  if {![winfo exists .load]} return
+  update idletasks
+  if { [info exists file_dialog_v_sp0] } {
+    .load.l.paneright sash place 0 1 $file_dialog_v_sp0
   } else {
-    set file_dialog_files1 [list $dir]
-    file_dialog_set_names1
-    update
-    file_dialog_set_colors1
-    .load.l.paneleft.list xview moveto 1
-    set file_dialog_index1 0
-    .load.l.paneleft.list selection set 0
+    # default: file list gets 55% of the height, symbol preview the rest
+    .load.l.paneright sash place 0 1 [expr {int([winfo height .load.l.paneright] * 0.55)}]
   }
+  if { [info exists file_dialog_sp0] } {
+    if { $file_dialog_loadfile == 2} {
+      .load.l sash place 1 $file_dialog_sp0 1
+    } else {
+      .load.l sash place 0 $file_dialog_sp0 1
+    }
+  }
+  if { $file_dialog_loadfile == 2 && [info exists file_dialog_sp1] } {
+    .load.l sash place 0 $file_dialog_sp1 1
+  }
+  set file_dialog_sashes_ready 1
+}
+
+proc file_dialog_save_sashes {} {
+  global file_dialog_sp0 file_dialog_sp1 file_dialog_v_sp0 file_dialog_loadfile
+  global file_dialog_sashes_ready file_dialog_default_geometry
+  if {![winfo exists .load] || !$file_dialog_sashes_ready || ![winfo ismapped .load]} return
+  # ignore collapsed panes
+  set v [lindex [.load.l.paneright sash coord 0] 1]
+  if {$v > 40} {set file_dialog_v_sp0 $v}
+  if { $file_dialog_loadfile == 2} {
+    set sp0 [lindex [.load.l sash coord 1] 0]
+    set sp1 [lindex [.load.l sash coord 0] 0]
+    if {$sp1 > 20} {set file_dialog_sp1 $sp1}
+  } else {
+    set sp0 [lindex [.load.l sash coord 0] 0]
+  }
+  if {$sp0 > 60} {set file_dialog_sp0 $sp0}
+  set file_dialog_default_geometry [wm geometry .load]
+}
+
+proc file_dialog_clear_preview {} {
+  bind .load.l.paneright.draw <Expose> {}
+  bind .load.l.paneright.draw <Configure> {}
+  .load.l.paneright.draw configure -background white
+}
+
+## icon and type description for a file
+proc file_dialog_file_kind {f} {
+  set e [string tolower [file extension $f]]
+  switch -- $e {
+    .sym {return {fd_sym Symbol}}
+    .sch {return {fd_sch Schematic}}
+    .tcl {return {fd_tcl {Tcl script}}}
+  }
+  if {$e eq {}} {return {fd_file File}}
+  return [list fd_file "[string toupper [string range $e 1 end]] file"]
+}
+
+## library name + relative path for files found by the 'All libraries' search
+proc file_dialog_short_name {f} {
+  global file_dialog_tree_path
+  set t .load.l.paneleft.tree
+  set best {}
+  set bestlen -1
+  foreach id [$t children {}] {
+    set p $file_dialog_tree_path($id)
+    set rel [file_dialog_relpath $p $f]
+    if {$rel ne {-} && [string length $p] > $bestlen} {
+      set best "[string trim [$t item $id -text]]/$rel"
+      set bestlen [string length $p]
+    }
+  }
+  if {$best eq {}} {return [file_dialog_tilde $f]}
+  return $best
+}
+
+## fill right pane from $file_dialog_files2. Entries are relative to $file_dialog_dir1
+## or absolute paths (cross library search results). The 'path' column holds the entry.
+proc file_dialog_fill_files {} {
+  global file_dialog_files2 file_dialog_dir1 dark_gui_colorscheme
+  set t .load.l.paneright.f.list
+  if {![winfo exists $t]} return
+  $t delete [$t children {}]
+  lassign [file_dialog_dircolor $file_dialog_dir1] col bg
+  if {$col eq {}} {set col [ttk::style lookup FileDialog.Treeview -foreground]}
+  if {$bg eq {}} {set bg [ttk::style lookup FileDialog.Treeview -background]}
+  $t tag configure libfile -foreground $col -background $bg
+  if {$dark_gui_colorscheme} { set dircol cyan } else { set dircol {#1d4fa3} }
+  $t tag configure dir -foreground $dircol
+  foreach f $file_dialog_files2 {
+    if {$f eq {.}} continue
+    if {$f eq {..}} {
+      $t insert {} end -text { ..} -image fd_up -values [list {Parent folder} {} ..] -tags dir
+      continue
+    }
+    # hidden files / directories
+    if {[string index [file tail $f] 0] eq {.}} continue
+    if {[file pathtype $f] eq {absolute}} {
+      set full $f
+      set text [file_dialog_short_name $f]
+    } else {
+      set full [file join $file_dialog_dir1 $f]
+      set text $f
+    }
+    set mod {}
+    catch {set mod [clock format [file mtime $full] -format {%Y-%m-%d %H:%M}]}
+    if {[file isdirectory $full]} {
+      $t insert {} end -text " $text" -image fd_folder -values [list Folder $mod $f] -tags dir
+    } else {
+      lassign [file_dialog_file_kind $f] img kind
+      $t insert {} end -text " $text" -image $img -values [list $kind $mod $f] -tags libfile
+    }
+  }
+}
+
+## re-read right pane, applying the fuzzy search if any
+proc file_dialog_refresh_files {} {
+  global file_dialog_dir1
+  set q {}
+  if {[winfo exists .load.buttons_bot.fzf]} {set q [.load.buttons_bot.fzf get]}
+  if {$q ne {}} {
+    fuzzy_filter_files2 $q
+  } else {
+    setglob $file_dialog_dir1
+  }
+  file_dialog_fill_files
 }
 
 proc setglob {dir} {
@@ -4611,7 +4949,7 @@ proc setglob {dir} {
 }
 
 proc load_file_dialog_mkdir {dir} {
-  global file_dialog_dir1 has_x
+  global file_dialog_dir1 has_x file_dialog_fzf_cache
   if { $dir ne {} } {
     if {[catch {file mkdir "${file_dialog_dir1}/$dir"} err]} {
       puts $err
@@ -4619,22 +4957,20 @@ proc load_file_dialog_mkdir {dir} {
         tk_messageBox -message "$err" -icon error -parent [xschem get topwindow] -type ok
       }
     }
-    setglob ${file_dialog_dir1}
-    file_dialog_set_colors2
+    array unset file_dialog_fzf_cache
+    file_dialog_tree_reload $file_dialog_dir1
+    file_dialog_refresh_files
   }
 }
 
 proc load_file_dialog_up {dir} {
   global file_dialog_dir1
-  bind .load.l.paneright.draw <Expose> {}
-  bind .load.l.paneright.draw <Configure> {}
-  .load.l.paneright.draw configure -background white
+  file_dialog_clear_preview
   set d [file dirname $dir]
   if { [file isdirectory $d]} {
     file_dialog_set_home $d
-    setglob $d
-    file_dialog_set_colors2
-    set file_dialog_dir1 $d
+    set file_dialog_dir1 [file normalize $d]
+    file_dialog_refresh_files
   }
 }
 
@@ -4644,11 +4980,13 @@ proc file_dialog_getresult {loadfile confirm_overwrt} {
   if { $file_dialog_retval ne {}} {
     if { [regexp {^https?://} $file_dialog_retval] } {
       set fname $file_dialog_retval
-    } elseif { [regexp {^/} $file_dialog_retval]} {
+    } elseif { [regexp {^/} $file_dialog_retval] ||
+               ([file pathtype $file_dialog_retval] eq {absolute} &&
+                [string index $file_dialog_retval 0] ne {~})} {
       set fname $file_dialog_retval
     } else {
-      regsub {/*$} $file_dialog_dir1 {/} file_dialog_dir1
-      set fname "${file_dialog_dir1}${file_dialog_retval}"
+      regsub {/*$} $file_dialog_dir1 {/} dir
+      set fname "${dir}${file_dialog_retval}"
     }
     if {![file exists "$fname"] } {
       return "$fname"
@@ -4729,41 +5067,30 @@ proc file_dialog_display_preview {f} {
       bind .load.l.paneright.draw <Configure> [subst {xschem preview_window draw .load.l.paneright.draw "$f"}]
     }
   } else {
-    bind .load.l.paneright.draw <Expose> {}
-    bind .load.l.paneright.draw <Configure> {}
-    .load.l.paneright.draw configure -background white
+    file_dialog_clear_preview
   }
 }
 
 proc file_dialog_right_listboxselect {dirselect} {
-    global file_dialog_yview file_dialog_dir1 file_dialog_dir2  file_dialog_retval file_dialog_sel
-    global OS file_dialog_loadfile file_dialog_index1 file_dialog_files1 file_dialog_globfilter
-    global file_dialog_others
-    set file_dialog_yview [.load.l.paneright.f.list yview]
-    set file_dialog_sel [lindex [.load.l.paneright.f.list curselection] 0]
+    global file_dialog_yview file_dialog_dir1 file_dialog_dir2  file_dialog_retval
+    global file_dialog_loadfile file_dialog_others file_dialog_navigated
+    set t .load.l.paneright.f.list
+    set file_dialog_yview [$t yview]
+    set sel [$t selection]
+    # primary item is the focus item, others (multiple selection) are loaded in additional windows
+    set first [$t focus]
+    if {$first eq {} || [lsearch -exact $sel $first] < 0} {set first [lindex $sel 0]}
 
-    if { $file_dialog_sel ne {} } {
-      set curr_dir [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
-      set curr_item [.load.l.paneright.f.list get $file_dialog_sel]
+    if { $first ne {} } {
+      set curr_dir $file_dialog_dir1
+      set curr_item [$t set $first path]
 
       if {$curr_item eq {..}} {
         set file_dialog_d [file dirname $curr_dir]
-      } elseif {$curr_item eq {.} } {
-        set file_dialog_d  $curr_dir
+      } elseif {[file pathtype $curr_item] eq {absolute}} {
+        set file_dialog_d $curr_item
       } else {
-        if {$OS == "Windows"} {
-          if {[regexp {^[A-Za-z]\:/$} $curr_dir]} {
-            set file_dialog_d "$curr_dir$curr_item"
-          } else {
-            set file_dialog_d "$curr_dir/$curr_item"
-          }
-        } else {
-          if {$curr_dir eq "/"} {
-            set file_dialog_d "$curr_dir$curr_item"
-          } else {
-            set file_dialog_d "$curr_dir/$curr_item"
-          }
-        }
+        set file_dialog_d [file join $curr_dir $curr_item]
       }
 
       if { !$dirselect && [file isdirectory $file_dialog_d] } {
@@ -4772,33 +5099,30 @@ proc file_dialog_right_listboxselect {dirselect} {
         return
       }
 
-      set file_dialog_dir1 $curr_dir
       set file_dialog_dir2 $curr_item
 
       set file_dialog_others {}
       if {$file_dialog_loadfile == 1} {
-        foreach i [lrange [.load.l.paneright.f.list curselection] 1 end] {
-          set file_dialog_retval [.load.l.paneright.f.list get $i]
+        foreach id $sel {
+          if {$id eq $first} continue
+          set file_dialog_retval [$t set $id path]
           lappend file_dialog_others [file_dialog_getresult 1 0]
         }
       }
       set file_dialog_retval {} ;# we used this variable above to communicate with file_dialog_getresult
 
-
       if { [file isdirectory $file_dialog_d]} {
-        bind .load.l.paneright.draw <Expose> {}
-        bind .load.l.paneright.draw <Configure> {}
-        .load.l.paneright.draw configure -background white
+        file_dialog_clear_preview
+        .load.buttons_bot.fzf delete 0 end
         file_dialog_set_home $file_dialog_d
-        setglob $file_dialog_d
-        file_dialog_set_colors2
-        set file_dialog_dir1 $file_dialog_d
+        set file_dialog_dir1 [file normalize $file_dialog_d]
+        file_dialog_refresh_files
+        # avoid a double click on a directory to be taken as a file selection
+        set file_dialog_navigated 1
       } else {
         .load.buttons_bot.entry delete 0 end
         .load.buttons_bot.entry insert 0 $file_dialog_dir2
-
         file_dialog_display_preview  $file_dialog_d
-        # puts "xschem preview_window draw .load.l.paneright.draw \"$file_dialog_dir1/$file_dialog_dir2\""
       }
     }
     if {$file_dialog_loadfile == 2} {
@@ -4856,11 +5180,14 @@ proc fuzzy_match_glob {pat name} {
 }
 
 proc fuzzy_walk {dir maxdepth} {
+  global fuzzy_walk_budget
   set out {}
   if {$maxdepth <= 0} { return $out }
   if {[catch {glob -nocomplain -directory $dir -tails *} entries]} { return $out }
   foreach e $entries {
     if {[string index $e 0] eq "."} { continue }
+    # stop on huge directory trees
+    if {[info exists fuzzy_walk_budget] && [incr fuzzy_walk_budget -1] < 0} { break }
     set full [file join $dir $e]
     if {[file isdirectory $full]} {
       foreach sub [fuzzy_walk $full [expr {$maxdepth - 1}]] {
@@ -4873,25 +5200,69 @@ proc fuzzy_walk {dir maxdepth} {
   return $out
 }
 
+## directory walks are cached while the file dialog is open
+proc fuzzy_walk_cached {dir maxdepth} {
+  global file_dialog_fzf_cache fuzzy_walk_budget
+  if {![info exists file_dialog_fzf_cache($dir)]} {
+    set fuzzy_walk_budget 20000
+    set file_dialog_fzf_cache($dir) [fuzzy_walk $dir $maxdepth]
+    unset fuzzy_walk_budget
+  }
+  return $file_dialog_fzf_cache($dir)
+}
+
 proc fuzzy_filter_files2 {q} {
-  global file_dialog_files2 file_dialog_dir1 file_dialog_ext
+  global file_dialog_files2 file_dialog_dir1 file_dialog_ext file_dialog_search_all
+  global file_dialog_tree_path
   if {$q eq {}} {
     setglob $file_dialog_dir1
     return
   }
-  set all [fuzzy_walk $file_dialog_dir1 6]
-  set ext_pat $file_dialog_ext
-  if {$ext_pat ne {} && $ext_pat ne {*}} {
-    set filt {}
-    foreach f $all {
-      if {[fuzzy_match_glob $ext_pat [file tail $f]]} { lappend filt $f }
+  # candidates: {name used for matching, value stored in file_dialog_files2}
+  set cand {}
+  if {$file_dialog_search_all} {
+    global file_dialog_extra_root
+    set t .load.l.paneleft.tree
+    # library roots only; deepest first so nested libraries get their own name
+    set roots {}
+    foreach id [$t children {}] {
+      if {$id eq $file_dialog_extra_root} continue
+      lappend roots [list $file_dialog_tree_path($id) [string trim [$t item $id -text]]]
     }
-    set all $filt
+    set roots [lsort -decreasing -command {apply {{a b} {
+      expr {[string length [lindex $a 0]] - [string length [lindex $b 0]]}}}} $roots]
+    foreach r $roots {
+      lassign $r root lab
+      foreach f [fuzzy_walk_cached $root 6] {
+        set full [file join $root $f]
+        if {[info exists seen($full)]} continue
+        set seen($full) 1
+        lappend cand [list $lab/$f $full]
+      }
+    }
+  } else {
+    foreach f [fuzzy_walk_cached $file_dialog_dir1 6] {
+      lappend cand [list $f $f]
+    }
   }
+  set ext_pat $file_dialog_ext
+  set ql [string tolower [string map {{ } {}} $q]]
   set scored {}
-  foreach name $all {
+  foreach c $cand {
+    lassign $c name val
+    if {$ext_pat ne {} && $ext_pat ne {*} && ![fuzzy_match_glob $ext_pat [file tail $name]]} continue
     set sc [fuzzy_subseq_score $q $name]
-    if {$sc >= 0} { lappend scored [list $sc $name] }
+    if {$sc < 0} continue
+    # rank exact / prefix / substring matches of the file name first
+    set cell [string tolower [file rootname [file tail $name]]]
+    if {$cell eq $ql} {
+      incr sc 300000
+    } elseif {[string first $ql $cell] == 0} {
+      incr sc 200000
+    } elseif {[string first $ql $cell] > 0} {
+      incr sc 100000
+    }
+    lappend scored [list $sc $val]
   }
   set sorted [lsort -decreasing -integer -index 0 $scored]
   set out {}
@@ -4912,10 +5283,11 @@ proc fuzzy_filter_files2 {q} {
 #
 proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
      {loadfile {1}} {confirm_overwrt {1}} {initialf {}}} {
-  global file_dialog_index1 file_dialog_files2 file_dialog_files1 file_dialog_retval file_dialog_dir1 pathlist OS
+  global file_dialog_files2 file_dialog_retval file_dialog_dir1 OS
   global file_dialog_default_geometry file_dialog_sp0 file_dialog_sp1 file_dialog_v_sp0 file_dialog_yview
-  global file_dialog_names1 tcl_version file_dialog_globfilter file_dialog_dir2
+  global tcl_version file_dialog_globfilter file_dialog_dir2 file_dialog_tree_path
   global file_dialog_save_initialfile file_dialog_loadfile file_dialog_ext
+  global file_dialog_search_all file_dialog_fzf_cache file_dialog_navigated file_dialog_sashes_ready
 
   if { [winfo exists .load] } {
     .load.buttons_bot.cancel invoke
@@ -4926,46 +5298,33 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
 
   set file_dialog_save_initialfile $initialf
   set file_dialog_retval {}
+  # fuzzy search in all libraries when placing symbols, in current directory otherwise
+  set file_dialog_search_all [expr {$loadfile == 2}]
+  set file_dialog_navigated 0
+  array unset file_dialog_fzf_cache
   upvar #0 $global_initdir initdir
   if { $loadfile != 2} {xschem set semaphore [expr {[xschem get semaphore] +1}]}
+  file_dialog_create_icons
+  file_dialog_style
   toplevel .load -class Dialog
   wm title .load $msg
   # wm transient .load [xschem get topwindow]
-  set_ne file_dialog_index1 0
-  if { ![info exists file_dialog_files1]} {
-    set file_dialog_files1 $pathlist
-    file_dialog_set_names1
-    update
-    set file_dialog_index1 0
-  }
   set_ne file_dialog_files2 {}
   panedwindow  .load.l -orient horizontal -height 8c
   if { $loadfile == 2} {frame .load.l.recent -takefocus 0}
-  frame .load.l.paneleft -takefocus 0 -highlightcolor red -highlightthickness 2 \
-    -highlightbackground [option get . background {}]
-  eval [subst {listbox .load.l.paneleft.list -listvariable file_dialog_names1 -width 40 -height 12 \
-    -highlightthickness 0 -relief flat -borderwidth 0 \
-    -yscrollcommand ".load.l.paneleft.yscroll set" -selectmode browse \
-    -xscrollcommand ".load.l.paneleft.xscroll set" -exportselection 0}]
-  if { ![catch {.load.l.paneleft.list cget -justify}]} {
-    .load.l.paneleft.list configure -justify right
-  }
-  file_dialog_set_colors1
-  scrollbar .load.l.paneleft.yscroll -command ".load.l.paneleft.list yview" -takefocus 0
-  scrollbar .load.l.paneleft.xscroll -command ".load.l.paneleft.list xview" -orient horiz -takefocus 0
-  bind .load.l.paneleft.list <<ListboxSelect>> {
-    set file_dialog_sel [.load.l.paneleft.list curselection]
-    if { $file_dialog_sel ne {} } {
-      set file_dialog_dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_sel]]
-      set file_dialog_index1 $file_dialog_sel
 
-      set file_dialog_globfilter  *[.load.buttons_bot.src get]*
-      if { $file_dialog_globfilter eq {**} } { set file_dialog_globfilter * }
-
-      setglob $file_dialog_dir1
-      file_dialog_set_colors2
-    }
-  }
+  ## left pane: library / directory tree
+  frame .load.l.paneleft -takefocus 0
+  ttk::treeview .load.l.paneleft.tree -style FileDialog.Treeview -show tree -selectmode browse \
+    -yscrollcommand ".load.l.paneleft.yscroll set" -xscrollcommand ".load.l.paneleft.xscroll set"
+  .load.l.paneleft.tree column #0 -width 260 -minwidth 150 -stretch 1
+  scrollbar .load.l.paneleft.yscroll -command ".load.l.paneleft.tree yview" -takefocus 0
+  scrollbar .load.l.paneleft.xscroll -command ".load.l.paneleft.tree xview" -orient horiz -takefocus 0
+  bind .load.l.paneleft.tree <<TreeviewOpen>> {file_dialog_tree_expand [%W focus]}
+  bind .load.l.paneleft.tree <<TreeviewSelect>> {file_dialog_tree_select}
+  bind .load.l.paneleft.tree <Motion> {file_dialog_tree_tooltip %W %x %y}
+  bind .load.l.paneleft.tree <Leave> {file_dialog_tree_tooltip_hide %W}
+  file_dialog_tree_build
 
   panedwindow .load.l.paneright -orient vertical
   frame .load.l.paneright.f -takefocus 0
@@ -4991,11 +5350,16 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     set selmode extended
   }
 
-  listbox .load.l.paneright.f.list -listvariable file_dialog_files2 -width 20 -height 12\
-    -highlightcolor red -highlightthickness 2 \
-    -highlightbackground [option get . background {}] \
-    -yscrollcommand ".load.l.paneright.f.yscroll set" -selectmode $selmode \
-    -xscrollcommand ".load.l.paneright.f.xscroll set" -exportselection 0
+  ## right pane: files in selected directory
+  ttk::treeview .load.l.paneright.f.list -style FileDialog.Treeview -selectmode $selmode \
+    -columns {type modified path} -displaycolumns {type modified} -show {tree headings} \
+    -yscrollcommand ".load.l.paneright.f.yscroll set" -xscrollcommand ".load.l.paneright.f.xscroll set"
+  .load.l.paneright.f.list heading #0 -text Name -anchor w
+  .load.l.paneright.f.list heading type -text Type -anchor w
+  .load.l.paneright.f.list heading modified -text Modified -anchor w
+  .load.l.paneright.f.list column #0 -width 260 -minwidth 120 -stretch 1
+  .load.l.paneright.f.list column type -width 90 -minwidth 60 -stretch 0
+  .load.l.paneright.f.list column modified -width 130 -minwidth 80 -stretch 0
   scrollbar .load.l.paneright.f.yscroll -command ".load.l.paneright.f.list yview" -takefocus 0
   scrollbar .load.l.paneright.f.xscroll -command ".load.l.paneright.f.list xview" -orient horiz -takefocus 0
 
@@ -5023,23 +5387,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     set $global_initdir \"\$file_dialog_dir1\"
   "
   wm protocol .load WM_DELETE_WINDOW {.load.buttons_bot.cancel invoke}
-  button .load.buttons.home -width 5 -text {Home} -takefocus 0 -command {
-    bind .load.l.paneright.draw <Expose> {}
-    bind .load.l.paneright.draw <Configure> {}
-    .load.l.paneright.draw configure -background white
-    set file_dialog_files1 $pathlist
-    file_dialog_set_names1
-    update
-    file_dialog_set_colors1
-    .load.l.paneleft.list xview moveto 1
-    set file_dialog_index1 0
-    set file_dialog_dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
-    setglob $file_dialog_dir1
-    file_dialog_set_colors2
-    .load.l.paneleft.list selection clear 0 end
-    .load.l.paneright.f.list selection clear 0 end
-    .load.l.paneleft.list selection set $file_dialog_index1
-  }
+  button .load.buttons.home -width 5 -text {Home} -takefocus 0 -command {file_dialog_home}
   label .load.buttons_bot.label  -text { File:}
   entry .load.buttons_bot.entry -highlightcolor red -highlightthickness 2 -takefocus 0 \
     -highlightbackground [option get . background {}]
@@ -5058,6 +5406,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       set file_dialog_globfilter  *[.load.buttons_bot.src get]*
       if { $file_dialog_globfilter eq {**} } { set file_dialog_globfilter * }
       setglob $file_dialog_dir1
+      file_dialog_fill_files
       if {[.load.buttons_bot.entry get] ne {}} {
         .load.l.paneright.f.list yview moveto 1.0
       } else {
@@ -5079,15 +5428,16 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     -highlightbackground [option get . background {}]
   entry_replace_selection .load.buttons_bot.fzf
   bind .load.buttons_bot.fzf <KeyRelease> {
-    fuzzy_filter_files2 [.load.buttons_bot.fzf get]
-    file_dialog_set_colors2
+    file_dialog_refresh_files
     set file_dialog_retval {   }
   }
   bind .load.buttons_bot.fzf <FocusIn> {
-    fuzzy_filter_files2 [.load.buttons_bot.fzf get]
-    file_dialog_set_colors2
+    file_dialog_refresh_files
     set file_dialog_retval {   }
   }
+  checkbutton .load.buttons_bot.fzfall -text {All libraries} -variable file_dialog_search_all \
+    -takefocus 0 -command {file_dialog_refresh_files}
+  balloon .load.buttons_bot.fzfall "Fuzzy search in all library paths\ninstead of current directory"
 
   button .load.buttons.up -width 5 -text Up -command {load_file_dialog_up  $file_dialog_dir1} -takefocus 0
   label .load.buttons.mkdirlab -text { New dir: }
@@ -5099,23 +5449,19 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   button .load.buttons.rmdir -width 5 -text Delete -takefocus 0 -command {
     if { [.load.buttons.newdir get] ne {} } {
       file delete "${file_dialog_dir1}/[.load.buttons.newdir get]"
-      setglob ${file_dialog_dir1}
-      file_dialog_set_colors2
+      array unset file_dialog_fzf_cache
+      file_dialog_tree_reload $file_dialog_dir1
+      file_dialog_refresh_files
     }
   }
   button .load.buttons.pwd -text {Current dir} -takefocus 0 -command {load_file_dialog_up  [xschem get schname]}
-  checkbutton .load.buttons.path -text {Library paths} -variable load_file_dialog_fullpath -takefocus 0 \
-    -command {
-      file_dialog_set_names1
-      update
-      file_dialog_set_colors1
-      .load.l.paneleft.list xview moveto 1
-    }
+  checkbutton .load.buttons.path -text {Full paths} -variable load_file_dialog_fullpath -takefocus 0 \
+    -command {file_dialog_relabel_roots}
 
   pack .load.l -expand true -fill both
   pack  .load.l.paneleft.yscroll -side right -fill y
   pack  .load.l.paneleft.xscroll -side bottom -fill x
-  pack  .load.l.paneleft.list -fill both -expand true -padx 12
+  pack  .load.l.paneleft.tree -fill both -expand true
 
   pack .load.buttons.home .load.buttons.up .load.buttons.pwd .load.buttons.path -side left
   pack .load.buttons.mkdirlab -side left
@@ -5125,6 +5471,7 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   pack .load.buttons_bot.src -side left
   pack .load.buttons_bot.fzflab -side left
   pack .load.buttons_bot.fzf -side left
+  pack .load.buttons_bot.fzfall -side left
   pack .load.buttons_bot.label -side left
   pack .load.buttons_bot.entry -side left -fill x -expand true
 
@@ -5137,6 +5484,8 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   pack .load.buttons -side bottom -fill x
   if { [info exists file_dialog_default_geometry]} {
      wm geometry .load "${file_dialog_default_geometry}"
+  } else {
+     wm geometry .load 1050x680
   }
   file_dialog_set_home $initdir
   if { $loadfile != 2} {
@@ -5151,13 +5500,15 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
       }
     "
     bind .load.l.paneright.f.list <Double-Button-1> "
-      set file_dialog_retval \[.load.buttons_bot.entry get\]
-      if {\$file_dialog_retval ne {} && !\[file isdirectory \$file_dialog_retval\]} {
-        bind .load.l.paneright.draw <Expose> {}
-        bind .load.l.paneright.draw <Configure> {}
-        xschem preview_window destroy .load.l.paneright.draw {}
-        destroy .load
-        set $global_initdir \"\$file_dialog_dir1\"
+      if {!\$file_dialog_navigated && \[lsearch {tree cell} \[%W identify region %x %y\]\] >= 0} {
+        set file_dialog_retval \[.load.buttons_bot.entry get\]
+        if {\$file_dialog_retval ne {} && !\[file isdirectory \$file_dialog_retval\]} {
+          bind .load.l.paneright.draw <Expose> {}
+          bind .load.l.paneright.draw <Configure> {}
+          xschem preview_window destroy .load.l.paneright.draw {}
+          destroy .load
+          set $global_initdir \"\$file_dialog_dir1\"
+        }
       }
     "
   }
@@ -5172,50 +5523,23 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   bind .load <KeyPress-U> {.load.buttons.up invoke }
   ### update
 
-  if { [info exists file_dialog_v_sp0] } {
-    eval .load.l.paneright sash mark 0 [.load.l.paneright sash coord 0]
-    eval .load.l.paneright sash dragto 0 [subst {1 $file_dialog_v_sp0}]
-  }
-
-  if { [info exists file_dialog_sp0] } {
-    if { $file_dialog_loadfile == 2} {
-      eval .load.l sash mark 1 [.load.l sash coord 1]
-      eval .load.l sash dragto 1 [subst {$file_dialog_sp0 1}]
-    } else {
-      eval .load.l sash mark 0 [.load.l sash coord 0]
-      eval .load.l sash dragto 0 [subst {$file_dialog_sp0 1}]
+  # sash positions can only be restored once the window has its final size,
+  # and must not be saved before that (they would be saved squeezed)
+  set file_dialog_sashes_ready 0
+  bind .load <Map> {
+    if {{%W} eq {.load} && !$file_dialog_sashes_ready} {
+      after idle file_dialog_restore_sashes
     }
   }
-  if { $file_dialog_loadfile == 2 && [info exists file_dialog_sp1] } {
-    eval .load.l sash mark 0 [.load.l sash coord 0]
-    eval .load.l sash dragto 0 [subst {$file_dialog_sp1 1}]
-  }
-  ### update
-  .load.l.paneleft.list xview moveto 1
-
-  bind .load <Configure> {
-    set file_dialog_v_sp0 [lindex [.load.l.paneright sash coord 0] 1]
-    if { $file_dialog_loadfile == 2} {
-      set file_dialog_sp0 [lindex [.load.l sash coord 1] 0]
-    } else {
-      set file_dialog_sp0 [lindex [.load.l sash coord 0] 0]
-    }
-    if {$file_dialog_loadfile == 2} {
-      set file_dialog_sp1 [lindex [.load.l sash coord 0] 0]
-    }
-    set file_dialog_default_geometry [wm geometry .load]
-    .load.l.paneleft.list xview moveto 1
-    # regsub {\+.*} $file_dialog_default_geometry {} file_dialog_default_geometry
-  }
+  bind .load <Configure> {file_dialog_save_sashes}
 
   bind .load.l.paneright.f.yscroll <Motion> {
     set file_dialog_yview [.load.l.paneright.f.list yview]
   }
 
   xschem preview_window create .load.l.paneright.draw {}
-  set file_dialog_dir1 [abs_sym_path [lindex $file_dialog_files1 $file_dialog_index1]]
-  setglob $file_dialog_dir1
-  file_dialog_set_colors2
+  set file_dialog_dir1 $file_dialog_tree_path([lindex [.load.l.paneleft.tree selection] 0])
+  file_dialog_refresh_files
 
 
   if {$file_dialog_loadfile == 2} {
@@ -5230,8 +5554,14 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
     file_dialog_right_listboxselect 1
   }
 
+  bind .load.l.paneright.f.list <ButtonPress-1> {
+    set file_dialog_navigated 0
+  }
+
   bind .load.l.paneright.f.list <ButtonRelease-1> {
-    file_dialog_right_listboxselect 1
+    if {[lsearch {tree cell} [%W identify region %x %y]] >= 0} {
+      file_dialog_right_listboxselect 1
+    }
   }
 
   bind .load.l.paneright.f.list <KeyRelease-Up> {
@@ -5241,10 +5571,6 @@ proc load_file_dialog {{msg {}} {ext {}} {global_initdir {INITIALINSTDIR}}
   bind .load.l.paneright.f.list <KeyRelease-Down> {
     file_dialog_right_listboxselect 0
   }
-
-  # bind .load.l.paneright.f.list <<ListboxSelect>> {
-  #   file_dialog_right_listboxselect
-  # }
 
   if { [info exists file_dialog_yview]} {
    .load.l.paneright.f.list yview moveto  [lindex $file_dialog_yview 0]
@@ -10931,6 +11257,9 @@ proc build_widgets { {topwin {} } } {
   $topwin.menubar.waves add command -label Sp -command {waves ac}
   $topwin.menubar.waves add command -label Spectrum -command {waves ac}
 
+  $topwin.menubar add command -label Layout -background {#888888} \
+    -activebackground orange -command {layout_from_button}
+
   set simulate_bg [$topwin.menubar entrycget Simulate -background]
 
   # create  $topwin.menubar.layers.menu
@@ -11969,7 +12298,7 @@ set_ne enable_stretch 0
 set_ne inst_texts_in_area_select 0
 set_ne constr_mv 0
 set_ne unselect_partial_sel_wires 0
-set_ne load_file_dialog_fullpath 1
+set_ne load_file_dialog_fullpath 0
 set_ne file_dialog_others {} ;# contains 2nd, 3rd, ... selected filenames on mult. selections in load file
 
 # if set show selected elements while dragging the selection rectangle.

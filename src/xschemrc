@@ -206,8 +206,8 @@
 #### load_file_dialog components list Y height in pixels
 # set file_dialog_v_sp0 420
 
-#### display full path (1) or only name (0) for component directories. Default: 1
-# set load_file_dialog_fullpath 1
+#### display full path (1) or only name (0) for library directories in file dialog tree. Default: 0
+# set load_file_dialog_fullpath 0
 
 #### if set to 0, when zooming out allow the viewport do drift toward the mouse position,
 #### allowing to move away by zooming / unzooming with mouse wheel
