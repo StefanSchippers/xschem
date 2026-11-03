@@ -67,14 +67,22 @@ descr="Run top level sim, reload annotation data"
 tclcommand="
 
 proc netlist_top \{\} \{
-  global sim netlist_dir
+  global sim netlist_dir preserve_undo
+
+
+  if \{ [xschem get currsch] != 1 \} \{
+     puts \{ parent schematic is not the top level. Load as top level\}
+     return
+  \}
 
   # set foreground spice simulation
   set_sim_defaults ;# populate sim() array
   set sim(spice,0,fg) 1
 
-  # save current schematic 
-  xschem save
+  if \{$preserve_undo == 0\} \{
+    # save current schematic 
+    xschem save
+  \}
 
   # get schname (relative to search paths, no full path)
   set schname [xschem get current_name]

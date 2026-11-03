@@ -1465,8 +1465,8 @@ void sch_deep_copy(Xschem_ctx *dest, Xschem_ctx *source, const char *sch_name, i
 
       if( !my_strdup(_ALLOC_ID_, &dest->undo_dirname,
            create_tmpdir("xschem_undo_", get_cell_w_ext(dest->current_name, 0)) )) {
-        info("init_undo(): problems creating tmp undo dir, Undo will be disabled\n");
-        info("init_undo(): Check permissions in %s\n", tclgetvar("XSCHEM_TMP_DIR"));
+        info("sch_deep_copy(): problems creating tmp undo dir, Undo will be disabled\n");
+        info("sch_deep_copy(): Check permissions in %s\n", tclgetvar("XSCHEM_TMP_DIR"));
         dest->no_undo = 1; /* disable undo */
       } else {
         tclvareval("undo_file_copy {", dest->undo_dirname, "} {", source->undo_dirname, "}", NULL);
