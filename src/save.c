@@ -250,9 +250,16 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
         entry = undo_dir_hash.table[i];
         while( res == 1 && entry ) {
           int j, found;
+          const char *schname = NULL;
           undo_item = entry->value;
           /* skip hierarchy schematics of other tabs/window */
           if(strstr(entry->token, xctx->current_win_path) != entry->token) {
+            entry = entry->next;
+            continue;
+          }
+          schname = strchr(entry->token, '/') + 1;
+          if(fork_sch(7, schname, 0, 1)){ /* don't delete undo data for schematics stored with fork_sch */
+            dbg(1, ("save_undo_table(..., XASK_SAVE | XDELETE...): skip deletion of %s\n", entry->token));
             entry = entry->next;
             continue;
           }
@@ -334,17 +341,12 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
           tmp = entry->next;
           if(res == 1) { /* used did not cancel, always executed if what == XDELETE_ALL_CURRENT_WIN */
             /* delete entries, already used no more necessary */
-            const char *schname = strchr(entry->token, '/') + 1;
-            if(!fork_sch(7, schname, 0, 1)) { /* don't delete undo data for schematics stored with fork_sch */
-              dbg(1, ("save_undo_table(..., XASK_SAVE): deleting %s\n", entry->token));
-              save_undo_freefunc((void **)&entry->value);
-              ptr_hash_lookup(&undo_dir_hash, entry->token, NULL, XDELETE);
-              xctx->uslot = NULL;
-              my_free(_ALLOC_ID_, &xctx->undo_dirname);
-              xctx->undo_initialized = 0;
-            } else {
-              dbg(1, ("save_undo_table(..., XASK_SAVE): don't delete undo data for %s\n", entry->token));
-            }
+            dbg(1, ("save_undo_table(..., XASK_SAVE): deleting %s\n", entry->token));
+            save_undo_freefunc((void **)&entry->value);
+            ptr_hash_lookup(&undo_dir_hash, entry->token, NULL, XDELETE);
+            xctx->uslot = NULL;
+            my_free(_ALLOC_ID_, &xctx->undo_dirname);
+            xctx->undo_initialized = 0;
           }
           entry = tmp;
         } /* while( entry ) */
