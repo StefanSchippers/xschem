@@ -334,12 +334,17 @@ int save_undo_table(const char *sch_name, void *ptr, int what) {
           tmp = entry->next;
           if(res == 1) { /* used did not cancel, always executed if what == XDELETE_ALL_CURRENT_WIN */
             /* delete entries, already used no more necessary */
-            dbg(1, ("save_undo_table(..., XASK_SAVE): deleting %s\n", entry->token));
-            save_undo_freefunc((void **)&entry->value);
-            ptr_hash_lookup(&undo_dir_hash, entry->token, NULL, XDELETE);
-            xctx->uslot = NULL;
-            my_free(_ALLOC_ID_, &xctx->undo_dirname);
-            xctx->undo_initialized = 0;
+            const char *schname = strchr(entry->token, '/') + 1;
+            if(!fork_sch(7, schname, 0, 1)) { /* don't delete undo data for schematics stored with fork_sch */
+              dbg(1, ("save_undo_table(..., XASK_SAVE): deleting %s\n", entry->token));
+              save_undo_freefunc((void **)&entry->value);
+              ptr_hash_lookup(&undo_dir_hash, entry->token, NULL, XDELETE);
+              xctx->uslot = NULL;
+              my_free(_ALLOC_ID_, &xctx->undo_dirname);
+              xctx->undo_initialized = 0;
+            } else {
+              dbg(1, ("save_undo_table(..., XASK_SAVE): don't delete undo data for %s\n", entry->token));
+            }
           }
           entry = tmp;
         } /* while( entry ) */
@@ -4320,11 +4325,13 @@ FILE *open_read_undo_file(const char *name, pid_t *pid_ptr)
 {
   FILE *fd = NULL;
   char diff_name[PATH_MAX + 12];
+  struct stat buf;
   #if HAS_PIPE==1
   int pd[2];
   FILE *diff_fd;
   #endif
 
+  if(stat(name, &buf)) return NULL;
   #if HAS_POPEN==1
   my_snprintf(diff_name, S(diff_name), "gzip -d -c %s", name);
   fd=popen(diff_name, "r");
@@ -4486,8 +4493,6 @@ void pop_undo(int redo, int set_modify_status)
     return;
   }
 
-  clear_drawing();
-  unselect_all(1);
   undo_index = xctx->cur_undo_ptr % (MAX_UNDO - 2) + 2;
   if(redo == 2) {
     undo_index = 0;
@@ -4498,8 +4503,12 @@ void pop_undo(int redo, int set_modify_status)
 
   my_snprintf(diff_name, S(diff_name), "%s/undo%d", xctx->undo_dirname, undo_index);
   if((fd = open_read_undo_file(diff_name, &pid))) {
+    clear_drawing();
+    unselect_all(1);
     read_xschem_file(fd);
     close_undo_file(fd, pid);
+  } else {
+    return; /* undo data not found: do nothing */
   }
 
   if(redo == 5) xctx->cur_undo_ptr++; /* restore undo stack pointer */

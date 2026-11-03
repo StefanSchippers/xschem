@@ -83,7 +83,7 @@ proc netlist_top \{\} \{
   set top_full_schname [xschem get schname 0]
 
   # store current schematic and create empty window
-  xschem fork_sch store
+  xschem fork_sch store $schname
 
   # load toplevel
   xschem load $top_full_schname

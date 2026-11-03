@@ -440,8 +440,6 @@ void mem_pop_undo(int redo, int set_modify_status)
     return;
   }
 
-  clear_drawing();
-  unselect_all(1);
   undo_index = xctx->cur_undo_ptr % (MAX_UNDO - 2) + 2;
   if(redo == 2) {
     undo_index = 0;
@@ -449,6 +447,14 @@ void mem_pop_undo(int redo, int set_modify_status)
   else if(redo == 6) {
     undo_index = 1;
   }
+
+  if(xctx->uslot[undo_index].header_text == NULL) {
+    dbg(1, ("mem_pop_undo(): no data to undo at undo_index=%d\n", undo_index));
+    return; /* no data: do nothing */
+  }
+
+  clear_drawing();
+  unselect_all(1);
 
   my_free(_ALLOC_ID_, &xctx->wire);
   my_free(_ALLOC_ID_, &xctx->text);
