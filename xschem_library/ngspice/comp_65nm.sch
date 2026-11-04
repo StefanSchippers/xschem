@@ -25,8 +25,31 @@ V {}
 S {}
 F {}
 E {}
+B 2 270 -980 1070 -690 {flags=graph
+y1=-0.017
+y2=1.3
+ypos1=0
+ypos2=2
+divy=5
+subdivy=1
+unity=1
+x1=1.23884e-06
+x2=1.33992e-06
+divx=5
+subdivx=1
+dataset=0
+unitx=n
+color="4 12 7"
+node="x1.integ
+vref
+x1.comp"
+smz0=50
+sim_type=tran}
 T {gm=@spice_get_modelparam_gm} 660 -320 0 1 0.2 0.2 {name=M4 layer=7}
 T {gm=@spice_get_modelparam_gm} 520 -320 0 0 0.2 0.2 {name=M3 layer=7}
+T {( @#0:resolved_net )} 1230 -275 0 1 0.2 0.2 {name=p14 layer=15}
+T {( @#0:resolved_net )} 800 -255 0 1 0.2 0.2 {name=p3 layer=15}
+T {( @#0:resolved_net )} 420 -255 0 1 0.2 0.2 {name=p4 layer=15}
 N 590 -150 590 -130 { lab=0}
 N 370 -180 550 -180 { lab=GN1}
 N 330 -230 330 -210 { lab=GN1}
@@ -78,11 +101,16 @@ N 930 -510 930 -470 { lab=#net4}
 N 930 -470 960 -470 { lab=#net4}
 N 710 -270 740 -270 {lab=PLUS}
 N 440 -270 470 -270 {lab=MINUS}
+N 270 -180 330 -180 {lab=0}
+N 590 -180 630 -180 {lab=0}
+N 800 -180 840 -180 {lab=0}
+N 980 -180 1020 -180 {lab=0}
+N 1130 -180 1170 -180 {lab=0}
 C {nmos4.sym} 570 -180 0 0 {name=M1 model=nmos w=4u l=0.4u m=1}
-C {lab_pin.sym} 590 -180 0 1 {name=p2 lab=0}
+C {lab_pin.sym} 630 -180 0 1 {name=p2 lab=0}
 C {lab_pin.sym} 590 -130 0 0 {name=p6 lab=0}
 C {nmos4.sym} 350 -180 0 1 {name=M2 model=nmos w=4u l=0.4u m=1}
-C {lab_pin.sym} 330 -180 0 0 {name=p7 lab=0}
+C {lab_pin.sym} 270 -180 0 0 {name=p7 lab=0}
 C {isource.sym} 330 -260 0 0 {name=I0 value=30u}
 C {lab_pin.sym} 330 -310 0 0 {name=p9 lab=VCC}
 C {lab_pin.sym} 330 -130 0 0 {name=p16 lab=0}
@@ -109,16 +137,16 @@ C {lab_pin.sym} 800 -460 0 0 {name=p22 lab=VCC}
 C {spice_probe.sym} 420 -180 0 0 {name=p27 attrs=""}
 C {spice_probe.sym} 570 -410 0 0 {name=p28 attrs=""}
 C {nmos4.sym} 780 -180 0 0 {name=M7 model=nmos w=4u l=0.4u m=1}
-C {lab_pin.sym} 800 -180 0 1 {name=p5 lab=0}
+C {lab_pin.sym} 840 -180 0 1 {name=p5 lab=0}
 C {lab_pin.sym} 800 -130 0 1 {name=p8 lab=0}
 C {nmos4.sym} 960 -180 0 0 {name=M8 model=nmos w=1u l=0.4u m=1}
-C {lab_pin.sym} 980 -180 0 1 {name=p10 lab=0}
+C {lab_pin.sym} 1020 -180 0 1 {name=p10 lab=0}
 C {lab_pin.sym} 980 -130 0 1 {name=p11 lab=0}
 C {pmos4.sym} 960 -370 0 0 {name=M9 model=pmos w=2u l=0.4u m=1}
 C {lab_pin.sym} 980 -370 0 1 {name=p12 lab=VCC}
 C {lab_pin.sym} 980 -420 0 0 {name=p13 lab=VCC}
 C {nmos4.sym} 1110 -180 0 0 {name=M10 model=nmos w=1u l=0.4u m=1}
-C {lab_pin.sym} 1130 -180 0 1 {name=p24 lab=0}
+C {lab_pin.sym} 1170 -180 0 1 {name=p24 lab=0}
 C {lab_pin.sym} 1130 -130 0 1 {name=p25 lab=0}
 C {pmos4.sym} 1110 -370 0 0 {name=M11 model=pmos w=2u l=0.4u m=1}
 C {lab_pin.sym} 1130 -370 0 1 {name=p26 lab=VCC}
@@ -138,7 +166,7 @@ tclcommand="
 proc netlist_top \{\} \{
   global sim netlist_dir
 
-  ## set foreground spice simulation
+  ## set foreground spice simulation, so `xschem simulate` will wait for it to complete
   set_sim_defaults ;# populate sim() array
   set sim(spice,0,fg) 1
 
@@ -159,6 +187,8 @@ proc netlist_top \{\} \{
   xschem netlist
   xschem simulate
   xschem raw_read $netlist_dir/[file rootname [file tail [xschem get current_name]]].raw tran
+  xschem annotate_op
+
 
   ## descend again
   xschem descend 1 1 $instname2

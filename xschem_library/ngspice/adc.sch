@@ -1,4 +1,4 @@
-v {xschem version=3.4.5 file_version=1.2
+v {xschem version=3.4.8RC file_version=1.3
 *
 * This file is part of XSCHEM,
 * a schematic capture and Spice/Vhdl/Verilog netlisting tool for circuit
@@ -23,6 +23,7 @@ G {}
 K {}
 V {}
 S {}
+F {}
 E {}
 B 2 1020 -850 1820 -560 {flags=graph
 y1=-0.017
@@ -45,7 +46,7 @@ x1.fb"
 color="4 11 10 8 12 9"
 dataset=0
 unitx=n
-}
+sim_type=tran}
 B 2 1020 -940 1820 -850 {flags=graph
 y1=0
 y2=1.2
@@ -63,7 +64,8 @@ color=4
 dataset=0
 unitx=n
 divy=2
-digital=1}
+digital=1
+sim_type=tran}
 P 4 5 700 -480 1680 -480 1680 -90 700 -90 700 -480 {dash=5}
 P 5 5 40 -670 690 -670 690 -230 40 -230 40 -670 { dash=5}
 T {Modulator} 530 -710 0 0 0.6 0.6 { layer=5}
