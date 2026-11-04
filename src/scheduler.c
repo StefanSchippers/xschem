@@ -898,19 +898,31 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       delete_files();
     }
 
-    /* descend [n] [notitle]
+    /* descend [n] [notitle] [instname]
      *   Descend into selected component instance. Optional number 'n' specifies the
      *   instance number to descend into for vector instances (default: 0).
-     *   0 or 1: leftmost instance, 2: second leftmost instance, ...
+     *   0: pop a dialog box and ask to user which inst number to descend into
+     *   1: leftmost instance, 2: second leftmost instance, ...
      *  -1: rightmost instance,-2: second rightmost instance, ...
-     *  if integer 'notitle' is given pass it to descend_schematic() */
+     *  if integer 'notitle' is given pass it to descend_schematic(), default : 1
+     *  if instname (name or number) is given select and descend into specified instance name */
     else if(!strcmp(argv[1], "descend"))
     {
+      int inst = -1;
       int ret=0;
       int set_title = 1;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
       if(xctx->semaphore == 0) {
 
+        if(argc > 4 ) {
+          inst = get_instance(argv[4]);
+          if(inst >= 0) {
+            unselect_all(0);
+            select_element(inst, SELECTED, 3, 1);
+            xctx->ui_state |= SELECTION;
+            rebuild_selected_array();
+          }
+        }
         if(argc > 3 ) {
           set_title = atoi(argv[3]);
         }
@@ -2494,16 +2506,44 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
     {
       xschem_cmd_help(argc, argv);
     }
-    /* hier_attr
-     *   Debug command */
+    /* hier_attr [level] [attr]
+     *   return attribute string of parent instance when we are descended into a lower level.
+     *   valid values for 'level' are from 0 to current level - 1 (top level is level 0) 
+     *   if 'level' not given or set to -1 return all parent level attributes
+     *   if 'attr' is given return value of attribute 'attr' within attribute string
+     *   example: if we are in level 2 and want to get instance name of parent instance:
+     *     % xschem hier_attr 1 name
+     *     % x2
+     */
     else if(!strcmp(argv[1], "hier_attr")) {
       int k;
       char s[500];
+      const char *attr = NULL;
+      int level = -1;
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
-      for(k = xctx->currsch; k >= 0; k--) {
-        if(xctx->hier_attr[k].prop_ptr) {
-          my_snprintf(s, S(s), "\nlevel=%d, attr=\n%s\n", k, xctx->hier_attr[k].prop_ptr);
-          Tcl_AppendResult(interp, s, NULL);
+
+      if(argc > 3) attr = argv[3];
+      if(argc > 2) level = atoi(argv[2]);
+      if(level < 0 || level >= xctx->currsch) level = -1;
+      if(level < 0) {
+        for(k = xctx->currsch - 1; k >= 0; k--) {
+          if(xctx->hier_attr[k].prop_ptr) {
+            if(attr) {
+              my_snprintf(s, S(s), "\nlevel=%d, prop=\n%s\n", k, 
+                get_tok_value(xctx->hier_attr[k].prop_ptr, attr, 0));
+            } else {
+              my_snprintf(s, S(s), "\nlevel=%d, prop=\n%s\n", k, xctx->hier_attr[k].prop_ptr);
+            }
+            Tcl_AppendResult(interp, s, NULL);
+          }
+        }
+      } else {
+        if(xctx->hier_attr[level].prop_ptr) {
+          if(attr) {
+            Tcl_SetResult(interp, (char *)get_tok_value(xctx->hier_attr[level].prop_ptr, attr, 0), TCL_VOLATILE);
+          } else {
+            Tcl_SetResult(interp, xctx->hier_attr[level].prop_ptr, TCL_VOLATILE);
+          }
         }
       }
     }

@@ -69,47 +69,32 @@ tclcommand="
 proc netlist_top \{\} \{
   global sim netlist_dir preserve_undo
 
-
-  if \{ [xschem get currsch] != 1 \} \{
-     puts \{ parent schematic is not the top level. Load as top level\}
-     return
-  \}
-
-  # set foreground spice simulation
+  ## set foreground spice simulation
   set_sim_defaults ;# populate sim() array
   set sim(spice,0,fg) 1
 
   if \{$preserve_undo == 0\} \{
-    # save current schematic 
+    ## save current schematic 
     xschem save
   \}
 
-  # get schname (relative to search paths, no full path)
-  set schname [xschem get current_name]
+  set parent_level [expr \{[xschem get currsch] - 1\}]
 
-  # get full pathname of parent schematic
-  set top_full_schname [xschem get schname 0]
+  ## get instance name of parent instance we descended into:
+  set instname [xschem hier_attr $parent_level name]
 
-  # store current schematic and create empty window
-  xschem fork_sch store $schname
+  ## go up one level
+  xschem go_back 
 
-  # load toplevel
-  xschem load -noundoreset $top_full_schname
 
+  ## netlist, simulate, load simulation data 
   xschem netlist
   xschem simulate
+  xschem raw_read $netlist_dir/[file rootname [file tail [xschem get current_name]]].raw tran
 
-  # put back saved schematic
-  xschem fork_sch restore $schname 64
+  ## descend again
+  xschem descend 1 1 $instname
 
-  # load simulation data 
-  xschem raw read $netlist_dir/[file rootname [file tail $top_full_schname]].raw tran
-
-  # fix hierarchy level where simulation was run 
-  xschem set raw_level 0
-
-  xschem fork_sch clear $schname 32
-  xschem redraw
 \}
 netlist_top
 "

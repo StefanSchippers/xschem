@@ -690,12 +690,14 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    debug command: call xctx-&gt;delete_undo() </pre>
    <li><kbd>       delete_files</kbd></li><pre>
    Bring up a file selector the user can use to delete files </pre>
-   <li><kbd>       descend [n] [notitle]</kbd></li><pre>
+   <li><kbd>       descend [n] [notitle] [instname]</kbd></li><pre>
    Descend into selected component instance. Optional number 'n' specifies the
    instance number to descend into for vector instances (default: 0).
-   0 or 1: leftmost instance, 2: second leftmost instance, ...
+   0: pop a dialog box and ask to user which inst number to descend into
+   1: leftmost instance, 2: second leftmost instance, ...
   -1: rightmost instance,-2: second rightmost instance, ...
-  if integer 'notitle' is given pass it to descend_schematic() </pre>
+  if integer 'notitle' is given pass it to descend_schematic(), default : 1
+  if instname (name or number) is given select and descend into specified instance name </pre>
    <li><kbd>       descend_symbol</kbd></li><pre>
    Descend into the symbol view of selected component instance </pre>
    <li><kbd>       destroy_all [force]</kbd></li><pre>
@@ -967,8 +969,14 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    Do a simple hashing of string 'str' </pre>
    <li><kbd>       help</kbd></li><pre>
   Print command help </pre>
-   <li><kbd>       hier_attr</kbd></li><pre>
-   Debug command </pre>
+   <li><kbd>       hier_attr [level] [attr]</kbd></li><pre>
+   return attribute string of parent instance when we are descended into a lower level.
+   valid values for 'level' are from 0 to current level - 1 (top level is level 0) 
+   if 'level' not given or set to -1 return all parent level attributes
+   if 'attr' is given return value of attribute 'attr' within attribute string
+   example: if we are in level 2 and want to get instance name of parent instance:
+     % xschem hier_attr 1 name
+     % x2</pre>
    <li><kbd>       hier_psprint [file]</kbd></li><pre>
    Hierarchical postscript / pdf print
    if 'file' is not given show a fileselector dialog box </pre>
