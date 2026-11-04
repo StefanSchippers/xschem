@@ -65,18 +65,12 @@ device=R1}
 C {launcher.sym} 580 -100 0 0 {name=h6
 descr="Run top level sim, reload annotation data" 
 tclcommand="
-
 proc netlist_top \{\} \{
-  global sim netlist_dir preserve_undo
+  global sim netlist_dir
 
   ## set foreground spice simulation
   set_sim_defaults ;# populate sim() array
   set sim(spice,0,fg) 1
-
-  if \{$preserve_undo == 0\} \{
-    ## save current schematic 
-    xschem save
-  \}
 
   set parent_level [expr \{[xschem get currsch] - 1\}]
 
@@ -86,7 +80,6 @@ proc netlist_top \{\} \{
   ## go up one level
   xschem go_back 
 
-
   ## netlist, simulate, load simulation data 
   xschem netlist
   xschem simulate
@@ -94,7 +87,6 @@ proc netlist_top \{\} \{
 
   ## descend again
   xschem descend 1 1 $instname
-
 \}
 netlist_top
 "

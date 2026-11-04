@@ -128,14 +128,14 @@ value="
 .include models_65nm.txt
 .model switch sw vt='VCC/2' vh=0.2 ron=1000 roff=1G
 .param VCC=1.2
-.option method=GEAR savecurrents
+.option method=GEAR $ savecurrents
 .measure tran avg1 AVG v(x1.qn) from=1u to=3u 
 .measure tran avg2 AVG v(x1.qn) from=4u to=6u
 .measure tran avg3 AVG v(x1.qn) from=7u to=9u
 .control
   save all
   save @m.x1.x42.m4[gm] @m.x1.x42.m3[gm] 
-  tran 0.2n 9u uic
+  tran 5n 9u uic
   write delta_sigma.raw
   set appendwrite
   op

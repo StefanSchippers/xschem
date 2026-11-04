@@ -132,3 +132,39 @@ C {lab_pin.sym} 960 -620 1 1 {name=p30 lab=0}
 C {spice_probe.sym} 560 -240 0 0 {name=p32 attrs=""}
 C {parax_cap.sym} 390 -170 0 0 {name=C2 gnd=0 value=200f m=1}
 C {vdd.sym} 510 -460 0 0 {name=l3 lab=VCC}
+C {launcher.sym} 150 -590 0 0 {name=h6
+descr="Run top level sim, reload annotation data" 
+tclcommand="
+proc netlist_top \{\} \{
+  global sim netlist_dir
+
+  ## set foreground spice simulation
+  set_sim_defaults ;# populate sim() array
+  set sim(spice,0,fg) 1
+
+  set parent_level1 [expr \{[xschem get currsch] - 1\}]
+  set parent_level2 [expr \{[xschem get currsch] - 2\}]
+
+  ## get instance name of parent instance we descended into:
+  set instname1 [xschem hier_attr $parent_level1 name]
+
+  ## get instance name of parent of parent instance we descended into:
+  set instname2 [xschem hier_attr $parent_level2 name]
+
+  ## go up two levels
+  xschem go_back 
+  xschem go_back 
+
+  ## netlist, simulate, load simulation data 
+  xschem netlist
+  xschem simulate
+  xschem raw_read $netlist_dir/[file rootname [file tail [xschem get current_name]]].raw tran
+
+  ## descend again
+  xschem descend 1 1 $instname2
+  xschem descend 1 1 $instname1
+\}
+netlist_top
+"
+
+}
