@@ -528,7 +528,8 @@ execute_wait 0  xschem -x -r -q -n poweramp.sch
 execute_wait 0 $terminal -e sh -c \\"cd $netlist_dir; ngspice -i poweramp.spice -a\\"
 
 # annotate data, specifying top level raw filename and hierarchy level.
-xschem annotate_op $netlist_dir/poweramp.raw 0
+set parent_level [expr \{[xschem get currsch] - 1\}]
+xschem annotate_op $netlist_dir/poweramp.raw $parent_level
 "
 
 }
