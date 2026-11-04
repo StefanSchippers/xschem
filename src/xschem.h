@@ -657,6 +657,7 @@ typedef struct
 
 typedef struct
 {
+  unsigned int schname_hash; /* used to match with schname we descend into to apply previous zoom */
   double x;
   double y;
   double zoom;

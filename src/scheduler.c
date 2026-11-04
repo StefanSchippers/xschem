@@ -3260,7 +3260,8 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
         if(force || !has_x || !xctx->modified  || save(1, 0) != -1 ) { /* save(1)==-1 --> user cancel */
           int skip = 0, res = 1;
-          if(tclgetboolvar("preserve_undo")) { /* ask to save modified hierarchy schematics not displayed */
+          /* ask to save modified hierarchy schematics not displayed */
+          if(undo_reset == 1 && tclgetboolvar("preserve_undo")) {
             res = save_undo_table(NULL, NULL, XASK_SAVE);
           }
           if(res == 0) skip = 1;
@@ -3282,6 +3283,13 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(!skip) {
             int ret;
             (void) ret;
+
+            if(!first_loaded) {
+              if(undo_reset == 0 && tclgetboolvar("preserve_undo")) {
+                xctx->push_undo(2);
+              } 
+            }
+
             clear_all_hilights();
             unselect_all(1);
             /* no implicit undo: if needed do it before loading */
@@ -3306,7 +3314,14 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
               }
             } else {
               first_loaded = 1;
+
               ret = load_schematic(load_symbols, f, undo_reset, !force);
+
+              if(undo_reset == 0 && tclgetboolvar("preserve_undo")) {
+                save_undo_table(xctx->current_name, NULL, XGET); /* sets xctx->undo_initialized = 0 if not found */
+                xctx->pop_undo(2, 0);
+              }
+
               dbg(1, ("xschem load: f=%s, ret=%d\n", f, ret));
               if(undo_reset) {
                 tclvareval("update_recent_file {", f, "}", NULL);

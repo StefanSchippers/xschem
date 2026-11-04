@@ -5882,6 +5882,7 @@ int descend_symbol(void)
   xctx->previous_instance[xctx->currsch]=n; /* instance we are descending from */
 
   /* store previous zoom area */
+  xctx->zoom_array[xctx->currsch].schname_hash=str_hash(xctx->current_name);
   xctx->zoom_array[xctx->currsch].x=xctx->xorigin;
   xctx->zoom_array[xctx->currsch].y=xctx->yorigin;
   xctx->zoom_array[xctx->currsch].zoom=xctx->zoom;

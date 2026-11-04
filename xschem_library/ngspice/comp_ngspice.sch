@@ -94,13 +94,13 @@ proc netlist_top \{\} \{
   xschem fork_sch store $schname
 
   # load toplevel
-  xschem load $top_full_schname
+  xschem load -noundoreset $top_full_schname
 
   xschem netlist
   xschem simulate
 
   # put back saved schematic
-  xschem fork_sch restore $schname
+  xschem fork_sch restore $schname 64
 
   # load simulation data 
   xschem raw read $netlist_dir/[file rootname [file tail $top_full_schname]].raw tran
