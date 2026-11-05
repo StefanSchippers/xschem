@@ -567,7 +567,7 @@ int vhdl_block_netlist(FILE *fd, int i, int alert)
     Int_hashtable table = {NULL, 0};
     fprintf(fd, "-- sch_path: %s\n", sanitized_abs_sym_path(filename, ""));
 
-    load_schematic(1,filename, 0, alert);
+    load_schematic(1,filename, 0x1e, alert);
 
     if(tclgetboolvar("preserve_undo")) {
       if(save_undo_table(xctx->current_name, NULL, XGET)) xctx->pop_undo(2, 0);

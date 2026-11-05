@@ -3235,6 +3235,11 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      *   '-gui': ask to save modified file or warn if opening an already
      *       open file or opening a new(not existing) file.
      *   '-noundoreset': do not reset the undo history
+     *   '-nosettitle': will not update window / tab title and modified flag
+     *   '-notimestamp': will not get file timestamp information
+     *   '-nosetnetlistdir': will not change / set netlist_dir and netlist_type information
+     *   '-notrimwires': will not trim wires even if autotrim_wires is enabled
+     *   '-fast': -notrimwires, -nosetnetlistdir, -notimestamp, -nosettitle, -noundoreset combined
      *   '-lastclosed': open last closed file
      *   '-lastopened': open last opened file
      *   '-nosymbols': do not load symbols (used if loading a symbol instead of
@@ -3245,7 +3250,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
      */
     else if(!strcmp(argv[1], "load") )
     {
-      int load_symbols = 1, force = 1, undo_reset = 1, nofullzoom = 0, nodraw = 0;
+      int load_symbols = 1, force = 1, reset_undo = 1, nofullzoom = 0, nodraw = 0;
       int keep_symbols = tclgetboolvar("keep_symbols");
       int first;
       int lastclosed = 0, lastopened = 0;
@@ -3264,7 +3269,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           } else if(!strcmp(argv[i], "-lastopened")) {
             lastopened = 1;
           } else if(!strcmp(argv[i], "-noundoreset")) {
-            undo_reset = 0;
+            reset_undo &= ~(0x1); 
+          } else if(!strcmp(argv[i], "-nosettitle")) {
+            reset_undo |= (0x2); 
+          } else if(!strcmp(argv[i], "-notimestamp")) {
+            reset_undo |= (0x4); 
+          } else if(!strcmp(argv[i], "-nosetnetlistdir")) {
+            reset_undo |= (0x16); 
+          } else if(!strcmp(argv[i], "-notrimwires")) {
+            reset_undo |= (0x8); 
+          } else if(!strcmp(argv[i], "-fast")) {
+            reset_undo &= ~(0x1); 
+            reset_undo |= (0x1e); 
           } else if(!strcmp(argv[i], "-nofullzoom")) {
             nofullzoom = 1;
           } else if(!strcmp(argv[i], "-nodraw")) {
@@ -3306,7 +3322,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(force || !has_x || !xctx->modified  || save(1, 0) != -1 ) { /* save(1)==-1 --> user cancel */
           int skip = 0, res = 1;
           /* ask to save modified hierarchy schematics not displayed */
-          if(undo_reset == 1 && tclgetboolvar("preserve_undo")) {
+          if((reset_undo & 1) && tclgetboolvar("preserve_undo")) {
             res = save_undo_table(NULL, NULL, XASK_SAVE);
           }
           if(res == 0) skip = 1;
@@ -3330,7 +3346,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             (void) ret;
 
             if(!first_loaded) {
-              if(undo_reset == 0 && tclgetboolvar("preserve_undo")) {
+              if(!(reset_undo & 1) && tclgetboolvar("preserve_undo")) {
                 xctx->push_undo(2);
               } 
             }
@@ -3338,9 +3354,9 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             clear_all_hilights();
             unselect_all(1);
             /* no implicit undo: if needed do it before loading */
-            /* if(!undo_reset) xctx->push_undo(0); */
+            /* if(!reset_undo) xctx->push_undo(0); */
             if(!first_loaded) {
-              if(undo_reset) xctx->currsch = 0;
+              if(reset_undo & 1) xctx->currsch = 0;
               if(!keep_symbols) remove_symbols();
               if(!nofullzoom) {
                 xctx->zoom=CADINITIALZOOM;
@@ -3349,26 +3365,26 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
                 xctx->yorigin=CADINITIALY;
               }
             }
-            dbg(1, ("scheduler: undo_reset=%d\n", undo_reset));
+            dbg(1, ("scheduler: reset_undo=%d\n", reset_undo));
 
             if(first_loaded) {
               int dr = nofullzoom * 2 + !nodraw;
               ret = new_schematic("create", "noconfirm", f, dr);
-              if(undo_reset) {
+              if(reset_undo & 1) {
                 tclvareval("update_recent_file {", f, "}", NULL);
               }
             } else {
               first_loaded = 1;
 
-              ret = load_schematic(load_symbols, f, undo_reset, !force);
+              ret = load_schematic(load_symbols, f, reset_undo, !force);
 
-              if(undo_reset == 0 && tclgetboolvar("preserve_undo")) {
+              if(!(reset_undo & 1) && tclgetboolvar("preserve_undo")) {
                 save_undo_table(xctx->current_name, NULL, XGET); /* sets xctx->undo_initialized = 0 if not found */
                 xctx->pop_undo(2, 0);
               }
 
               dbg(1, ("xschem load: f=%s, ret=%d\n", f, ret));
-              if(undo_reset) {
+              if(reset_undo & 1) {
                 tclvareval("update_recent_file {", f, "}", NULL);
                 my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch], ".");
                 if(xctx->portmap[xctx->currsch].table) str_hash_free(&xctx->portmap[xctx->currsch]);
@@ -6728,7 +6744,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         }
       }
       else if(argc > 3 && atoi(argv[2]) == 11) {
-         load_schematic(1, argv[3], 0, 0);
+         load_schematic(1, argv[3], 0x1e, 0);
       }
     }
 

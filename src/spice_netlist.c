@@ -105,7 +105,7 @@ void hier_psprint(char **res, int what)  /* netlister driver */
           if(str_hash_lookup(&subckt_table, get_cell_w_ext(filename, 0), "", XINSERT_NOREPLACE)==NULL) {
             /* for printing we go down to bottom regardless of spice_stop attribute */
             dbg(1, ("hier_psprint(): loading file: |%s|\n", filename));
-            load_schematic(1,filename, 0, 1);
+            load_schematic(1,filename, 0x1e, 1);
 
             if(tclgetboolvar("preserve_undo")) {
               if(save_undo_table(xctx->current_name, NULL, XGET)) xctx->pop_undo(2, 0);
@@ -724,7 +724,7 @@ int spice_block_netlist(FILE *fd, int i, int alert)
     my_free(_ALLOC_ID_, &extra);
     fprintf(fd, "\n");
 
-    spice_stop ? load_schematic(0,filename, 0, alert) : load_schematic(1,filename, 0, alert);
+    spice_stop ? load_schematic(0,filename, 0x1e, alert) : load_schematic(1,filename, 0x1e, alert);
 
     if(tclgetboolvar("preserve_undo")) { /* sets xctx->undo_initialized = 0 if not found */
       if(save_undo_table(xctx->current_name, NULL, XGET)) xctx->pop_undo(2, 0);

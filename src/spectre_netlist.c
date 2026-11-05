@@ -593,7 +593,7 @@ int spectre_block_netlist(FILE *fd, int i, int alert)
     my_free(_ALLOC_ID_, &extra);
     fprintf(fd, "\n");
 
-    spectre_stop ? load_schematic(0,filename, 0, alert) : load_schematic(1,filename, 0, alert);
+    spectre_stop ? load_schematic(0,filename, 0x1e, alert) : load_schematic(1,filename, 0x1e, alert);
 
     if(tclgetboolvar("preserve_undo")) {
       if(save_undo_table(xctx->current_name, NULL, XGET)) xctx->pop_undo(2, 0);

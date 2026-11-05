@@ -2835,7 +2835,7 @@ int descend_schematic(int instnumber, int fallback, int alert, int set_title)
    unselect_all(1);
    dbg(1, ("descend_schematic(): filename=%s\n", filename));
    if(!tclgetboolvar("keep_symbols")) remove_symbols();
-   descend_ok = load_schematic(1, filename, (set_title & 1), alert);
+   descend_ok = load_schematic(1, filename, (set_title ? 1 : 0x1e), alert);
    if(descend_ok) {
 
      if(tclgetboolvar("preserve_undo")) {
@@ -2992,7 +2992,7 @@ void go_back(int what)
 
   my_strncpy(filename, xctx->sch[xctx->currsch], S(filename));
   
-  load_schematic(1, filename, set_title, 1);
+  load_schematic(1, filename, set_title ? 1 : 0x1e, 1);
   /* if we are returning from a symbol created from a generator don't set modified flag on parent
    * as these symbols can not be edited / saved as embedded
    * xctx->sch_inst_number[xctx->currsch] == -1 --> we came from an inst with no embed flag set */

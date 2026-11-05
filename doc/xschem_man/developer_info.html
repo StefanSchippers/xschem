@@ -690,13 +690,18 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    debug command: call xctx-&gt;delete_undo() </pre>
    <li><kbd>       delete_files</kbd></li><pre>
    Bring up a file selector the user can use to delete files </pre>
-   <li><kbd>       descend [n] [notitle] [instname]</kbd></li><pre>
+   <li><kbd>       descend [n] [set_title] [instname]</kbd></li><pre>
    Descend into selected component instance. Optional number 'n' specifies the
    instance number to descend into for vector instances (default: 0).
    0: pop a dialog box and ask to user which inst number to descend into
    1: leftmost instance, 2: second leftmost instance, ...
   -1: rightmost instance,-2: second rightmost instance, ...
-  if integer 'notitle' is given pass it to descend_schematic(), default : 1
+  if integer 'set_title' is given pass it to descend_schematic(), default : 1
+              == 0 do not set window title (faster)
+              == 1 do set title
+              == 2 do not process instance pins/nets
+              == 4 do not descend into i-th instance of vector instance. just
+                 concatenate instance name as is to path and descend.
   if instname (name or number) is given select and descend into specified instance name </pre>
    <li><kbd>       descend_symbol</kbd></li><pre>
    Descend into the symbol view of selected component instance </pre>
@@ -1098,6 +1103,11 @@ C {verilog_timescale.sym} 1050 -100 0 0 {name=s1 timestep="1ns" precision="1ns" 
    '-gui': ask to save modified file or warn if opening an already
        open file or opening a new(not existing) file.
    '-noundoreset': do not reset the undo history
+   '-nosettitle': will not update window / tab title and modified flag
+   '-notimestamp': will not get file timestamp information
+   '-nosetnetlistdir': will not change / set netlist_dir and netlist_type information
+   '-notrimwires': will not trim wires even if autotrim_wires is enabled
+   '-fast': -notrimwires, -nosetnetlistdir, -notimestamp, -nosettitle, -noundoreset combined
    '-lastclosed': open last closed file
    '-lastopened': open last opened file
    '-nosymbols': do not load symbols (used if loading a symbol instead of
