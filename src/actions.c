@@ -2627,6 +2627,7 @@ int change_sch_path(int instnumber, int dr)
 }
 
 /* fallback = 1: if schematic=.. attr is set but file not existing descend into symbol base schematic
+ * fallback = 2: same as above, without asking user confirm.
  * instnumber: instance to descend into in case of vector instances (1 = leftmost, -1=rightmost,
  *             0 = ask user)
  * if set_title == 0 do not set window title (faster)

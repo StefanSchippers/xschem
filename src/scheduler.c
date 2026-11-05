@@ -898,13 +898,18 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       delete_files();
     }
 
-    /* descend [n] [notitle] [instname]
+    /* descend [n] [set_title] [instname]
      *   Descend into selected component instance. Optional number 'n' specifies the
      *   instance number to descend into for vector instances (default: 0).
      *   0: pop a dialog box and ask to user which inst number to descend into
      *   1: leftmost instance, 2: second leftmost instance, ...
      *  -1: rightmost instance,-2: second rightmost instance, ...
-     *  if integer 'notitle' is given pass it to descend_schematic(), default : 1
+     *  if integer 'set_title' is given pass it to descend_schematic(), default : 1
+     *              == 0 do not set window title (faster)
+     *              == 1 do set title
+     *              == 2 do not process instance pins/nets
+     *              == 4 do not descend into i-th instance of vector instance. just
+     *                 concatenate instance name as is to path and descend.
      *  if instname (name or number) is given select and descend into specified instance name */
     else if(!strcmp(argv[1], "descend"))
     {
