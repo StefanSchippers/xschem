@@ -2524,28 +2524,39 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       int k;
       char s[500];
       const char *attr = NULL;
-      int level = -1;
+      int level = -1; /* show all previous levels */
       if(!xctx) {Tcl_SetResult(interp, not_avail, TCL_STATIC); return TCL_ERROR;}
 
       if(argc > 3) attr = argv[3];
-      if(argc > 2) level = atoi(argv[2]);
-      if(level < 0 || level >= xctx->currsch) level = -1;
-      if(level < 0) {
+      if(argc > 2) {
+        level = atoi(argv[2]);
+        if(level < 0 || level >= xctx->currsch) level = -2; /* -2 : don't show anything */
+      }
+      if(level == -1) {
         for(k = xctx->currsch - 1; k >= 0; k--) {
           if(xctx->hier_attr[k].prop_ptr) {
             if(attr) {
-              my_snprintf(s, S(s), "\nlevel=%d, prop=\n%s\n", k, 
-                get_tok_value(xctx->hier_attr[k].prop_ptr, attr, 0));
+              if(!strcmp(attr, "inst_number")) {
+                my_snprintf(s, S(s), "\nlevel=%d, inst_number=\n%d\n", k, xctx->sch_inst_number[k]);
+              } else {
+                my_snprintf(s, S(s), "\nlevel=%d, prop=\n%s\n", k, 
+                  get_tok_value(xctx->hier_attr[k].prop_ptr, attr, 0));
+              }
             } else {
               my_snprintf(s, S(s), "\nlevel=%d, prop=\n%s\n", k, xctx->hier_attr[k].prop_ptr);
             }
             Tcl_AppendResult(interp, s, NULL);
           }
         }
-      } else {
+      } else if(level != -2) {
         if(xctx->hier_attr[level].prop_ptr) {
           if(attr) {
-            Tcl_SetResult(interp, (char *)get_tok_value(xctx->hier_attr[level].prop_ptr, attr, 0), TCL_VOLATILE);
+            if(!strcmp(attr, "inst_number")) {
+              Tcl_SetResult(interp, my_itoa(xctx->sch_inst_number[level]), TCL_VOLATILE);
+            } else {
+              Tcl_SetResult(interp, (char *)get_tok_value(
+                    xctx->hier_attr[level].prop_ptr, attr, 0), TCL_VOLATILE);
+            }
           } else {
             Tcl_SetResult(interp, xctx->hier_attr[level].prop_ptr, TCL_VOLATILE);
           }
