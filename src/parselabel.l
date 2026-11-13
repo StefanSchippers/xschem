@@ -33,7 +33,7 @@
 #define CAD_SPICE_NETLIST 1
 
 
-static int parselabel_debug = 2;
+static int parselabel_debug = 3;
 #include "xschem.h"
 
 /*
@@ -233,7 +233,7 @@ ID_EXT_PARENTHESIS ([-~"#+/=_a-zA-Z][-#!@\\/:.=_+a-zA-Z0-9]*\([-~"#!@\\/:.=_+a-z
                         }
 
   /* end vector node index "...]" followed by trailing chars (excluding , and *) : A[33:31]_xx */
-\]/[^*,)]		{
+\]/[^[*,)]		{
 
                           dbg(parselabel_debug, ("yylex(): close bracket2: %s\n", yytext));
                           BEGIN(parse_trailer);

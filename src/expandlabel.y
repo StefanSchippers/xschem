@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include "xschem.h"
 
-static int dbg_var=3;
+static int dbg_var = 3;
 #ifndef STRINGPTR
 #define STRINGPTR
 typedef struct          /* used in expandlabel.y */
@@ -206,9 +206,9 @@ static char *expandlabel_strbus(char *s, int *n)
  char *res=NULL;
  char *tmp=NULL;
 
- (void) dbg_var; /* necessary since in optimized code (-O2 compiler flag) dbg() is wiped out, avoid compiler warnings */
- my_realloc(_ALLOC_ID_, &res, n[0]*(strlen(s)+20));
- my_realloc(_ALLOC_ID_, &tmp, strlen(s)+30);
+ (void) dbg_var; /* necessary since in optimized code (-O2) dbg() is wiped out, avoid compiler warnings */
+ my_realloc(_ALLOC_ID_, &res, n[0]*(strlen(s)+25));
+ my_realloc(_ALLOC_ID_, &tmp, strlen(s)+25);
  l=0;
  for(i=1;i<n[0];i++)
  {
@@ -221,6 +221,38 @@ static char *expandlabel_strbus(char *s, int *n)
  sprintf(res+l, "%s[%d]", s, n[i]);
  return res;
 }
+
+
+static char *expandlabel_2d_strbus(char *s, int *n, int *m)
+{
+  int i, j, l;
+  int tmplen, first = 1;
+  char *res = NULL;
+  char *tmp = NULL;
+
+  (void) dbg_var; /* necessary since in optimized code (-O2) dbg() is wiped out, avoid compiler warnings */
+  dbg(0, ("expandlabel_2d_strbus(): %s, %d, %d\n", s, n[0], m[0]));
+  my_realloc(_ALLOC_ID_, &res, m[0] * n[0] * (strlen(s) + 50));
+  my_realloc(_ALLOC_ID_, &tmp, strlen(s) + 50);
+  l = 0;
+  for(i = 1; i <= n[0]; i++)
+  {
+    for(j = 1; j <= m[0]; j++)
+    {
+      tmplen = 0;
+      if(!first) {
+        tmplen += sprintf(tmp, ",");
+      }
+      tmplen += sprintf(tmp + tmplen, "%s[%d][%d]", s, n[i], m[j]);
+      memcpy(res + l,tmp, tmplen + 1);
+      l += tmplen;
+      first = 0;
+    }
+  }
+  my_free(_ALLOC_ID_, &tmp);
+  return res;
+}
+
 
 static void check_idx(int **ptr,int n)
 {
@@ -251,6 +283,36 @@ static char *expandlabel_strbus_nobracket(char *s, int *n)
  my_free(_ALLOC_ID_, &tmp);
  sprintf(res+l, "%s%d", s, n[i]);
  return res;
+}
+
+static char *expandlabel_2d_strbus_nobracket(char *s, int *n, int *m)
+{
+  int i, j, l;           
+  int tmplen, first = 1; 
+  char *res = NULL;      
+  char *tmp = NULL;
+  
+  (void) dbg_var; /* necessary since in optimized code (-O2) dbg() is wiped out, avoid compiler warnings */
+  dbg(0, ("expandlabel_2d_strbus_nobracket(): %s, %d, %d\n", s, n[0], m[0]));
+  my_realloc(_ALLOC_ID_, &res, m[0] * n[0] * (strlen(s) + 50));
+  my_realloc(_ALLOC_ID_, &tmp, strlen(s) + 50);
+  l = 0;
+  for(i = 1; i <= n[0]; i++)
+  {
+    for(j = 1; j <= m[0]; j++)
+    {
+      tmplen = 0;        
+      if(!first) {       
+        tmplen += sprintf(tmp, ",");
+      }
+      tmplen += sprintf(tmp + tmplen, "%s_%d_%d", s, n[i], m[j]);
+      memcpy(res + l,tmp, tmplen + 1);
+      l += tmplen;
+      first = 0;
+    }
+  }
+  my_free(_ALLOC_ID_, &tmp);
+  return res;
 }
 
 static char *expandlabel_strbus_nobracket_suffix(char *s, int *n, char *suffix)
@@ -385,6 +447,17 @@ list:     B_NAME        {
                          my_free(_ALLOC_ID_, &$1);
                          my_free(_ALLOC_ID_, &$3);
                         }
+        | B_NAME  '[' index  ']' '[' index ']'
+                        {
+                         dbg(dbg_var, ("yyparse(): B_NAME [ index ] [ index ] , $1=%s $3=%d $6=%d\n",
+                             $1, $3[0], $6[0]));
+                         $$.str=expandlabel_2d_strbus($1,$3, $6);
+                         my_free(_ALLOC_ID_, &$1);
+                         $$.m=$3[0] * $6[0];
+                         my_free(_ALLOC_ID_, &$3);
+                         my_free(_ALLOC_ID_, &$6);
+                         idxsize=INITIALIDXSIZE;
+                        }
         | B_NAME  '[' index  ']'
                         {
                          dbg(dbg_var, ("yyparse(): B_NAME [ index ] , $1=%s $3=%d\n", $1, $3[0]));
@@ -405,6 +478,17 @@ list:     B_NAME        {
                          idxsize=INITIALIDXSIZE;
                         }
 
+        | B_NAME  '[' index_nobracket  ']' '[' index_nobracket  ']'
+                        {
+                         dbg(dbg_var, ("yyparse():  B_NAME [ index_nobracket ] [ index_nobracket ]"
+                                       " $1=%s $3=%d $6=%d\n",$1, $3[0], $6[0]));
+                         $$.str=expandlabel_2d_strbus_nobracket($1, $3, $6);
+                         my_free(_ALLOC_ID_, &$1);
+                         $$.m = $3[0] * $6[0];
+                         my_free(_ALLOC_ID_, &$3);
+                         my_free(_ALLOC_ID_, &$6);
+                         idxsize=INITIALIDXSIZE;
+                        }
         | B_NAME  '[' index_nobracket  ']'
                         {
                          dbg(dbg_var, ("yyparse():  B_NAME [ index_nobracket ] $1=%s $3=%d\n",$1, $3[0]));
