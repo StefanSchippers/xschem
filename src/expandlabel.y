@@ -231,7 +231,7 @@ static char *expandlabel_2d_strbus(char *s, int *n, int *m)
   char *tmp = NULL;
 
   (void) dbg_var; /* necessary since in optimized code (-O2) dbg() is wiped out, avoid compiler warnings */
-  dbg(0, ("expandlabel_2d_strbus(): %s, %d, %d\n", s, n[0], m[0]));
+  dbg(dbg_var, ("expandlabel_2d_strbus(): %s, %d, %d\n", s, n[0], m[0]));
   my_realloc(_ALLOC_ID_, &res, m[0] * n[0] * (strlen(s) + 50));
   my_realloc(_ALLOC_ID_, &tmp, strlen(s) + 50);
   l = 0;
@@ -293,7 +293,7 @@ static char *expandlabel_2d_strbus_nobracket(char *s, int *n, int *m)
   char *tmp = NULL;
   
   (void) dbg_var; /* necessary since in optimized code (-O2) dbg() is wiped out, avoid compiler warnings */
-  dbg(0, ("expandlabel_2d_strbus_nobracket(): %s, %d, %d\n", s, n[0], m[0]));
+  dbg(dbg_var, ("expandlabel_2d_strbus_nobracket(): %s, %d, %d\n", s, n[0], m[0]));
   my_realloc(_ALLOC_ID_, &res, m[0] * n[0] * (strlen(s) + 50));
   my_realloc(_ALLOC_ID_, &tmp, strlen(s) + 50);
   l = 0;
