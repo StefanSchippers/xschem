@@ -5464,6 +5464,8 @@ const char *translate(int inst, const char *s, char **result)
 
       else if(!sp_prefix && !strcmp(value1, "@spiceprefix")) {
         /* add nothing, prevent going into the general else {...} case */
+        my_strdup2(_ALLOC_ID_, &value1, "");
+        xctx->tok_size = 0;
       }
  
 
