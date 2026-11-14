@@ -342,11 +342,11 @@ int global_spectre_netlist(int global, int alert)  /* netlister driver */
    xctx->pop_undo(6, 0); /* use reserved slot 1 of undo stack */
    my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
+   get_additional_symbols(1);
    xctx->sch_path_hash[xctx->currsch+1] = 0;
    xctx->currsch++;
    subckt_name=NULL;
    dbg(2, ("global_spectre_netlist(): last defined symbol=%d\n",xctx->symbols));
-   get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
     if(xctx->sym[i].flags & (SPICE_IGNORE | SPICE_SHORT)) continue;
@@ -599,7 +599,7 @@ int spectre_block_netlist(FILE *fd, int i, int alert)
       if(save_undo_table(xctx->current_name, NULL, XGET)) xctx->pop_undo(2, 0);
     }
 
-    get_additional_symbols(1);
+    if(!spectre_stop) get_additional_symbols(1);
     err |= spectre_netlist(fd, spectre_stop);  /* 20111113 added spectre_stop */
     err |= warning_overlapped_symbols(0);
     if(xctx->schspectreprop && xctx->schspectreprop[0]) {

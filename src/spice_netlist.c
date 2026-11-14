@@ -472,10 +472,10 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
    my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
    xctx->sch_path_hash[xctx->currsch+1] = 0;
+   get_additional_symbols(1);
    xctx->currsch++;
    subckt_name=NULL;
    dbg(2, ("global_spice_netlist(): last defined symbol=%d\n",xctx->symbols));
-   get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
     if(xctx->sym[i].flags & (SPICE_IGNORE | SPICE_SHORT)) continue;
@@ -734,7 +734,7 @@ int spice_block_netlist(FILE *fd, int i, int alert)
     dbg(1, ("spice_block_netlist(): prep_net_structs=%d\n", xctx->prep_net_structs));
 
 
-    get_additional_symbols(1);
+    if(!spice_stop) get_additional_symbols(1);
     err |= spice_netlist(fd, spice_stop);  /* 20111113 added spice_stop */
     err |= warning_overlapped_symbols(0);
     if(xctx->schprop && xctx->schprop[0]) {

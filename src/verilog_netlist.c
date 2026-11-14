@@ -326,12 +326,12 @@ int global_verilog_netlist(int global, int alert)  /* netlister driver */
    xctx->pop_undo(6, 0); /* use reserved slot 1 of undo stack */
    my_strdup(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], xctx->sch_path[xctx->currsch]);
    my_strcat(_ALLOC_ID_, &xctx->sch_path[xctx->currsch+1], "->netlisting");
+   get_additional_symbols(1);
    xctx->sch_path_hash[xctx->currsch+1] = 0;
    xctx->currsch++;
 
    dbg(2, ("global_verilog_netlist(): last defined symbol=%d\n",xctx->symbols));
    subckt_name=NULL;
-   get_additional_symbols(1);
    for(i=0;i<xctx->symbols; ++i)
    {
     if(xctx->sym[i].flags & (VERILOG_IGNORE | VERILOG_SHORT)) continue;
@@ -507,7 +507,7 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
       if(save_undo_table(xctx->current_name, NULL, XGET)) xctx->pop_undo(2, 0);
     }
 
-    get_additional_symbols(1);
+    if(!verilog_stop) get_additional_symbols(1);
     /* print verilog timescale  and preprocessor directives 10102004 */
     fmt_attr = xctx->format ? xctx->format : "verilog_format";
     for(j=0;j<xctx->instances; ++j)
