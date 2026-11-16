@@ -131,7 +131,7 @@ primitive==1{primitive_line=primitive_line "\n" $0; next  }
 
   # 20161118
   ntypes = split(signal_type[i], sigtype_arr)
-  if(ntypes==2) {
+  if(sigtype_arr[1] == "integer" || sigtype_arr[1] == "real") { # no packed arrays allowed
     if( i in signal_delay) printf "%s ", signal_delay[i]
     printf "%s", i
     if(signal_index[i] !~ /no_index/)
@@ -167,48 +167,38 @@ primitive==1{primitive_line=primitive_line "\n" $0; next  }
 siglist==1 && ($1 in net_types) {
  # 20070525 recognize "reg real", "wire signed"  types and similar
  if($2 in net_types) {
-   if($3 ~ /^#/) basename=s_b($4)
-   else basename=s_b($3)
-   signal_type[basename]=$1 " " $2
-   if($3 ~ /^#/) {
-    signal_delay[basename]=$3
-    $3=""; $0=$0;
-   }
-   if($4=="="){
-    val=$0
-    sub(/.*=/,"",val)
-    sub(/;.*/,"",val)
-    signal_value[basename]=val
-   }
-   if(!(basename in signal_basename)) signal_num[signal_n++] = basename # used to preserve order of signals
-   signal_basename[basename]++
-   if($3 ~ /\[.*\]/) {
-    signal_index[basename]=signal_index[basename] " " s_i($3)
-   }
-   else signal_index[basename]="no_index"
+   s_type=$1 " " $2
+   $2 = ""
+   $0 = $0
+ } else {
+   s_type=$1
  }
- # /20070525
- else {
-   if($2 ~ /^#/) basename=s_b($3)
-   else basename=s_b($2)
-   signal_type[basename]=$1
-   if($2 ~ /^#/) {     # handle declarations like: wire #20 w_tmp;
-    signal_delay[basename]=$2
-    $2=""; $0=$0;
-   }
-   if($3=="="){
-    val=$0
-    sub(/.*=/,"",val)
-    sub(/;.*/,"",val)
-    signal_value[basename]=val
-   }
-   if(!(basename in signal_basename)) signal_num[signal_n++] = basename # used to preserve order of signals
-   signal_basename[basename]++
-   if($2 ~ /\[.*\]/) {
-    signal_index[basename]=signal_index[basename] " " s_i($2)
-   }
-   else signal_index[basename]="no_index"
+ if($2 ~ /^#/) {     # handle declarations like: wire #20 w_tmp;
+   s_delay=$2
+   $2=""; $0=$0;
  }
+
+ basename=s_b($2)
+ signal_type[basename] = s_type
+ if(s_delay != "") signal_delay[basename] = s_delay
+
+ if($3=="="){  # store signal value : wire w_tmp = 1;
+   val=$0
+   sub(/.*=/,"",val)
+   sub(/;.*/,"",val)
+   signal_value[basename]=val
+ }
+ if(!(basename in signal_basename)) signal_num[signal_n++] = basename # used to preserve order of signals
+ signal_basename[basename]++
+ if($2 ~ /\[.*\]\[.*\]/) { # 2D label like LDY1[2][1]
+   idx_2d = $0
+   sub(/.*; \/\/ */, "", idx_2d) # wire LDY1[2][1] ; // LDY1[7:0][1:0]
+   idx_2d = s_i(idx_2d)
+   signal_index[basename]= idx_2d
+ } else if($2 ~ /\[.*\]/) { 
+   signal_index[basename]=signal_index[basename] " " s_i($2)
+ }
+ else signal_index[basename]="no_index"
  next
 }
 
@@ -553,8 +543,8 @@ function s_b(n)
 function s_i(n)
 {
  if(n ~ /\[/)  {
-  sub(/.*\[/,"",n)
-  sub(/\]/,"",n)
+  sub(/^[^[]*\[/,"",n)
+  sub(/\][^]]*$/,"",n)
   return n
  } else return ""
 }
