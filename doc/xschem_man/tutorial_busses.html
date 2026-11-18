@@ -61,7 +61,19 @@ p{padding: 15px  30px 10px;}
  <li><kbd>(AAA[1..0],BBB)*2</kbd>: describes the bundle <kbd>AAA1,AAA1,AAA0,AAA0,BBB,BBB</kbd>.</li>
  </ul>
 
+ <h2> 2D BUS NOTATION </h2>
+ <p> Recently the following 2D notations are introduced:<br>
+ </p>
+ <ul>
+ <li><kbd>AAA[3:2][1:0]</kbd>: expands to: <kbd>AAA[3][1],AAA[3][0],AAA[2][1],AAA[2][0]</kbd>.</li>
+ <li><kbd>AAA[3..2][1..0]</kbd>: expands to: <kbd>AAA3_1,AAA3_0,AAA2_1,AAA2_0</kbd>.</li>
+ <li><kbd>AAA[3..2][1:0]</kbd>: expands to: <kbd>AAA3[1],AAA3[0],AAA2[1],AAA2[0]</kbd>.</li>
+ </ul>
+ <p> These notations produce valid SPICE netlists and Verilog netlists (using SystemVerilog extensions
+   for 2D module ports)<br>
+ </p>
 
+ <h2> BUS RIPPERS </h2>
  <p>
   In following picture there is a main 72 bit bus (the vertical thick wire) and bus ripper symbols
   (<kbd>devices/bus_connect_nolab.sym</kbd>) are used to take slices of bits from the main bus. Wire labels are used to define bus slices.
