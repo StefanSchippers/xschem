@@ -990,8 +990,10 @@ static void set_inst_node(int i, int j, const char *node)
   if(!for_netlist || skip) {
     bus_node_hash_lookup(inst[i].node[j],"", XINSERT, 0,"","","","");
   } else {
+    int port = 0;
     const char *dir = get_tok_value(rect[j].prop_ptr, "dir",0);
-    bus_node_hash_lookup(inst[i].node[j], dir, XINSERT, 0,"","","","");
+    if(strcmp(xctx->sym[xctx->inst[i].ptr].type, "label")) port = 1;
+    bus_node_hash_lookup(inst[i].node[j], dir, XINSERT, port,"","","","");
   }
 
   set_lab_or_pin_inst_attr(i, j, node);
@@ -1513,6 +1515,19 @@ static int name_nodes_of_pins_labels_and_propagate()
             dbg(1, ("name_nodes_of_pins_labels_and_propagate(): global node: %s\n",inst[i].node[0]));
             record_global_node(1,NULL, inst[i].node[0]);
           }
+        }
+
+
+        if(port) {
+          char *basename = NULL;
+          char *ptr;
+          my_mstrcat(_ALLOC_ID_, &basename, "[basename]", inst[i].node[0], NULL);
+          ptr = strchr(basename + 10, '['); /* find first '[' after "[basename]" */
+          if(ptr) {
+            *ptr = '\0';
+          }
+          bus_node_hash_lookup(basename, dir, XINSERT, port, sig_type, verilog_type, value, class);
+          my_free(_ALLOC_ID_, &basename);
         }
 
         /* do not count multiple labels/pins with same name */

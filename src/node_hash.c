@@ -241,7 +241,8 @@ int traverse_node_hash()
  {
   entry = xctx->node_table[i];
   while(entry)
-  {
+  { 
+   if(strstr(entry->token, "[basename]") == entry->token) goto cont;
    if( !record_global_node(3, NULL, entry->token)) {
      if(entry->d.out ==0  && entry->d.inout == 0)
      {
@@ -285,7 +286,7 @@ int traverse_node_hash()
    }
    dbg(1, ("traverse_node_hash(): node: %s in=%d out=%d inout=%d port=%d\n",
         entry->token, entry->d.in, entry->d.out, entry->d.inout, entry->d.port));
-
+   cont:
    entry = entry->next;
   }
  }
