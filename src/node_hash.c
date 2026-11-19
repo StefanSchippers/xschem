@@ -242,52 +242,69 @@ int traverse_node_hash()
   entry = xctx->node_table[i];
   while(entry)
   { 
-   if(strstr(entry->token, "[basename]") == entry->token) goto cont;
-   if( !record_global_node(3, NULL, entry->token)) {
-     if(entry->d.out ==0  && entry->d.inout == 0)
-     {
-       my_snprintf(str, S(str), "Error: undriven node: %s", entry->token);
-       if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
-       if(incr_hi) incr_hilight_color();
-       statusmsg(str, 2);
-       err |= 1;
-     }
-     else if(entry->d.out + entry->d.inout + entry->d.in == 1)
-     {
-       my_snprintf(str, S(str), "Warning: open net: %s", entry->token);
-       if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
-       if(incr_hi) incr_hilight_color();
-       statusmsg(str,2);
-       if(tclgetboolvar("erc_open_net_is_error")) err |= 1;
-     }
-     else if(entry->d.out >=2 && entry->d.port>=0)  /*  era d.port>=2   03102001 */
-     {
-       my_snprintf(str, S(str), "Warning: shorted output node: %s", entry->token);
-       if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
-       if(incr_hi) incr_hilight_color();
-       statusmsg(str,2);
-       if(tclgetboolvar("erc_shorted_output_is_error")) err |= 1;
-     }
-     else if(entry->d.in ==0 && entry->d.inout == 0)
-     {
-       my_snprintf(str, S(str), "Warning: node: %s goes nowhere", entry->token);
-       if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
-       if(incr_hi) incr_hilight_color();
-       statusmsg(str,2);
-     }
-     else if(entry->d.out >=2 && entry->d.inout == 0 && entry->d.port>=0)  /*  era d.port>=2   03102001 */
-     {
-       my_snprintf(str, S(str), "Warning: shorted output node: %s", entry->token);
-       if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
-       if(incr_hi) incr_hilight_color();
-       statusmsg(str,2);
-       if(tclgetboolvar("erc_shorted_output_is_error")) err |= 1;
-     }
-   }
-   dbg(1, ("traverse_node_hash(): node: %s in=%d out=%d inout=%d port=%d\n",
-        entry->token, entry->d.in, entry->d.out, entry->d.inout, entry->d.port));
-   cont:
-   entry = entry->next;
+    if(strstr(entry->token, "[basename]") == entry->token) goto cont;
+    if( !record_global_node(3, NULL, entry->token)) {
+      char *basename = NULL;
+      char *ptr;
+      int basename_is_used_as_port = 0;
+      my_mstrcat(_ALLOC_ID_, &basename, "[basename]", entry->token, NULL);
+      ptr = strchr(basename + 10, '[');
+      if(ptr) *ptr = '\0';
+      if(bus_node_hash_lookup(basename, "", XLOOKUP, 0, "", "", "", "")) basename_is_used_as_port = 1;
+      my_free(_ALLOC_ID_, &basename);
+
+      if(entry->d.port==0 && basename_is_used_as_port) 
+      {
+        my_snprintf(str, S(str), "Error: net %s has same basename as a port", entry->token);
+        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
+        if(incr_hi) incr_hilight_color();
+        statusmsg(str, 2);
+        err |= 1;
+      }
+      else if(entry->d.out ==0  && entry->d.inout == 0)
+      {
+        my_snprintf(str, S(str), "Error: undriven node: %s", entry->token);
+        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
+        if(incr_hi) incr_hilight_color();
+        statusmsg(str, 2);
+        err |= 1;
+      }
+      else if(entry->d.out + entry->d.inout + entry->d.in == 1)
+      {
+        my_snprintf(str, S(str), "Warning: open net: %s", entry->token);
+        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
+        if(incr_hi) incr_hilight_color();
+        statusmsg(str,2);
+        if(tclgetboolvar("erc_open_net_is_error")) err |= 1;
+      }
+      else if(entry->d.out >=2 && entry->d.port>=0)  /*  era d.port>=2   03102001 */
+      {
+        my_snprintf(str, S(str), "Warning: shorted output node: %s", entry->token);
+        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
+        if(incr_hi) incr_hilight_color();
+        statusmsg(str,2);
+        if(tclgetboolvar("erc_shorted_output_is_error")) err |= 1;
+      }
+      else if(entry->d.in ==0 && entry->d.inout == 0)
+      {
+        my_snprintf(str, S(str), "Warning: node: %s goes nowhere", entry->token);
+        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
+        if(incr_hi) incr_hilight_color();
+        statusmsg(str,2);
+      }
+      else if(entry->d.out >=2 && entry->d.inout == 0 && entry->d.port>=0)  /*  era d.port>=2   03102001 */
+      {
+        my_snprintf(str, S(str), "Warning: shorted output node: %s", entry->token);
+        if(!xctx->netlist_count) bus_hilight_hash_lookup(entry->token, xctx->hilight_color, XINSERT_NOREPLACE);
+        if(incr_hi) incr_hilight_color();
+        statusmsg(str,2);
+        if(tclgetboolvar("erc_shorted_output_is_error")) err |= 1;
+      }
+    }
+    dbg(1, ("traverse_node_hash(): node: %s in=%d out=%d inout=%d port=%d\n",
+         entry->token, entry->d.in, entry->d.out, entry->d.inout, entry->d.port));
+    cont:
+    entry = entry->next;
   }
  }
  return err;
