@@ -990,10 +990,8 @@ static void set_inst_node(int i, int j, const char *node)
   if(!for_netlist || skip) {
     bus_node_hash_lookup(inst[i].node[j],"", XINSERT, 0,"","","","");
   } else {
-    int port = 0;
     const char *dir = get_tok_value(rect[j].prop_ptr, "dir",0);
-    if(strcmp(xctx->sym[xctx->inst[i].ptr].type, "label")) port = 1;
-    bus_node_hash_lookup(inst[i].node[j], dir, XINSERT, port,"","","","");
+    bus_node_hash_lookup(inst[i].node[j], dir, XINSERT, 0,"","","","");
   }
 
   set_lab_or_pin_inst_attr(i, j, node);
