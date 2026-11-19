@@ -2915,8 +2915,15 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
             if(!pin[0]) pin = "--ERROR--";
             if(argc > 3 && strcmp(argv[3], pin)) continue;
             if(first == 0) Tcl_AppendResult(interp, " ", NULL);
-            Tcl_AppendResult(interp, pin, " ",
-                  xctx->inst[inst].node && xctx->inst[inst].node[p] ? xctx->inst[inst].node[p] : "{}", NULL);
+            if(xctx->inst[inst].node && xctx->inst[inst].node[p]) {
+              if(strpbrk(xctx->inst[inst].node[p], "\n \t}")) {
+                Tcl_AppendResult(interp, pin, " {", xctx->inst[inst].node[p] , "}", NULL);
+              } else {
+                Tcl_AppendResult(interp, pin, " ", xctx->inst[inst].node[p] , NULL);
+              }
+            } else {
+              Tcl_AppendResult(interp, pin, " {}", NULL);
+            }
             first = 0;
           }
         }
