@@ -41,7 +41,7 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
  dbg(3, ("node_hash_lookup(): called with: %s dir=%s what=%d port=%d\n",
         token, dir, what, port));
  d.in=d.out=d.inout=0;
- if(dir && dir[0]) {
+ if(port && dir && dir[0]) {
    if(!strcmp(dir,"in") )  d.in=1;
    else if(!strcmp(dir,"out") ) d.out=1;
    else if(!strcmp(dir,"inout") ) d.inout=1;
@@ -59,12 +59,19 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
     Node_hashentry *entry = (Node_hashentry *)my_malloc(_ALLOC_ID_, sizeof( Node_hashentry ));
     entry->next = NULL;
     entry->token = entry->sig_type = entry->verilog_type =
-                   entry->value = entry->class = entry->orig_tok = NULL;
+                   entry->value = entry->class = entry->orig_tok = entry->basename = NULL;
     my_strdup(_ALLOC_ID_, &(entry->token),token);
     if(sig_type &&sig_type[0]) my_strdup(_ALLOC_ID_,  &(entry->sig_type), sig_type);
     if(verilog_type &&verilog_type[0]) my_strdup(_ALLOC_ID_,  &(entry->verilog_type), verilog_type);
     if(class && class[0]) my_strdup(_ALLOC_ID_,  &(entry->class), class);
-    if(orig_tok && orig_tok[0]) my_strdup(_ALLOC_ID_,  &(entry->orig_tok), orig_tok);
+    if(orig_tok && orig_tok[0]) {
+      char *ptr;
+      my_strdup(_ALLOC_ID_,  &(entry->orig_tok), orig_tok);
+      my_strdup(_ALLOC_ID_,  &(entry->basename), orig_tok);
+      ptr = strchr(entry->basename, '[');
+      if(ptr) *ptr = '\0';
+      dbg(1, ("node_hash_lookup(): orig_tok=%s, basename=%s\n", entry->orig_tok, entry->basename));
+    }
     if(value && value[0]) my_strdup(_ALLOC_ID_,  &(entry->value), value);
     entry->d.port=d.port;
     entry->d.in=d.in;
@@ -89,6 +96,7 @@ static Node_hashentry *node_hash_lookup(const char *token, const char *dir,int w
     my_free(_ALLOC_ID_, &entry->sig_type);
     my_free(_ALLOC_ID_, &entry->class);
     my_free(_ALLOC_ID_, &entry->orig_tok);
+    my_free(_ALLOC_ID_, &entry->basename);
     my_free(_ALLOC_ID_, &entry->value);
     my_free(_ALLOC_ID_, &entry);
     *preventry=saveptr;
@@ -173,6 +181,7 @@ static void node_hash_free_entry(Node_hashentry *entry)
     my_free(_ALLOC_ID_, &entry->sig_type);
     my_free(_ALLOC_ID_, &entry->class);
     my_free(_ALLOC_ID_, &entry->orig_tok);
+    my_free(_ALLOC_ID_, &entry->basename);
     my_free(_ALLOC_ID_, &entry->value);
     my_free(_ALLOC_ID_, &entry);
     entry = tmp;
@@ -207,6 +216,7 @@ int node_hash_copy(Xschem_ctx *dest, Xschem_ctx *source)
       my_strdup(_ALLOC_ID_, &new_node->value, sentry->value);
       my_strdup(_ALLOC_ID_, &new_node->class, sentry->class);
       my_strdup(_ALLOC_ID_, &new_node->orig_tok, sentry->orig_tok);
+      my_strdup(_ALLOC_ID_, &new_node->basename, sentry->basename);
       new_node->hash = sentry->hash;
       new_node->d = sentry->d;
       new_node->next = NULL;

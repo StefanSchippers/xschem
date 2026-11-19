@@ -847,7 +847,6 @@ static void name_generics()
   Instpinentry *iptr;
   int i,j, rects, generic_rects;
   char *type=NULL;
-  char *sig_type=NULL;
   xInstance * const inst = xctx->inst;
   int const instances = xctx->instances;
 
@@ -883,9 +882,9 @@ static void name_generics()
                 dbg(2, ("name_generics(): naming generic %s\n", inst[n].node[p]));
                 my_strdup(_ALLOC_ID_,  &inst[i].node[j], get_tok_value(inst[n].prop_ptr,"value",0) );
                 if(!for_netlist) {
-                  my_strdup(_ALLOC_ID_, &sig_type,"");
-                  bus_node_hash_lookup(inst[n].node[p],"", XINSERT, 1, sig_type,"", "","");
+                  bus_node_hash_lookup(inst[n].node[p],"", XINSERT, 1, "", "", "", "");
                 } else {
+                  char *sig_type=NULL;
                   my_strdup(_ALLOC_ID_, &sig_type,
                     get_tok_value(xctx->sym[inst[i].ptr].rect[GENERICLAYER][j-rects].prop_ptr, "sig_type", 0));
                   /* insert generic label in hash table as a port so it will not */
@@ -894,6 +893,7 @@ static void name_generics()
                   bus_node_hash_lookup(inst[n].node[p],
                     get_tok_value(xctx->sym[inst[i].ptr].rect[GENERICLAYER][j-rects].prop_ptr, "dir",0),
                     XINSERT, 1, sig_type,"", "","");
+                  my_free(_ALLOC_ID_, &sig_type);
                 }
               } /* end if(inst[iptr->n].node[iptr->pin] != NULL) */
             } /* end if( (iptr->x0==x0) && (iptr->y0==y0) ) */
@@ -952,7 +952,7 @@ static void set_lab_or_pin_inst_attr(int i, int j, const char *node)
         my_strdup(_ALLOC_ID_, &verilog_type,get_tok_value(xctx->inst[i].prop_ptr,"verilog_type",0));
         my_strdup(_ALLOC_ID_, &value,get_tok_value(xctx->inst[i].prop_ptr,"value",0));
         my_strdup(_ALLOC_ID_, &class,get_tok_value(xctx->inst[i].prop_ptr,"class",0));
-        my_strdup2(_ALLOC_ID_, &dir,
+        if(port) my_strdup2(_ALLOC_ID_, &dir,
               get_tok_value(xctx->sym[xctx->inst[i].ptr].rect[PINLAYER][0].prop_ptr, "dir",0));
       }
 

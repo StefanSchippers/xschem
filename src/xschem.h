@@ -796,6 +796,7 @@ typedef struct node_hashentry
   char *value;
   char *class;
   char *orig_tok;
+  char *basename; /* name without index: A[15] --> A */
   Drivers d;
 } Node_hashentry;
 
