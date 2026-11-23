@@ -45,7 +45,6 @@ Makefile.conf
 config.h
 *.Identifier
 
-GEMINI.md
 README.git
 update_SuperChayan
 update_ananthchellappa
