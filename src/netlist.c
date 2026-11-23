@@ -1174,10 +1174,10 @@ static int skip_wire2(int i, int lvs_ignore, int mask)
 { 
   int skip = 0;
   if(xctx->wire[i].flags & mask) {
-    dbg(1, ("i=%d flags=%d, mask=%d\n", i, xctx->wire[i].flags, mask));
+    /* dbg(1, ("i=%d flags=%d, mask=%d\n", i, xctx->wire[i].flags, mask)); */
     skip = 1;
   } else if(lvs_ignore && (xctx->wire[i].flags & LVS_IGNORE)) {
-    dbg(1, ("lvs_ignore is set, i=%d flags=%d\n", i, xctx->wire[i].flags));
+    /* dbg(1, ("lvs_ignore is set, i=%d flags=%d\n", i, xctx->wire[i].flags)); */
     skip = 1;
   }
   return skip;
@@ -1198,7 +1198,8 @@ int skip_wire(int i)
       skip =  skip_wire2(i, netlist_lvs_ignore, TEDAX_IGNORE);
   else skip = 0;
 
-  dbg(1, ("skip_wire(): wire %d skip=%d\n", i, skip));
+  /* dbg(1, ("skip_wire(): wire %d skip=%d\n", i, skip)); */
+  xctx->wire[i].flags |= skip ? SKIP : 0;
   return skip;
 }   
 

@@ -195,6 +195,7 @@ extern char win_temp_dir[PATH_MAX];
 #define TEDAX_SHORT 32768
 #define SPECTRE_SHORT 65536
 #define SPECTRE_IGNORE 131072
+#define SKIP 262144
 #define LVS_IGNORE (LVS_IGNORE_SHORT | LVS_IGNORE_OPEN)
 #define CADMAXGRIDPOINTS 512
 #define CADMAXHIER 40
@@ -1804,8 +1805,10 @@ extern char *my_strcasestr(const char *haystack, const char *needle);
 extern double mylog10(double x);
 extern double mylog(double x);
 extern int my_strncasecmp(const char *s1, const char *s2, size_t n);
-extern char* strtolower(char* s);
-extern char* strtoupper(char* s);
+extern char *strtolower_len(char* str, size_t len);
+extern char *strtoupper_len(char* str, size_t len);
+extern char *strtolower(char* s);
+extern char *strtoupper(char* s);
 extern void *my_malloc(int id, size_t size);
 extern void my_realloc(int id, void *ptr,size_t size);
 extern void *my_calloc(int id, size_t nmemb, size_t size);

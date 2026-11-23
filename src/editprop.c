@@ -43,7 +43,7 @@ int my_strcasecmp(const char *s1, const char *s2)
     s2++;
   }
   return tolower(*s1) - tolower(*s2);
-}
+} 
 
 char *my_strcasestr(const char *haystack, const char *needle)
 {
@@ -839,16 +839,48 @@ int my_strncpy(char *d, const char *s, size_t n)
   return i;
 }
 
+char *strtoupper_len(char* str, size_t len)
+{
+  size_t i;
+  for (i = 0; i < len; ++i) {
+    unsigned char c = str[i];
+    /* Clears bit 0x20 (32) only if c is between 'a' and 'z' */
+    str[i] = c & ~((c >= 'a' && c <= 'z') << 5);
+  }
+  return str;
+}
+
+char *strtolower_len(char* str, size_t len)
+{
+  size_t i;
+  for (i = 0; i < len; ++i) {
+    unsigned char c = str[i];
+    /* Adds 0x20 only if c is between 'A' and 'Z' */
+    str[i] = c | ((c >= 'A' && c <= 'Z') << 5);
+  }
+  return str;
+}
+
+#if 0
+char *strtolower(char* s) {
+  return strtolower_len(s, strlen(s));
+}
+
+char *strtoupper(char* s) {
+  return strtoupper_len(s, strlen(s));
+}
+#else
 char *strtolower(char* s) {
   char *p;
   if(s) for(p=s; *p; p++) *p=(char)tolower(*p);
   return s;
-}
+} 
 char *strtoupper(char* s) {
   char *p;
   if(s) for(p=s; *p; p++) *p=(char)toupper(*p);
-  return s;
-}
+  return s; 
+}   
+#endif
 
 /* caller should do hash_names() (once) before (repeatedly) using this function */
 void set_inst_prop(int i)

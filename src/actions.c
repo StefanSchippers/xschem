@@ -1021,6 +1021,7 @@ void reset_caches(void)
   dbg(1, ("reset_caches()\n"));
   for(i = 0; i < xctx->wires; i++) {
     set_wire_flags(&xctx->wire[i]);
+    skip_wire(i);
   }
   for(i = 0; i < xctx->instances; i++) {
     set_inst_flags(&xctx->inst[i]);

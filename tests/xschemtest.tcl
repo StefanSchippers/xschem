@@ -69,7 +69,7 @@ proc test_windows { {tabs 0} {destroy 1} } {
     puts "test multiple windows: $res"
   }
   if {$destroy} {
-    after 2000
+    after 500
     xschem new_schematic destroy_all
     xschem clear force
   }

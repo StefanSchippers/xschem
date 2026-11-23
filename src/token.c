@@ -475,7 +475,187 @@ static void get_pin_and_attr(const char *token, char **pin_num_or_name, char **p
 /* bit: 2 = 1: same as bit 0 = 1, but remove surrounding "..." quotes, keep everything in between */
 /* with_quotes values used in xschem: 0  1  2  4  6 */
 
+#if 1
+const char *get_tok_value(const char *s, const char *tok, int with_quotes)
+{
+  static char *result = NULL;
+  static int size = 0;
+  static char *translated_tok = NULL;
+  const char *cand;
+  const char *after;
+  const char *p;
+  const char *vstart;
+  const char *chk;
+  size_t tok_len;
+  size_t vlen;
+  int quote, escape;
+  int val_quote, val_escape, value_pos;
+  int has_special, space;
+  char c;
 
+  xctx->tok_size = 0;
+
+  if (s == NULL) {
+    if (tok == NULL) {
+      my_free(_ALLOC_ID_, &result);
+      my_free(_ALLOC_ID_, &translated_tok);
+      size = 0;
+      dbg(2, ("get_tok_value(): clear static data\n"));
+    }
+    return "";
+  }
+  if (!tok || !tok[0]) return "";
+
+  dbg(1, ("s=\n%s\n  tok=%s\n  wq=%d\n", s, tok, with_quotes));
+  tok_len = strlen(tok);
+  cand = s;
+
+  while ((cand = strstr(cand, tok)) != NULL) {
+    /* 1. Left boundary: start of string or preceded by delimiter */
+    if (cand == s || SPACE(cand[-1])) {
+      after = cand + tok_len;
+      /* 2. Right boundary: '=' or delimiter */
+      if (*after == '=' || SPACE(*after)) {
+        /* 3. Check if inside quotes: fast check if any quote exists before cand */
+        if (memchr(s, '"', (size_t)(cand - s)) != NULL) {
+          quote = 0;
+          escape = 0;
+          chk = s;
+          while (chk < cand) {
+            if (*chk == '"' && !escape) quote = !quote;
+            escape = (*chk == '\\' && !escape);
+            chk++;
+          }
+          if (quote) {
+            cand++;
+            continue;
+          }
+        }
+
+        /* Found matching token */
+        p = after;
+        while (*p == ' ' || *p == '\t' || *p == '\n' || *p == ';') p++;
+
+        if (*p == '=') {
+          p++; /* Skip '=' */
+          while (*p == ' ' || *p == '\t' || *p == '\n' || *p == ';') p++;
+
+          xctx->tok_size = tok_len;
+
+          if (size == 0) {
+            size = CADCHUNKALLOC;
+            my_realloc(_ALLOC_ID_, &result, size);
+          }
+
+          /* Fast path for unquoted values without backslashes or quotes */
+          if (*p != '"') {
+            vstart = p;
+            has_special = 0;
+            while (*p && !SPACE(*p)) {
+              if (*p == '\\' || *p == '"') has_special = 1;
+              p++;
+            }
+            if (!has_special) {
+              vlen = (size_t)(p - vstart);
+              if ((int)vlen >= size) {
+                size = (int)vlen + CADCHUNKALLOC;
+                my_realloc(_ALLOC_ID_, &result, size);
+              }
+              memcpy(result, vstart, vlen);
+              result[vlen] = '\0';
+
+              if (vlen == 0 && *p == '\0') {
+                xctx->tok_size = 0;
+              }
+
+              if (with_quotes & 2) {
+                dbg(1, ("  return: |%s|, size=%d\n", result, xctx->tok_size));
+                return result;
+              } else if (strncmp(result, "tcleval(", 8) == 0) {
+                my_strdup2(_ALLOC_ID_, &translated_tok, tcl_hook2(result));
+                dbg(1, ("  return: |%s|, size=%d\n", translated_tok, xctx->tok_size));
+                return translated_tok;
+              } else {
+                dbg(1, ("  return: |%s|, size=%d\n", result, xctx->tok_size));
+                return result;
+              }
+            }
+            p = vstart; /* Fallback to general parser if special chars exist */
+          }
+
+          /* General path for quoted or escaped values */
+          val_quote = 0;
+          val_escape = 0;
+          value_pos = 0;
+
+          while (*p) {
+            c = *p++;
+            space = SPACE(c);
+
+            if (c == '"' && !val_escape) val_quote = !val_quote;
+            if (space && !val_quote && !val_escape) break;
+
+            if (value_pos >= size - 1) {
+              size += CADCHUNKALLOC;
+              my_realloc(_ALLOC_ID_, &result, size);
+            }
+
+            if (with_quotes & 1) {
+              result[value_pos++] = c;
+            } else if ((with_quotes & 4) && (val_escape || c != '"')) {
+              result[value_pos++] = c;
+            } else if (val_escape || (c != '\\' && c != '"')) {
+              result[value_pos++] = c;
+            }
+
+            val_escape = (c == '\\' && !val_escape);
+          }
+
+          result[value_pos] = '\0';
+
+          if (value_pos == 0 && *p == '\0') {
+            xctx->tok_size = 0;
+          }
+
+          if (with_quotes & 2) {
+            dbg(1, ("  return: |%s|, size=%d\n", result, xctx->tok_size));
+            return result;
+          } else if (strncmp(result, "tcleval(", 8) == 0) {
+            my_strdup2(_ALLOC_ID_, &translated_tok, tcl_hook2(result));
+            dbg(1, ("  return: |%s|, size=%d\n", translated_tok, xctx->tok_size));
+            return translated_tok;
+          } else {
+            dbg(1, ("  return: |%s|, size=%d\n", result, xctx->tok_size));
+            return result;
+          }
+        } else {
+          /* Token without value */
+          xctx->tok_size = tok_len;
+          if (size == 0) {
+            size = CADCHUNKALLOC;
+            my_realloc(_ALLOC_ID_, &result, size);
+          }
+          result[0] = '\0';
+          dbg(1, ("  return: |%s|, size=%d\n", result, xctx->tok_size));
+          return result;
+          break;
+        }
+      }
+    }
+    cand++;
+  }
+
+  if (size == 0) {
+    size = CADCHUNKALLOC;
+    my_realloc(_ALLOC_ID_, &result, size);
+  }
+  result[0] = '\0';
+  xctx->tok_size = 0;
+  dbg(1, ("  return: |%s|, size=%d\n", result, xctx->tok_size));
+  return result;
+}
+
+#else
 const char *get_tok_value(const char *s,const char *tok, int with_quotes)
 {
   static char *result=NULL;
@@ -501,7 +681,15 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     }
     return "";
   }
-  if(!tok || !strstr(s, tok)) return "";
+
+  if (!tok || !tok[0]) return "";
+
+  dbg(1, ("s=\n%s\n  tok=%s\n  wq=%d\n", s, tok, with_quotes));
+
+  if(!strstr(s, tok)) {
+    dbg(1, ("  return: |%s|, size=%d\n", "", xctx->tok_size));
+    return "";
+  }
   if( size == 0 ) {
     sizetok = size = CADCHUNKALLOC;
     my_realloc(_ALLOC_ID_, &result, size);
@@ -530,6 +718,7 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     if(state==TOK_TOKEN) {
       if(!cmp) { /* previous token matched search and was without value, return xctx->tok_size */
         result[0] = '\0';
+        dbg(1, ("  return: |%s|, size=%d\n", result, xctx->tok_size));
         return result;
       }
       /* if( (with_quotes & 1) || escape || (c != '\\' && c != '"')) token[token_pos++]=(char)c; */
@@ -553,9 +742,11 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
       result[value_pos]='\0';
       if( !cmp ) {
         if(with_quotes & 2) {
+          dbg(1, ("  return: |%s|, size=%d\n", result, xctx->tok_size));
           return result;
         } else {
           my_strdup2(_ALLOC_ID_, &translated_tok, tcl_hook2(result));
+          dbg(1, ("  return: |%s|, size=%d\n", translated_tok, xctx->tok_size));
           return translated_tok;
         }
       }
@@ -565,11 +756,13 @@ const char *get_tok_value(const char *s,const char *tok, int with_quotes)
     escape = (c=='\\' && !escape);
     if(c=='\0') {
       result[0]='\0';
-      xctx->tok_size = 0;
+      if(!(state == TOK_ENDTOK) || cmp) xctx->tok_size = 0;
+      dbg(1, ("  return: |%s|, size=%d\n", result, xctx->tok_size));
       return result;
     }
   }
 }
+#endif
 
 /* return template string excluding name=... and token=value where token listed in extra */
 /* drop spiceprefix attribute */
@@ -5716,6 +5909,7 @@ const char *translate3(const char *s, int inst, int eat_escapes, const char *s1,
  register int c, state=TOK_BEGIN, space;
  char *token=NULL;
  char *value1 = NULL;
+ char *value2 = NULL;
  size_t sizetok=0;
  size_t token_pos=0;
  const char *value;
@@ -5761,19 +5955,19 @@ const char *translate3(const char *s, int inst, int eat_escapes, const char *s1,
 
    for(i = 1; i <= 4; i++) {
      if(!found_value && sptr[i]) {
-       value=get_tok_value(sptr[i], value1+1, 0);
-       dbg(1, ("translate3(): i=%d, value=%s\n", i, value));
+       my_strdup2(_ALLOC_ID_, &value2, get_tok_value(sptr[i], value1+1, 0));
+       value = value2;
+       dbg(1, ("translate3(): i=%d, value=%s, tok_size=%d\n", i, value, xctx->tok_size));
        if(xctx->tok_size) found_value = xctx->tok_size;
      }
      else if( sptr[i]) {
-       char *v = NULL;
        const char *newval;
-       my_strdup2(_ALLOC_ID_, &v, value);
-       newval = get_tok_value(sptr[i], v, 0);
+       newval = get_tok_value(sptr[i], value2, 0);
+       dbg(1, ("translate3(): sptr[%d]=%s, newval=%s\n", i, sptr[i], newval));
        if(xctx->tok_size) {
          value = newval;
        }
-       my_free(_ALLOC_ID_, &v);
+       dbg(1, ("translate3(): i=%d, value=%s, tok_size=%d\n", i, value, xctx->tok_size));
      }
    }
 
@@ -5805,9 +5999,10 @@ const char *translate3(const char *s, int inst, int eat_escapes, const char *s1,
    break;
   }
  } /* while(1) */
- dbg(2, ("translate3(): returning %s\n", result));
+ dbg(1, ("translate3(): returning %s\n", result));
  my_free(_ALLOC_ID_, &token);
  if(value1) my_free(_ALLOC_ID_, &value1);
+ if(value2) my_free(_ALLOC_ID_, &value2);
 
  /* if result is like: 'tcleval(some_string)' pass it thru tcl evaluation so expressions
   * can be calculated */
