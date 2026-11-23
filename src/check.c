@@ -65,7 +65,7 @@ void update_conn_cues(int layer, int draw_cues, int dr_win)
   y2 = Y_TO_XSCHEM(xctx->areay2);
   for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
     k=wireptr->n;
-    if((xctx->wire[k].flags & SKIP)) continue;
+    if(skip_wire(k)) continue;
     /* optimization when editing small areas (detailed zoom)  of a huge schematic */
     if(LINE_OUTSIDE(wire[k].x1, wire[k].y1, wire[k].x2, wire[k].y2, x1, y1, x2, y2)) continue;
     for(l = 0;l < 2; ++l) {
@@ -83,7 +83,7 @@ void update_conn_cues(int layer, int draw_cues, int dr_win)
       get_square(x0, y0, &sqx, &sqy);
       for(wptr = xctx->wire_spatial_table[sqx][sqy] ; wptr ; wptr = wptr->next) {
         i = wptr->n;
-        if((xctx->wire[i].flags & SKIP)) continue;
+        if(skip_wire(i)) continue;
         if(i == k) {
           continue; /* no check wire against itself */
         }
@@ -105,7 +105,7 @@ void update_conn_cues(int layer, int draw_cues, int dr_win)
     save_draw = xctx->draw_window; xctx->draw_window = dr_win;
     for(init_wire_iterator(&ctx, x1, y1, x2, y2); ( wireptr = wire_iterator_next(&ctx) ) ;) {
       i = wireptr->n;
-      if((xctx->wire[i].flags & SKIP)) continue;
+      if(skip_wire(i)) continue;
       /* optimization when editing small areas (detailed zoom)  of a huge schematic */
       if(LINE_OUTSIDE(wire[i].x1, wire[i].y1,
                       wire[i].x2, wire[i].y2, x1, y1, x2, y2)) continue;
