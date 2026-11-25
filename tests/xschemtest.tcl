@@ -111,7 +111,7 @@ proc copy_paste_test {{f mos_power_ampli.sch} {forceclear 1}} {
 
 ## draw a grid of long vertical wires and small horizontal wire segments
 ## after a trim wire operation vertical wires are cut at intersection points.
-proc draw_trim_wiregrid {} {
+proc draw_trim_wiregrid {{clear 1}} {
   xschem unhilight_all
   xschem clear force
   xschem set no_undo 1
@@ -137,8 +137,17 @@ proc draw_trim_wiregrid {} {
   set n [xschem get lastsel]
   xschem unselect_all
   ## if all wires trimmed correctly we should have 129*128*2 = 33024 segments.
-  if {$n == 33024} { puts "Trim wire test: $n segments, OK"} else { puts "Trim wire test FAIL, $n segments"}
-  xschem clear force
+
+  set nw [xschem get wires]
+  set fail 0
+  ## all trimmed segments should have length=40
+  for {set i 0} { $i < $nw} {incr i} {
+    lassign [xschem wire_coord $i] x1 y1 x2 y2
+    set len [expr {($x2 - $x1) * ($x2 - $x1) + ($y2 - $y1) * ($y2 - $y1)}]
+    if {$len != 1600} {set fail 1}
+  }
+  if {!$fail && $n == 33024} { puts "Trim wire test: $n segments, OK"} else { puts "Trim wire test FAIL, $n segments"}
+  if {$clear} {xschem clear force}
 }
 
 

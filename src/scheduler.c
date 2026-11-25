@@ -7122,7 +7122,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
       if(argc > 2) {
         char *r = NULL;
         int n = atoi(argv[2]);
-        if(n > 0 && n < xctx->wires) {
+        if(n >= 0 && n < xctx->wires) {
           xWire * const wire = xctx->wire;
           my_mstrcat(_ALLOC_ID_, &r, dtoa(wire[n].x1), " ", NULL);
           my_mstrcat(_ALLOC_ID_, &r, dtoa(wire[n].y1), " ", NULL);
