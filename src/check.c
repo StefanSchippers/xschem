@@ -173,6 +173,107 @@ void trim_wires(void)
     dbg(dbgvar, ("trim_wires(): hash_wires_1: %g\n", timer(1)));
 
 
+    my_realloc(_ALLOC_ID_, &wireflag, xctx->wires*sizeof(unsigned short));
+    memset(wireflag, 0, xctx->wires*sizeof(unsigned short));
+
+
+    /* reduce included wires */
+    for(i=0;i<xctx->wires; ++i) {
+      if(wireflag[i]) continue;
+      if((xctx->wire[i].flags & SKIP)) continue;
+      x0 = xctx->wire[i].x1;
+      y0 = xctx->wire[i].y1;
+      get_square(x0, y0, &sqx, &sqy);
+      k=1;
+      for(wptr = xctx->wire_spatial_table[sqx][sqy] ; ; wptr = wptr->next) {
+        if(!wptr) {
+          if(k == 1) {
+            x0 = xctx->wire[i].x2;
+            y0 = xctx->wire[i].y2;
+            get_square(x0, y0, &sqx, &sqy);
+            wptr = xctx->wire_spatial_table[sqx][sqy];
+            k = 2;
+            if(!wptr) break;
+          } else break;
+        }
+        j = wptr->n;
+        if((xctx->wire[j].flags & SKIP)) continue;
+        if(i == j || wireflag[j]) continue;
+
+        includes = check_includes(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2,
+                                  xctx->wire[j].x1, xctx->wire[j].y1, xctx->wire[j].x2, xctx->wire[j].y2);
+        if(includes) {
+          dbg(2, ("trim_wires(): %d (%g %g %g %g) include %d (%g %g %g %g)\n", i,
+            xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2,
+            j,
+            xctx->wire[j].x1, xctx->wire[j].y1, xctx->wire[j].x2, xctx->wire[j].y2
+          ));
+          wireflag[j] = 1;
+        }
+      }
+    }
+    dbg(dbgvar, ("trim_wires(): included: %g\n", timer(1)));
+
+
+    /* merge parallel touching (in wire[i].x2, wire[i].y2) wires */
+    for(i=0;i<xctx->wires; ++i) {
+      if(wireflag[i]) continue;
+      if((xctx->wire[i].flags & SKIP)) continue;
+      x0 = xctx->wire[i].x2;
+      y0 = xctx->wire[i].y2;
+      get_square(x0, y0, &sqx, &sqy);
+      for(wptr = xctx->wire_spatial_table[sqx][sqy] ; wptr ; wptr = wptr->next) {
+        j = wptr->n;
+        if((xctx->wire[j].flags & SKIP)) continue;
+        if(i == j || wireflag[j]) continue;
+        if( touch(xctx->wire[j].x1, xctx->wire[j].y1, xctx->wire[j].x2, xctx->wire[j].y2, x0,y0) &&
+            /* parallel */
+            (xctx->wire[i].x2 -  xctx->wire[i].x1) * (xctx->wire[j].y2 -  xctx->wire[j].y1) ==
+            (xctx->wire[j].x2 -  xctx->wire[j].x1) * (xctx->wire[i].y2 -  xctx->wire[i].y1) &&
+            /* touch in wire[j].x1, wire[j].y1 */
+            xctx->wire[j].x1 == x0 && xctx->wire[j].y1 == y0 &&
+            /* no other connecting wires */
+            xctx->wire[i].end2 == 0 && xctx->wire[j].end1 == 0 ) {
+          dbg(2, ("trim_wires(): i=%d merged with j=%d\n", i, j));
+          xctx->wire[i].x2 = xctx->wire[j].x2;
+          xctx->wire[i].y2 = xctx->wire[j].y2;
+          if(xctx->wire[j].sel) xctx->wire[i].sel = xctx->wire[j].sel;
+          wireflag[j] = 1;
+          break;
+        }
+      }
+    }
+    dbg(dbgvar, ("trim_wires(): merge: %g\n", timer(1)));
+
+
+    /* delete wires */
+    j = 0;
+    for(i=0;i<xctx->wires; ++i)
+    {
+      xctx->wire[i].end1 = xctx->wire[i].end2 = -1; /* reset all endpoints we recalculate all at end */
+      if(wireflag[i]) {
+        ++j;
+        /* hash_wire(XDELETE, i, 0);*/ /* can not be done since wire deletions change wire idexes in array */
+        my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
+        my_free(_ALLOC_ID_, &xctx->wire[i].node);
+        continue;
+      }
+      if(j) {
+        xctx->wire[i-j] = xctx->wire[i];
+      }
+    }
+    xctx->wires -= j;
+    if(j) {
+      xctx->prep_hash_wires=0; /* after wire deletions full rehash is needed */
+      changed = 1;
+    }
+    dbg(dbgvar, ("trim_wires(): delete: %g\n", timer(1)));
+
+    /* after wire deletions full rehash is needed */
+    hash_wires();
+    my_realloc(_ALLOC_ID_, &wireflag, xctx->wires*sizeof(unsigned short));
+    memset(wireflag, 0, xctx->wires*sizeof(unsigned short));
+    dbg(dbgvar, ("trim_wires(): hash_wires_2: %g\n", timer(1)));
 
 
     /* break all wires */
@@ -250,81 +351,6 @@ void trim_wires(void)
     dbg(dbgvar, ("trim_wires(): break: %g\n", timer(1)));
 
 
-
-
-    /* reduce included wires */
-    my_realloc(_ALLOC_ID_, &wireflag, xctx->wires*sizeof(unsigned short));
-    memset(wireflag, 0, xctx->wires*sizeof(unsigned short));
-    for(i=0;i<xctx->wires; ++i) {
-      if(wireflag[i]) continue;
-      if((xctx->wire[i].flags & SKIP)) continue;
-      x0 = xctx->wire[i].x1;
-      y0 = xctx->wire[i].y1;
-      get_square(x0, y0, &sqx, &sqy);
-      k=1;
-      for(wptr = xctx->wire_spatial_table[sqx][sqy] ; ; wptr = wptr->next) {
-        if(!wptr) {
-          if(k == 1) {
-            x0 = xctx->wire[i].x2;
-            y0 = xctx->wire[i].y2;
-            get_square(x0, y0, &sqx, &sqy);
-            wptr = xctx->wire_spatial_table[sqx][sqy];
-            k = 2;
-            if(!wptr) break;
-          } else break;
-        }
-        j = wptr->n;
-        if((xctx->wire[j].flags & SKIP)) continue;
-        if(i == j || wireflag[j]) continue;
-
-        includes = check_includes(xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2,
-                                  xctx->wire[j].x1, xctx->wire[j].y1, xctx->wire[j].x2, xctx->wire[j].y2);
-        if(includes) {
-          dbg(2, ("trim_wires(): %d (%g %g %g %g) include %d (%g %g %g %g)\n", i,
-            xctx->wire[i].x1, xctx->wire[i].y1, xctx->wire[i].x2, xctx->wire[i].y2,
-            j,
-            xctx->wire[j].x1, xctx->wire[j].y1, xctx->wire[j].x2, xctx->wire[j].y2
-          ));
-          wireflag[j] = 1;
-        }
-      }
-    }
-    dbg(dbgvar, ("trim_wires(): included: %g\n", timer(1)));
-
-    /* delete wires */
-    j = 0;
-    for(i=0;i<xctx->wires; ++i)
-    {
-      if(wireflag[i]) {
-        ++j;
-        /* hash_wire(XDELETE, i, 0);*/ /* can not be done since wire deletions change wire idexes in array */
-        my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
-        my_free(_ALLOC_ID_, &xctx->wire[i].node);
-        continue;
-      }
-      if(j) {
-        xctx->wire[i-j] = xctx->wire[i];
-      }
-    }
-    xctx->wires -= j;
-    if(j) {
-      xctx->prep_hash_wires=0;
-      changed = 1;
-    }
-    dbg(dbgvar, ("trim_wires(): delete_1: %g\n", timer(1)));
-
-
-
-
-    /* after wire deletions full rehash is needed */
-    hash_wires();
-
-    my_realloc(_ALLOC_ID_, &wireflag, xctx->wires*sizeof(unsigned short));
-    memset(wireflag, 0, xctx->wires*sizeof(unsigned short));
-    dbg(dbgvar, ("trim_wires(): hash_wires_2: %g\n", timer(1)));
-
-
-
     /* update endpoint (end1, end2) connection counters */
     for(i=0;i<xctx->wires; ++i) {
       x0 = xctx->wire[i].x1;
@@ -367,74 +393,18 @@ void trim_wires(void)
     dbg(dbgvar, ("trim_wires(): endpoints: %g\n", timer(1)));
 
 
-
-
-    /* merge parallel touching (in wire[i].x2, wire[i].y2) wires */
-    for(i=0;i<xctx->wires; ++i) {
-      if(wireflag[i]) continue;
-      if((xctx->wire[i].flags & SKIP)) continue;
-      x0 = xctx->wire[i].x2;
-      y0 = xctx->wire[i].y2;
-      get_square(x0, y0, &sqx, &sqy);
-      for(wptr = xctx->wire_spatial_table[sqx][sqy] ; wptr ; wptr = wptr->next) {
-        j = wptr->n;
-        if((xctx->wire[j].flags & SKIP)) continue;
-        if(i == j || wireflag[j]) continue;
-        if( touch(xctx->wire[j].x1, xctx->wire[j].y1, xctx->wire[j].x2, xctx->wire[j].y2, x0,y0) &&
-            /* parallel */
-            (xctx->wire[i].x2 -  xctx->wire[i].x1) * (xctx->wire[j].y2 -  xctx->wire[j].y1) ==
-            (xctx->wire[j].x2 -  xctx->wire[j].x1) * (xctx->wire[i].y2 -  xctx->wire[i].y1) &&
-            /* touch in wire[j].x1, wire[j].y1 */
-            xctx->wire[j].x1 == x0 && xctx->wire[j].y1 == y0 &&
-            /* no other connecting wires */
-            xctx->wire[i].end2 == 0 && xctx->wire[j].end1 == 0 ) {
-          dbg(2, ("trim_wires(): i=%d merged with j=%d\n", i, j));
-          xctx->wire[i].x2 = xctx->wire[j].x2;
-          xctx->wire[i].y2 = xctx->wire[j].y2;
-          if(xctx->wire[j].sel) xctx->wire[i].sel = xctx->wire[j].sel;
-          wireflag[j] = 1;
-          break;
-        }
-      }
-    }
-    dbg(dbgvar, ("trim_wires(): merge: %g\n", timer(1)));
-
-    /* delete wires */
-    j = 0;
-    for(i=0;i<xctx->wires; ++i)
-    {
-      xctx->wire[i].end1 = xctx->wire[i].end2 = -1; /* reset all endpoints we recalculate all at end */
-      if(wireflag[i]) {
-        ++j;
-        /* hash_wire(XDELETE, i, 0);*/ /* can not be done since wire deletions change wire idexes in array */
-        my_free(_ALLOC_ID_, &xctx->wire[i].prop_ptr);
-        my_free(_ALLOC_ID_, &xctx->wire[i].node);
-        continue;
-      }
-      if(j) {
-        xctx->wire[i-j] = xctx->wire[i];
-      }
-    }
-    xctx->wires -= j;
-    if(j) {
-      xctx->prep_hash_wires=0; /* after wire deletions full rehash is needed */
-      changed = 1;
-    }
-    dbg(dbgvar, ("trim_wires(): delete_2: %g\n", timer(1)));
-
-
-
-
     if(changed) {
       xctx->need_reb_sel_arr = 1;
       xctx->prep_net_structs=0;
       xctx->prep_hi_structs=0;
       set_modify(1);
     }
+    dbg(dbgvar, ("trim_wires(): loop total: %g\n", timer(2)));
   } while(changed);
   dbg(dbgvar, ("trim_wires(): doloops=%d changed=%d\n", doloops, changed));
   my_free(_ALLOC_ID_, &wireflag);
   update_conn_cues(WIRELAYER, 0, 0);
+  dbg(dbgvar, ("trim_wires(): total: %g\n", timer(2)));
 }
 
 static int touches_inst_pin(double x, double y, int inst)
