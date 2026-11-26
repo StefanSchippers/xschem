@@ -116,17 +116,17 @@ proc draw_trim_wiregrid {{clear 1}} {
   xschem clear force
   xschem set no_undo 1
   for {set i 0} {$i < 129} {incr i} {
-    set x [expr {$i * 40.0}]
-    set y [expr {128.0*40}]
-    xschem wire $x 0 $x $y
-  }
-  for {set i 0} {$i < 129} {incr i} {
     for {set j 0} {$j < 128} {incr j} {
       set x1 [expr {$j * 40}]
       set x2 [expr {$j * 40 + 40}]
       set y [expr {$i * 40}]
       xschem wire $x1 $y $x2 $y
     }
+  }
+  for {set i 0} {$i < 129} {incr i} {
+    set x [expr {$i * 40.0}]
+    set y [expr {128.0*40}]
+    xschem wire $x 0 $x $y
   }
   xschem set no_undo 0
   xschem zoom_full
