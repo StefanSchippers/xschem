@@ -1319,7 +1319,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
     for(i=0;i<no_of_pins; ++i)
     {
       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
-      if(strboolcmp(get_tok_value(prop,"vhdl_ignore",0), "true")) {
+      if(strboolcmp(get_tok_value(prop,"vhdl_ignore",0), 1)) {
         const char *name = get_tok_value(prop,"name",0);
         if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
           if(!first) my_mstrcat(_ALLOC_ID_, &result, " , ", NULL);
@@ -1335,7 +1335,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
     for(i=0;i<no_of_pins; ++i) {
      xSymbol *ptr = xctx->inst[inst].ptr + xctx->sym;
      if(!strcmp( get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"name",0), token+2)) {
-       if(strboolcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), "true")) {
+       if(strboolcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"vhdl_ignore",0), 1)) {
          str_ptr =  net_name(inst,i, &multip, 0, 1);
          my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ") ", NULL);
        }
@@ -1396,7 +1396,7 @@ static void print_vhdl_primitive(FILE *fd, int inst) /* netlist  primitives, 200
        const char *si;
        char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
        si  = get_tok_value(prop, "verilog_ignore",0);
-       if(strboolcmp(si, "true")) {
+       if(strboolcmp(si, 1)) {
          str_ptr =  net_name(inst,n, &multip, 0, 1);
          my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ") ", NULL);
        }
@@ -1889,7 +1889,7 @@ void print_vhdl_element(FILE *fd, int inst)
   int_hash_init(&table, 37);
   for(i=0;i<no_of_pins; ++i)
   {
-    if(strboolcmp(get_tok_value(pinptr[i].prop_ptr,"vhdl_ignore",0), "true")) {
+    if(strboolcmp(get_tok_value(pinptr[i].prop_ptr,"vhdl_ignore",0), 1)) {
       const char *name = get_tok_value(pinptr[i].prop_ptr, "name", 0);
       if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
         if( (str_ptr =  net_name(inst,i, &multip, 0, 1)) )
@@ -2126,7 +2126,7 @@ void print_tedax_subckt(FILE *fd, int symbol)
 
   for(i=0;i<no_of_pins; ++i)
   {
-    if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"tedax_ignore",0), "true")) {
+    if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"tedax_ignore",0), 1)) {
       str_ptr=
         expandlabel(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0), NULL);
       fprintf(fd, "%s ", str_ptr);
@@ -2186,7 +2186,7 @@ int has_included_subcircuit(int inst, int symbol, char **result)
     str_hash_init(&table, 6247);
     for(i = 0;i < no_of_pins; ++i) {
       char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
-      int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), "true");
+      int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), 1);
       const char *name = get_tok_value(prop, "name", 0);
       if(!spice_ignore) {
         char *pin, *pin_save;
@@ -2358,7 +2358,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
      int_hash_init(&table, 37);
      for(i=0;i<no_of_pins; ++i)
      {
-       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), "true")) {
+       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spice_ignore",0), 1)) {
          char *name = NULL;
          char *tr_name = NULL;
          my_strdup2(_ALLOC_ID_, &name, get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0));
@@ -2381,7 +2381,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
        prop = xctx->sym[symbol].rect[PINLAYER][i].prop_ptr;
        if(!strcmp(get_tok_value(prop, "name",0), token + 2)) break;
      }
-     if(i<no_of_pins && strboolcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
+     if(i<no_of_pins && strboolcmp(get_tok_value(prop,"spice_ignore",0), 1)) {
        /* fprintf(fd, "%s ", expandlabel(token+2, &multip)); */
        my_mstrcat(_ALLOC_ID_, &result, expandlabel(token+2, &multip), " ", NULL);
      }
@@ -2393,7 +2393,7 @@ void print_spice_subckt_nodes(FILE *fd, int symbol)
      get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
      pin_number = get_sym_pin_number(symbol, pin_num_or_name);
      if(pin_number >= 0 && pin_number < no_of_pins) {
-       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), "true")) {
+       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"spice_ignore",0), 1)) {
        str_ptr =  get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"name",0);
        /* fprintf(fd, "%s ",  expandlabel(str_ptr, &multip)); */
        my_mstrcat(_ALLOC_ID_, &result, expandlabel(str_ptr, &multip), " ", NULL);
@@ -2525,7 +2525,7 @@ void print_spectre_subckt_nodes(FILE *fd, int symbol)
      int_hash_init(&table, 37);
      for(i=0;i<no_of_pins; ++i)
      {
-       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spectre_ignore",0), "true")) {
+       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"spectre_ignore",0), 1)) {
          const char *name = get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0);
          if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
            str_ptr= expandlabel(name, &multip);
@@ -2542,7 +2542,7 @@ void print_spectre_subckt_nodes(FILE *fd, int symbol)
        prop = xctx->sym[symbol].rect[PINLAYER][i].prop_ptr;
        if(!strcmp(get_tok_value(prop, "name",0), token + 2)) break;
      }
-     if(i<no_of_pins && strboolcmp(get_tok_value(prop,"spectre_ignore",0), "true")) {
+     if(i<no_of_pins && strboolcmp(get_tok_value(prop,"spectre_ignore",0), 1)) {
        /* fprintf(fd, "%s ", expandlabel(token+2, &multip)); */
        my_mstrcat(_ALLOC_ID_, &result, expandlabel(token+2, &multip), " ", NULL);
      }
@@ -2554,7 +2554,7 @@ void print_spectre_subckt_nodes(FILE *fd, int symbol)
      get_pin_and_attr(token, &pin_num_or_name, &pin_attr);
      pin_number = get_sym_pin_number(symbol, pin_num_or_name);
      if(pin_number >= 0 && pin_number < no_of_pins) {
-       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"spectre_ignore",0), "true")) {
+       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"spectre_ignore",0), 1)) {
        str_ptr =  get_tok_value(xctx->sym[symbol].rect[PINLAYER][pin_number].prop_ptr,"name",0);
        /* fprintf(fd, "%s ",  expandlabel(str_ptr, &multip)); */
        my_mstrcat(_ALLOC_ID_, &result, expandlabel(str_ptr, &multip), " ", NULL);
@@ -2741,7 +2741,7 @@ int print_spice_element(FILE *fd, int inst)
 
         const char *sc = get_tok_value(xctx->inst[inst].prop_ptr, "savecurrent", 0);
         if(!sc[0]) sc = get_tok_value(template, "savecurrent", 0);
-        if(!strboolcmp(sc , "true")) {
+        if(!strboolcmp(sc , 1)) {
           my_mstrcat(_ALLOC_ID_, &result, "\n.save I( ?1 ", instname, " )", NULL);
         }
       }
@@ -2763,7 +2763,7 @@ int print_spice_element(FILE *fd, int inst)
           for(i=0;i<no_of_pins; ++i)
           {
             char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
-            int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), "true");
+            int spice_ignore = !strboolcmp(get_tok_value(prop, "spice_ignore", 0), 1);
             const char *name = get_tok_value(prop, "name", 0);
             if(!spice_ignore) {
               if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
@@ -2780,7 +2780,7 @@ int print_spice_element(FILE *fd, int inst)
         for(i=0;i<no_of_pins; ++i) {
           char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
           if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
-            if(strboolcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
+            if(strboolcmp(get_tok_value(prop,"spice_ignore",0), 1)) {
               str_ptr =  net_name(inst,i, &multip, 0, 1);
 
               my_mstrcat(_ALLOC_ID_, &result, "?", my_itoa(multip), " ", str_ptr, " ", NULL);
@@ -2841,7 +2841,7 @@ int print_spice_element(FILE *fd, int inst)
           const char *si;
           char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
           si  = get_tok_value(prop, "spice_ignore",0);
-          if(strboolcmp(si, "true")) {
+          if(strboolcmp(si, 1)) {
             str_ptr =  net_name(inst,n, &multip, 0, 1);
 
             my_mstrcat(_ALLOC_ID_, &result, "?", my_itoa(multip), " ", str_ptr, " ", NULL);
@@ -3133,7 +3133,7 @@ int print_spectre_element(FILE *fd, int inst)
 
         const char *sc = get_tok_value(xctx->inst[inst].prop_ptr, "savecurrent", 0);
         if(!sc[0]) sc = get_tok_value(template, "savecurrent", 0);
-        if(!strboolcmp(sc , "true")) {
+        if(!strboolcmp(sc , 1)) {
           my_mstrcat(_ALLOC_ID_, &result, "\n.save I( ?1 ", instname, " )", NULL);
         }
       }
@@ -3154,7 +3154,7 @@ int print_spectre_element(FILE *fd, int inst)
         for(i=0;i<no_of_pins; ++i)
         {
           char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
-          int spectre_ignore = !strboolcmp(get_tok_value(prop, "spectre_ignore", 0), "true");
+          int spectre_ignore = !strboolcmp(get_tok_value(prop, "spectre_ignore", 0), 1);
           const char *name = get_tok_value(prop, "name", 0);
           if(!spectre_ignore) {
             if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
@@ -3170,7 +3170,7 @@ int print_spectre_element(FILE *fd, int inst)
         for(i=0;i<no_of_pins; ++i) {
           char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
           if (!strcmp( get_tok_value(prop,"name",0), token+2)) {
-            if(strboolcmp(get_tok_value(prop,"spectre_ignore",0), "true")) {
+            if(strboolcmp(get_tok_value(prop,"spectre_ignore",0), 1)) {
               str_ptr =  net_name(inst,i, &multip, 0, 1);
 
               my_mstrcat(_ALLOC_ID_, &result, "?", my_itoa(multip), " ", str_ptr, " ", NULL);
@@ -3231,7 +3231,7 @@ int print_spectre_element(FILE *fd, int inst)
           const char *si;
           char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
           si  = get_tok_value(prop, "spectre_ignore",0);
-          if(strboolcmp(si, "true")) {
+          if(strboolcmp(si, 1)) {
             str_ptr =  net_name(inst,n, &multip, 0, 1);
 
             my_mstrcat(_ALLOC_ID_, &result, "?", my_itoa(multip), " ", str_ptr, " ", NULL);
@@ -3710,7 +3710,7 @@ void print_tedax_element(FILE *fd, int inst)
         const char *si;
         char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
         si  = get_tok_value(prop, "tedax_ignore",0);
-        if(strboolcmp(si, "true")) {
+        if(strboolcmp(si, 1)) {
           str_ptr =  net_name(inst,n, &multip, 0, 1);
           fprintf(fd, "%s", str_ptr);
         }
@@ -3923,7 +3923,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
      int first = 1;
      int_hash_init(&table, 37);
      for(i=0;i<no_of_pins; ++i) {
-       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
+       if(strboolcmp(get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), 1)) {
          const char *name = get_tok_value(xctx->sym[symbol].rect[PINLAYER][i].prop_ptr,"name",0);
          if(!int_hash_lookup(&table, name, 1, XINSERT_NOREPLACE)) {
            if(!first) my_mstrcat(_ALLOC_ID_, &result, " , ", NULL);
@@ -3999,7 +3999,7 @@ static void print_verilog_primitive(FILE *fd, int inst) /* netlist switch level 
         const char *si;
         char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][n].prop_ptr;
         si  = get_tok_value(prop, "verilog_ignore",0);
-        if(strboolcmp(si, "true")) {
+        if(strboolcmp(si, 1)) {
           str_ptr =  net_name(inst,n, &multip, 0, 1);
           my_mstrcat(_ALLOC_ID_, &result, "----pin(", str_ptr, ") ", NULL);
         }
@@ -4255,7 +4255,7 @@ void print_verilog_element(FILE *fd, int inst)
  for(i=0;i<no_of_pins; ++i)
  {
    xSymbol *ptr = xctx->inst[inst].ptr + xctx->sym;
-   if(strboolcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), "true")) {
+   if(strboolcmp(get_tok_value(ptr->rect[PINLAYER][i].prop_ptr,"verilog_ignore",0), 1)) {
      char *res = NULL;
      my_strdup2(_ALLOC_ID_, &pin_name, get_tok_value(ptr->rect[PINLAYER][i].prop_ptr, "name", 0));
      translate3( pin_name, -1, 1, xctx->inst[inst].prop_ptr, NULL, NULL, NULL, &res);
@@ -4907,7 +4907,7 @@ void substitute_predefined_token(char **token, int inst, int engineering)
         for(i=0;i<no_of_pins; ++i) {
           char *prop = (xctx->inst[inst].ptr + xctx->sym)->rect[PINLAYER][i].prop_ptr;
           if (!strcmp( get_tok_value(prop,"name",0), (*token)+2)) {
-            if(strboolcmp(get_tok_value(prop,"spice_ignore",0), "true")) {
+            if(strboolcmp(get_tok_value(prop,"spice_ignore",0), 1)) {
               const char *str_ptr =  net_name(inst,i, &multip, 0, 0);
               my_strdup2(_ALLOC_ID_, token, str_ptr);
             }

@@ -35,6 +35,66 @@ double mylog(double x)
   else return -35;
 }
 
+#if 1
+static const unsigned char ascii_tolower_tbl[256] = {
+    0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+    0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
+    0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+    0x18, 0x19, 0x1A, 0x1B, 0x1C, 0x1D, 0x1E, 0x1F,
+    0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+    0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F,
+    0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
+    0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
+    0x40,  'a',  'b',  'c',  'd',  'e',  'f',  'g',
+     'h',  'i',  'j',  'k',  'l',  'm',  'n',  'o',
+     'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
+     'x',  'y',  'z', 0x5B, 0x5C, 0x5D, 0x5E, 0x5F,
+    0x60,  'a',  'b',  'c',  'd',  'e',  'f',  'g',
+     'h',  'i',  'j',  'k',  'l',  'm',  'n',  'o',
+     'p',  'q',  'r',  's',  't',  'u',  'v',  'w',
+     'x',  'y',  'z', 0x7B, 0x7C, 0x7D, 0x7E, 0x7F,
+    /* 0x80 - 0xFF unchanged */
+    0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87,
+    0x88, 0x89, 0x8A, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F,
+    0x90, 0x91, 0x92, 0x93, 0x94, 0x95, 0x96, 0x97,
+    0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F,
+    0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7,
+    0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF,
+    0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7,
+    0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF,
+    0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7,
+    0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
+    0xD0, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7,
+    0xD8, 0xD9, 0xDA, 0xDB, 0xDC, 0xDD, 0xDE, 0xDF,
+    0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7,
+    0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED, 0xEE, 0xEF,
+    0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7,
+    0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
+};
+
+int my_strcasecmp(const char *s1, const char *s2)
+{
+    const unsigned char *p1 = (const unsigned char *)s1;
+    const unsigned char *p2 = (const unsigned char *)s2;
+    unsigned char c1, c2;
+
+    if (p1 == p2) {
+        return 0;
+    }
+
+    do {
+        c1 = ascii_tolower_tbl[*p1++];
+        c2 = ascii_tolower_tbl[*p2++];
+        if (c1 == '\0') {
+            break;
+        }
+    } while (c1 == c2);
+
+    return (int)c1 - (int)c2;
+}
+
+#else
+
 int my_strcasecmp(const char *s1, const char *s2)
 {
   while(tolower(*s1) == tolower(*s2)) {
@@ -44,6 +104,8 @@ int my_strcasecmp(const char *s1, const char *s2)
   }
   return tolower(*s1) - tolower(*s2);
 } 
+
+#endif
 
 char *my_strcasestr(const char *haystack, const char *needle)
 {
@@ -88,15 +150,20 @@ double get_attr_val(const char *str)
 {
   double s = 0.0;
   char *endptr;
+  char lower_str[10];
+  int str_len;
+  
+  str_len = my_strncpy(lower_str, str, S(lower_str));
+  strtolower_len(lower_str, str_len);
 
   if(!str) return 0.0;
-  else if(!my_strcasecmp(str, "true") ||
-     !my_strcasecmp(str, "1") ||
-     !my_strcasecmp(str, "on") ||
-     !my_strcasecmp(str, "yes")) s = -1.0;
-  else if(!my_strcasecmp(str, "false") ||
-     !my_strcasecmp(str, "off") ||
-     !my_strcasecmp(str, "no")) s = 0.0;
+  else if(!strcmp(lower_str, "true") ||
+     !strcmp(lower_str, "1") ||
+     !strcmp(lower_str, "on") ||
+     !strcmp(lower_str, "yes")) s = -1.0;
+  else if(!strcmp(lower_str, "false") ||
+     !strcmp(lower_str, "off") ||
+     !strcmp(lower_str, "no")) s = 0.0;
   else if((strtod(str, &endptr), endptr) > str) { /* NUMBER */
     s = atof(str);
   }
@@ -109,26 +176,27 @@ double get_attr_val(const char *str)
 /* same as case insensitive strcmp(), but allow '1, true, on, yes' for true value
  * any integer > 0 on str considered as 1
  * both in str and boolean */
-int strboolcmp(const char *str, const char *boolean)
+int strboolcmp(const char *str, int boolean)
 {
-  int retval, s = 0, b = 0;
+  int retval, s = 0;
   int strval = -1;
-  if(!my_strcasecmp(boolean, "true")) b = 1;
-  else if(!my_strcasecmp(boolean, "false")) b = 0;
-  else b = -1;
+  char lower_str[10];
+  int str_len;
+  
+  str_len = my_strncpy(lower_str, str, S(lower_str));
+  strtolower_len(lower_str, str_len);
   if(isonlydigit(str)) {
     strval = atoi(str);
     s = strval ? 1 : 0;
   }
-  else if(!my_strcasecmp(str, "true") ||
-     !my_strcasecmp(str, "on") ||
-     !my_strcasecmp(str, "yes")) s = 1;
-  else if(!my_strcasecmp(str, "false") ||
-     !my_strcasecmp(str, "off") ||
-     !my_strcasecmp(str, "no")) s = 0;
+  else if(!strcmp(lower_str, "true") ||
+     !strcmp(lower_str, "on") ||
+     !strcmp(lower_str, "yes")) s = 1;
+  else if(!strcmp(lower_str, "false") ||
+     !strcmp(lower_str, "off") ||
+     !strcmp(lower_str, "no")) s = 0;
   else s = -1;
-  if(s == -1 || b == -1) retval = strcmp(str, boolean);
-  else retval = (s != b);
+  retval = (s != boolean);
   dbg(2, ("strboolcmp(): str=%s boolean=%s retval=%d\n", str, boolean, retval));
   return retval;
 }
@@ -1119,7 +1187,7 @@ static int edit_rect_property(int x)
 
       attr = get_tok_value(xctx->rect[c][n].prop_ptr,"fill", 0);
       if(!strcmp(attr, "full")) xctx->rect[c][n].fill = 2;
-      else if(!strboolcmp(attr, "false")) xctx->rect[c][n].fill = 0;
+      else if(!strboolcmp(attr, 0)) xctx->rect[c][n].fill = 0;
       else xctx->rect[c][n].fill = 1;
 
       if( (oldprop &&  xctx->rect[c][n].prop_ptr && strcmp(oldprop, xctx->rect[c][n].prop_ptr)) ||
@@ -1307,7 +1375,7 @@ static int edit_arc_property(void)
      fill_ptr = get_tok_value(xctx->arc[c][i].prop_ptr,"fill",0);
      if( !strcmp(fill_ptr,"full") )
        xctx->arc[c][i].fill = 2; /* bit 1: solid fill (not stippled) */
-     else if( !strboolcmp(fill_ptr,"true") )
+     else if( !strboolcmp(fill_ptr,1) )
        xctx->arc[c][i].fill = 1;
      else
        xctx->arc[c][i].fill = 0;
@@ -1377,7 +1445,7 @@ static int edit_polygon_property(void)
      i = xctx->sel_array[ii].n;
      c = xctx->sel_array[ii].col;
 
-     oldbezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),"true") ;
+     oldbezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),1) ;
      oldbus = xctx->poly[c][i].bus;
      if(oldprop && preserve == 1) {
         set_different_token(&xctx->poly[c][i].prop_ptr, (char *) tclgetvar("tctx::retval"), oldprop);
@@ -1386,7 +1454,7 @@ static int edit_polygon_property(void)
      }
      old_fill = xctx->poly[c][i].fill;
      old_dash = xctx->poly[c][i].dash;
-     bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),"true") ;
+     bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr,"bezier",0),1) ;
      xctx->poly[c][i].bus = bus = get_attr_val(get_tok_value(xctx->poly[c][i].prop_ptr,"bus",0));
 
      if(bus > 0.0) width = XLINEWIDTH(bus) / 2.0;
@@ -1396,7 +1464,7 @@ static int edit_polygon_property(void)
      fill_ptr = get_tok_value(xctx->poly[c][i].prop_ptr,"fill",0);
      if( !strcmp(fill_ptr,"full") )
        xctx->poly[c][i].fill = 2; /* bit 1: solid fill (not stippled) */
-     else if( !strboolcmp(fill_ptr,"true") )
+     else if( !strboolcmp(fill_ptr,1) )
        xctx->poly[c][i].fill = 1;
      else
        xctx->poly[c][i].fill = 0;

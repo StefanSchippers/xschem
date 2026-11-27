@@ -105,9 +105,9 @@ static int ps_embedded_image(xRect* r, double x1, double y1, double x2, double y
   if(RECT_OUTSIDE(sx1, sy1, sx2, sy2,
                   xctx->areax1,xctx->areay1,xctx->areax2,xctx->areay2)) return 0;
 
-  invertImage = !strboolcmp(get_tok_value(r->prop_ptr, "InvertOnExport", 0), "true");
+  invertImage = !strboolcmp(get_tok_value(r->prop_ptr, "InvertOnExport", 0), 1);
   if(!invertImage)
-    invertImage = !strboolcmp(get_tok_value(r->prop_ptr, "ps_invert", 0), "true");
+    invertImage = !strboolcmp(get_tok_value(r->prop_ptr, "ps_invert", 0), 1);
   quality_attr = get_tok_value(r->prop_ptr, "jpeg_quality", 0);
   if(quality_attr[0]) quality = atoi(quality_attr);
   else {
@@ -1094,7 +1094,7 @@ static void ps_draw_symbol(int c, int n,int layer, int what, short tmp_flip, sho
       int dash;
       int bezier;
       polygon = &(symptr->poly[layer])[j];
-      bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
+      bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), 1);
       dash = (disabled == 1) ? 3 : polygon->dash;
       {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
         int k;
@@ -1541,7 +1541,7 @@ void create_ps(char **psfile, int what, int fullzoom, int eps)
           xctx->arc[c][i].r, xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].bus, xctx->arc[c][i].dash);
       }
       for(i=0;i<xctx->polygons[c]; ++i) {
-        int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
+        int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), 1);
         ps_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
           xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier, xctx->poly[c][i].bus);
       }

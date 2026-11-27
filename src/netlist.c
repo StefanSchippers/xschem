@@ -607,12 +607,12 @@ void netlist_options(int i)
 
   str = get_tok_value(xctx->inst[i].prop_ptr, "lvs_ignore", 0);
   if(str[0]) {
-    if(!strboolcmp(str, "true")) tclsetintvar("lvs_ignore", 1);
+    if(!strboolcmp(str, 1)) tclsetintvar("lvs_ignore", 1);
     else tclsetintvar("lvs_ignore", 0);
   }
   str = get_tok_value(xctx->inst[i].prop_ptr, "lvs_netlist", 0);
   if(str[0]) {
-    if(!strboolcmp(str, "true")) {
+    if(!strboolcmp(str, 1)) {
       tclsetintvar("lvs_netlist", 1);
       my_strdup(_ALLOC_ID_, &xctx->format, "lvs_format");
     }
@@ -624,13 +624,13 @@ void netlist_options(int i)
 
   str = get_tok_value(xctx->inst[i].prop_ptr, "top_is_subckt", 0);
   if(str[0]) {
-    if(!strboolcmp(str, "true")) tclsetintvar("top_is_subckt", 1);
+    if(!strboolcmp(str, 1)) tclsetintvar("top_is_subckt", 1);
     else tclsetintvar("top_is_subckt", 0);
   }
 
   str = get_tok_value(xctx->inst[i].prop_ptr, "spiceprefix", 0);
   if(str[0]) {
-    if(!strboolcmp(str, "false")) tclsetvar("spiceprefix", "0");
+    if(!strboolcmp(str, 0)) tclsetvar("spiceprefix", "0");
     else tclsetvar("spiceprefix", "1");
   }
 
@@ -1510,7 +1510,7 @@ static int name_nodes_of_pins_labels_and_propagate()
             dbg(1, ("name_nodes_of_pins_labels_and_propagate(): ground node: %s\n",inst[i].node[0]));
             record_global_node(4,NULL, inst[i].node[0]);
           }
-          else if( !strboolcmp(global_node, "true")) {
+          else if( !strboolcmp(global_node, 1)) {
             dbg(1, ("name_nodes_of_pins_labels_and_propagate(): global node: %s\n",inst[i].node[0]));
             record_global_node(1,NULL, inst[i].node[0]);
           }

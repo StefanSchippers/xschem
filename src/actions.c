@@ -114,7 +114,7 @@ const char *get_text_floater(int i)
       instname = get_tok_value(xctx->text[i].prop_ptr, "name", 0);
       if(!xctx->tok_size) {
         instname = get_tok_value(xctx->text[i].prop_ptr, "floater", 0);
-        if(xctx->tok_size && !strboolcmp(instname, "true")) instname = "true";
+        if(xctx->tok_size && !strboolcmp(instname, 1)) instname = "true";
       }
     }
     inst = get_instance(instname);
@@ -832,46 +832,46 @@ int set_sym_flags(xSymbol *sym)
   my_strdup2(_ALLOC_ID_, &sym->type,
              get_tok_value(sym->prop_ptr, "type",0));
 
-  if(!strboolcmp(get_tok_value(sym->prop_ptr,"highlight",0), "true"))
+  if(!strboolcmp(get_tok_value(sym->prop_ptr,"highlight",0), 1))
     sym->flags |= HILIGHT_CONN;
 
-  if(!strboolcmp(get_tok_value(sym->prop_ptr,"hide",0), "true"))
+  if(!strboolcmp(get_tok_value(sym->prop_ptr,"hide",0), 1))
     sym->flags |= HIDE_INST;
 
   ptr = get_tok_value(sym->prop_ptr,"spice_ignore",0);
   if(!strcmp(ptr, "short"))
        sym->flags |= SPICE_SHORT;
-  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  else if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
        sym->flags |= SPICE_IGNORE;
 
   ptr = get_tok_value(sym->prop_ptr,"spectre_ignore",0);
   if(!strcmp(ptr, "short"))
        sym->flags |= SPECTRE_SHORT;
-  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  else if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
        sym->flags |= SPECTRE_IGNORE;
 
   ptr = get_tok_value(sym->prop_ptr,"verilog_ignore",0);
   if(!strcmp(ptr, "short"))
        sym->flags |= VERILOG_SHORT;
-  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  else if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
        sym->flags |= VERILOG_IGNORE;
 
   ptr = get_tok_value(sym->prop_ptr,"vhdl_ignore",0);
   if(!strcmp(ptr, "short"))
        sym->flags |= VHDL_SHORT;
-  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  else if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
        sym->flags |= VHDL_IGNORE;
 
   ptr = get_tok_value(sym->prop_ptr,"tedax_ignore",0);
   if(!strcmp(ptr, "short"))
        sym->flags |= TEDAX_SHORT;
-  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  else if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
        sym->flags |= TEDAX_IGNORE;
 
   ptr = get_tok_value(sym->prop_ptr,"lvs_ignore",0);
   if(!strcmp(ptr, "short"))
        sym->flags |= LVS_IGNORE_SHORT;
-  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  else if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
        sym->flags |= LVS_IGNORE_OPEN;
   dbg(1, ("set_sym_flags: inst %s flags=%d\n", sym->name, sym->flags));
   return 0;
@@ -885,27 +885,27 @@ int set_wire_flags(xWire *wire)
   wire->flags = 0;
 
   ptr = get_tok_value(wire->prop_ptr,"spice_ignore",0);
-  if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
     wire->flags |= SPICE_IGNORE;
 
   ptr = get_tok_value(wire->prop_ptr,"spectre_ignore",0);
-  if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
     wire->flags |= SPECTRE_IGNORE;
 
   ptr = get_tok_value(wire->prop_ptr,"verilog_ignore",0);
-  if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
     wire->flags |= VERILOG_IGNORE;
 
   ptr = get_tok_value(wire->prop_ptr,"vhdl_ignore",0);
-  if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
     wire->flags |= VHDL_IGNORE;
 
   ptr = get_tok_value(wire->prop_ptr,"tedax_ignore",0);
-  if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
     wire->flags |= TEDAX_IGNORE;
 
   ptr = get_tok_value(wire->prop_ptr,"lvs_ignore",0);
-  if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
     wire->flags |= LVS_IGNORE_OPEN;
 
   dbg(1, ("set_wire_flags: wire flags=%d\n", wire->flags));
@@ -928,51 +928,51 @@ int set_inst_flags(xInstance *inst)
     }
   }
 
-  if(!strboolcmp(get_tok_value(inst->prop_ptr,"hide",0), "true"))
+  if(!strboolcmp(get_tok_value(inst->prop_ptr,"hide",0), 1))
     inst->flags |= HIDE_INST;
-  if(!strboolcmp(get_tok_value(inst->prop_ptr,"hide_texts",0), "true"))
+  if(!strboolcmp(get_tok_value(inst->prop_ptr,"hide_texts",0), 1))
     inst->flags |= HIDE_SYMBOL_TEXTS;
 
   ptr = get_tok_value(inst->prop_ptr,"spice_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= SPICE_SHORT;
-  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  else if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
     inst->flags |= SPICE_IGNORE;
 
   ptr = get_tok_value(inst->prop_ptr,"spectre_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= SPECTRE_SHORT;
-  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  else if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
     inst->flags |= SPECTRE_IGNORE;
 
   ptr = get_tok_value(inst->prop_ptr,"verilog_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= VERILOG_SHORT;
-  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  else if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
     inst->flags |= VERILOG_IGNORE;
 
   ptr = get_tok_value(inst->prop_ptr,"vhdl_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= VHDL_SHORT;
-  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  else if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
     inst->flags |= VHDL_IGNORE;
 
   ptr = get_tok_value(inst->prop_ptr,"tedax_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= TEDAX_SHORT;
-  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  else if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
     inst->flags |= TEDAX_IGNORE;
 
   ptr = get_tok_value(inst->prop_ptr,"lvs_ignore",0);
   if(!strcmp(ptr, "short"))
     inst->flags |= LVS_IGNORE_SHORT;
-  else if(!strboolcmp(ptr, "true") || !strcmp(ptr, "open"))
+  else if(!strboolcmp(ptr, 1) || !strcmp(ptr, "open"))
     inst->flags |= LVS_IGNORE_OPEN;
 
-  if(!strboolcmp(get_tok_value(inst->prop_ptr,"highlight",0), "true"))
+  if(!strboolcmp(get_tok_value(inst->prop_ptr,"highlight",0), 1))
     inst->flags |= HILIGHT_CONN;
 
-  inst->embed = !strboolcmp(get_tok_value(inst->prop_ptr, "embed", 2), "true");
+  inst->embed = !strboolcmp(get_tok_value(inst->prop_ptr, "embed", 2), 1);
 
   dbg(1, ("set_inst_flags: inst %s flags=%d\n", inst->instname, inst->flags));
   return 0;
@@ -988,9 +988,9 @@ int set_text_flags(xText *t)
   if(t->prop_ptr) {
     my_strdup(_ALLOC_ID_, &t->font, get_tok_value(t->prop_ptr, "font", 0));
     str = get_tok_value(t->prop_ptr, "hcenter", 0);
-    t->hcenter = strboolcmp(str, "true")  ? 0 : 1;
+    t->hcenter = strboolcmp(str, 1)  ? 0 : 1;
     str = get_tok_value(t->prop_ptr, "vcenter", 0);
-    t->vcenter = strboolcmp(str, "true")  ? 0 : 1;
+    t->vcenter = strboolcmp(str, 1)  ? 0 : 1;
     str = get_tok_value(t->prop_ptr, "layer", 0);
     if(str[0]) t->layer = atoi(str);
     str = get_tok_value(t->prop_ptr, "slant", 0);
@@ -1001,12 +1001,12 @@ int set_text_flags(xText *t)
     str = get_tok_value(t->prop_ptr, "hide", 0);
     if(!strcmp(str, "instance")) t->flags |= HIDE_TEXT_INSTANTIATED;
     else {
-      t->flags |= strboolcmp(str, "true")  ? 0 : HIDE_TEXT;
+      t->flags |= strboolcmp(str, 1)  ? 0 : HIDE_TEXT;
     }
     str = get_tok_value(t->prop_ptr, "name", 0);
     if(!xctx->tok_size) {
       str = get_tok_value(t->prop_ptr, "floater", 0);
-      if(xctx->tok_size && !strboolcmp(str, "true")) str = "true";
+      if(xctx->tok_size && !strboolcmp(str, 1)) str = "true";
     }
     t->flags |= xctx->tok_size ? TEXT_FLOATER : 0;
     my_strdup2(_ALLOC_ID_, &t->floater_instname, str);
@@ -2218,7 +2218,7 @@ void toggle_ignore(void)
         flag = 0;
         ignore_str = get_tok_value(xctx->inst[i].prop_ptr, attr, 0);
         if(!strcmp(ignore_str, "short")) flag = 2;
-        else if(!strboolcmp(ignore_str, "true")) flag = 1;
+        else if(!strboolcmp(ignore_str, 1)) flag = 1;
 
         if(flag == 0) flag = 1;
         else if(flag == 1) flag = 2;
@@ -2247,7 +2247,7 @@ void toggle_ignore(void)
         flag = 0;
         ignore_str = get_tok_value(xctx->wire[i].prop_ptr, attr, 0);
         if(!strcmp(ignore_str, "short")) flag = 2;
-        else if(!strboolcmp(ignore_str, "true")) flag = 1;
+        else if(!strboolcmp(ignore_str, 1)) flag = 1;
 
         if(flag == 0) flag = 1;
         else if(flag == 1) flag = 2;

@@ -65,7 +65,7 @@ static int waves_selected(int event, KeySym key, int state, int button)
     lmargin = lmargin < 3. ? 3. : lmargin;
     lmargin = lmargin > 20. ? 20. : lmargin;
     if( !sel &&
-       !strboolcmp(get_tok_value(xctx->rect[GRIDLAYER][i].prop_ptr, "lock", 0), "true")) continue;
+       !strboolcmp(get_tok_value(xctx->rect[GRIDLAYER][i].prop_ptr, "lock", 0), 1)) continue;
     check =
       (xctx->ui_state & GRAPHPAN) ||
       ((event == ButtonPress || event == ButtonRelease) && button == Button3 &&

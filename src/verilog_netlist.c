@@ -365,13 +365,13 @@ int global_verilog_netlist(int global, int alert)  /* netlister driver */
          * will not be processed by *_block_netlist() */
         if(strcmp(get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0), "ignore"))
           str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
-        if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
+        if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),1)==0 )
           err |= vhdl_block_netlist(fd, i, alert);
-        if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spectre_netlist",0),"true")==0 )
+        if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spectre_netlist",0),1)==0 )
           err |= spectre_block_netlist(fd, i, alert);
-        else if(split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_netlist",0),"true")==0 )
+        else if(split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_netlist",0),1)==0 )
           err |= spice_block_netlist(fd, i, alert);
-        else if( strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_primitive",0), "true"))
+        else if( strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_primitive",0), 1))
           err |= verilog_block_netlist(fd, i, alert);
       }
     }
@@ -462,7 +462,7 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
   char *res = NULL;
 
   split_f = tclgetboolvar("split_files");
-  if(!strboolcmp( get_tok_value(xctx->sym[i].prop_ptr,"verilog_stop",0),"true") )
+  if(!strboolcmp( get_tok_value(xctx->sym[i].prop_ptr,"verilog_stop",0),1) )
      verilog_stop=1;
   else
      verilog_stop=0;
@@ -545,7 +545,7 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
     tmp=0;
     for(j=0;j<xctx->sym[i].rects[PINLAYER]; ++j)
     {
-      if(strboolcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
+      if(strboolcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), 1)) {
         char *name = NULL;
         char *tr_name = NULL;
         my_strdup2(_ALLOC_ID_, &name, get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr, "name", 0));
@@ -582,7 +582,7 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
     {
       char *name = NULL;
       char *tr_name = NULL;
-      if(strboolcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), "true")) {
+      if(strboolcmp(get_tok_value(xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_ignore",0), 1)) {
         my_strdup(_ALLOC_ID_, &sig_type,get_tok_value(
                   xctx->sym[i].rect[PINLAYER][j].prop_ptr,"verilog_type",0));
         my_strdup(_ALLOC_ID_, &port_value,
@@ -635,7 +635,7 @@ int verilog_block_netlist(FILE *fd, int i, int alert)
     for(l=0;l<xctx->instances; ++l) {
       if(skip_instance(l, 1, lvs_ignore)) continue;
       if(xctx->netlist_count &&
-        !strboolcmp(get_tok_value(xctx->inst[l].prop_ptr, "only_toplevel", 0), "true")) continue;
+        !strboolcmp(get_tok_value(xctx->inst[l].prop_ptr, "only_toplevel", 0), 1)) continue;
 
       my_strdup(_ALLOC_ID_, &type,(xctx->inst[l].ptr+ xctx->sym)->type);
       if(type && !strcmp(type,"netlist_commands")) {

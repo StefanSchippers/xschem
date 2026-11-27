@@ -227,7 +227,7 @@ static int spice_netlist(FILE *fd, int spice_stop )
        /* already done in global_spice_netlist */
        if(!strcmp(type,"netlist_commands") && xctx->netlist_count==0) continue;
        if(xctx->netlist_count &&
-          !strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "only_toplevel", 0), "true")) continue;
+          !strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "only_toplevel", 0), 1)) continue;
        if(!strcmp(type,"netlist_commands")) {
          fprintf(fd,"**** begin user architecture code\n");
          print_spice_element(fd, i) ;  /* this is the element line  */
@@ -511,15 +511,15 @@ int global_spice_netlist(int global, int alert)  /* netlister driver */
          * will not be processed by *_block_netlist() */
         if(strcmp(get_tok_value(xctx->sym[i].prop_ptr, "default_schematic", 0), "ignore"))
           str_hash_lookup(&subckt_table, subckt_name, "", XINSERT);
-        if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),"true")==0 )
+        if( split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"vhdl_netlist",0),1)==0 )
           err |= vhdl_block_netlist(fd, i, alert);
-        else if(split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_netlist",0),"true")==0 )
+        else if(split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"verilog_netlist",0),1)==0 )
           err |= verilog_block_netlist(fd, i, alert);
-        else if(split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spectre_netlist",0),"true")==0 )
+        else if(split_f && strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spectre_netlist",0),1)==0 )
           err |= spectre_block_netlist(fd, i, alert);
         else
-          if( strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_primitive",0),"true") &&
-              (lvs_netlist == 0 || strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"lvs_primitive",0),"true"))
+          if( strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"spice_primitive",0),1) &&
+              (lvs_netlist == 0 || strboolcmp(get_tok_value(xctx->sym[i].prop_ptr,"lvs_primitive",0),1))
             )
             err |= spice_block_netlist(fd, i, alert);
       }
@@ -662,7 +662,7 @@ int spice_block_netlist(FILE *fd, int i, int alert)
 
   split_f = tclgetboolvar("split_files");
 
-  if(!strboolcmp( get_tok_value(xctx->sym[i].prop_ptr,"spice_stop",0),"true") )
+  if(!strboolcmp( get_tok_value(xctx->sym[i].prop_ptr,"spice_stop",0),1) )
      spice_stop=1;
   else
      spice_stop=0;

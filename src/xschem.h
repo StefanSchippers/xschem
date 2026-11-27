@@ -1800,7 +1800,7 @@ extern char **parse_cmd_string(const char *cmd, int *argc);
 extern int my_strncpy(char *d, const char *s, size_t n);
 extern int my_strcasecmp(const char *s1, const char *s2);
 extern double get_attr_val(const char *str);
-extern int strboolcmp(const char *str, const char *boolean);
+extern int strboolcmp(const char *str, int boolean);
 extern char *my_strcasestr(const char *haystack, const char *needle);
 extern double mylog10(double x);
 extern double mylog(double x);

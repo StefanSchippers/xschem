@@ -791,7 +791,7 @@ static void svg_draw_symbol(int c, int n,int layer,short tmp_flip, short rot,
       int dash;
       int bezier;
       polygon =&(symptr->poly[layer])[j];
-      bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
+      bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), 1);
       dash = (disabled == 1) ? 3 : polygon->dash;
       { /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
         int k;
@@ -1151,7 +1151,7 @@ void svg_draw(void)
                   xctx->arc[c][i].a, xctx->arc[c][i].b, xctx->arc[c][i].bus, xctx->arc[c][i].dash);
    }
    for(i=0;i<xctx->polygons[c]; ++i) {
-     int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
+     int bezier = !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), 1);
      svg_drawpolygon(c, NOW, xctx->poly[c][i].x, xctx->poly[c][i].y, xctx->poly[c][i].points,
                      xctx->poly[c][i].fill, xctx->poly[c][i].dash, bezier, xctx->poly[c][i].bus);
    }

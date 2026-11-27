@@ -3425,7 +3425,7 @@ static void load_polygon(FILE *fd)
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
       ptr[i].fill = 2; /* bit 1: solid fill (not stippled) */
-    else if( !strboolcmp(fill_ptr, "true") )
+    else if( !strboolcmp(fill_ptr, 1) )
       ptr[i].fill = 1;
     else
       ptr[i].fill = 0;
@@ -3469,7 +3469,7 @@ static void load_arc(FILE *fd)
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
       ptr[i].fill = 2; /* bit 1: solid fill (not stippled) */
-    else if( !strboolcmp(fill_ptr, "true") )
+    else if( !strboolcmp(fill_ptr, 1) )
       ptr[i].fill = 1;
     else
       ptr[i].fill = 0;
@@ -3515,7 +3515,7 @@ static void load_box(FILE *fd)
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
       ptr[i].fill = 2;
-    else if( !strboolcmp(fill_ptr, "false") )
+    else if( !strboolcmp(fill_ptr, 0) )
       ptr[i].fill = 0;
     else
       ptr[i].fill = 1;
@@ -5066,7 +5066,7 @@ int load_sym_def(const char *name, FILE *embed_fd, FILE *read_from)
         tmpline.prop_ptr = NULL;
         load_ascii_string(&tmpline.prop_ptr, lcc[level].fd);
 
-        if( !strboolcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), "true")) {
+        if( !strboolcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), 1)) {
           my_free(_ALLOC_ID_, &tmpline.prop_ptr);
           continue;
         }
@@ -5129,7 +5129,7 @@ int load_sym_def(const char *name, FILE *embed_fd, FILE *read_from)
         tmppoly.prop_ptr=NULL;
         load_ascii_string( &tmppoly.prop_ptr, lcc[level].fd);
 
-        if( !strboolcmp(get_tok_value(tmppoly.prop_ptr, "symbol_ignore", 0), "true")) {
+        if( !strboolcmp(get_tok_value(tmppoly.prop_ptr, "symbol_ignore", 0), 1)) {
           my_free(_ALLOC_ID_, &tmppoly.prop_ptr);
           my_free(_ALLOC_ID_, &tmppoly.x);
           my_free(_ALLOC_ID_, &tmppoly.y);
@@ -5149,7 +5149,7 @@ int load_sym_def(const char *name, FILE *embed_fd, FILE *read_from)
         fill_ptr = get_tok_value(pp[c][i].prop_ptr,"fill",0);
         if( !strcmp(fill_ptr, "full") )
           pp[c][i].fill = 2; /* bit 1: solid fill (not stippled) */
-        else if( !strboolcmp(fill_ptr, "true") )
+        else if( !strboolcmp(fill_ptr, 1) )
           pp[c][i].fill = 1;
         else
           pp[c][i].fill = 0;
@@ -5183,7 +5183,7 @@ int load_sym_def(const char *name, FILE *embed_fd, FILE *read_from)
         tmparc.prop_ptr = NULL;
         load_ascii_string( &tmparc.prop_ptr, lcc[level].fd);
 
-        if( !strboolcmp(get_tok_value(tmparc.prop_ptr, "symbol_ignore", 0), "true")) {
+        if( !strboolcmp(get_tok_value(tmparc.prop_ptr, "symbol_ignore", 0), 1)) {
           my_free(_ALLOC_ID_, &tmparc.prop_ptr);
           continue;
         }
@@ -5215,7 +5215,7 @@ int load_sym_def(const char *name, FILE *embed_fd, FILE *read_from)
         fill_ptr = get_tok_value(aa[c][i].prop_ptr,"fill",0);
         if( !strcmp(fill_ptr, "full") )
           aa[c][i].fill = 2; /* bit 1: solid fill (not stiaaled) */
-        else if( !strboolcmp(fill_ptr, "true") )
+        else if( !strboolcmp(fill_ptr, 1) )
           aa[c][i].fill = 1;
         else
           aa[c][i].fill = 0;
@@ -5247,7 +5247,7 @@ int load_sym_def(const char *name, FILE *embed_fd, FILE *read_from)
         tmprect.prop_ptr = NULL;
         load_ascii_string(&tmprect.prop_ptr, lcc[level].fd);
 
-        if( !strboolcmp(get_tok_value(tmprect.prop_ptr, "symbol_ignore", 0), "true")) {
+        if( !strboolcmp(get_tok_value(tmprect.prop_ptr, "symbol_ignore", 0), 1)) {
           my_free(_ALLOC_ID_, &tmprect.prop_ptr);
           continue;
         }
@@ -5279,7 +5279,7 @@ int load_sym_def(const char *name, FILE *embed_fd, FILE *read_from)
         fill_ptr = get_tok_value(bb[c][i].prop_ptr,"fill",0);
         if( !strcmp(fill_ptr, "full") )
           bb[c][i].fill = 2;
-        else if( !strboolcmp(fill_ptr, "false") )
+        else if( !strboolcmp(fill_ptr, 0) )
           bb[c][i].fill = 0;
         else
           bb[c][i].fill = 1;
@@ -5328,7 +5328,7 @@ int load_sym_def(const char *name, FILE *embed_fd, FILE *read_from)
           get_tok_value(tmptext.prop_ptr, "floater", 2);
           if(xctx->tok_size) is_floater = 1; /* get rid of floater texts in LCC symbols */
         }
-        if( !strboolcmp(get_tok_value(tmptext.prop_ptr, "symbol_ignore", 0), "true") || is_floater) {
+        if( !strboolcmp(get_tok_value(tmptext.prop_ptr, "symbol_ignore", 0), 1) || is_floater) {
           my_free(_ALLOC_ID_, &tmptext.prop_ptr);
           my_free(_ALLOC_ID_, &tmptext.txt_ptr);
           continue;
@@ -5428,7 +5428,7 @@ int load_sym_def(const char *name, FILE *embed_fd, FILE *read_from)
         }
         load_ascii_string(&tmpline.prop_ptr, lcc[level].fd);
 
-        if( !strboolcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), "true")) {
+        if( !strboolcmp(get_tok_value(tmpline.prop_ptr, "symbol_ignore", 0), 1)) {
           my_free(_ALLOC_ID_, &tmpline.prop_ptr);
           continue;
         }
@@ -5509,7 +5509,7 @@ int load_sym_def(const char *name, FILE *embed_fd, FILE *read_from)
              !strcmp(symtype, "verilog_preprocessor") ||
              !strcmp(symtype, "timescale")
            ) break;
-         if(!strboolcmp(get_tok_value(prop_ptr, "symbol_ignore", 0), "true")) break;
+         if(!strboolcmp(get_tok_value(prop_ptr, "symbol_ignore", 0), 1)) break;
          /* add PINLAYER boxes (symbol pins) at schematic i/o/iopin coordinates. */
          if( level==0 && IS_PIN(symtype) ) {
            add_pinlayer_boxes(lastr, bb, symtype, prop_ptr, inst_x0, inst_y0);

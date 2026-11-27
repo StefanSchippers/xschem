@@ -865,7 +865,7 @@ void unselect_all(int dr)
       if(xctx->poly[c][i].sel)
       {
        int k;
-       int bezier = 2 + !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
+       int bezier = 2 + !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), 1);
        for(k=0;k<xctx->poly[c][i].points; ++k) xctx->poly[c][i].selected_point[k] = 0;
        xctx->poly[c][i].sel = 0;
        if(dr) {
@@ -891,7 +891,7 @@ void select_wire(int i,unsigned short select_mode, int fast, int override_lock)
 {
   char str[1024];       /* overflow safe */
   /*my_strncpy(s,xctx->wire[i].prop_ptr!=NULL?xctx->wire[i].prop_ptr:"<NULL>",256); */
-  if(!strboolcmp(get_tok_value(xctx->wire[i].prop_ptr, "lock", 0), "true") &&
+  if(!strboolcmp(get_tok_value(xctx->wire[i].prop_ptr, "lock", 0), 1) &&
       select_mode == SELECTED && !override_lock) return;
   if(!(fast & 1))
   {
@@ -1008,7 +1008,7 @@ void select_element(int i,unsigned short select_mode, int fast, int override_loc
   char str[1024];       /* overflow safe */
   char s[256];          /* overflow safe */
 
-  if(!strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "lock", 0), "true") &&
+  if(!strboolcmp(get_tok_value(xctx->inst[i].prop_ptr, "lock", 0), 1) &&
       select_mode == SELECTED && !override_lock) return;
   my_strncpy(s,xctx->inst[i].prop_ptr!=NULL?xctx->inst[i].prop_ptr:"<NULL>",S(s));
   if( !(fast & 1) )
@@ -1069,7 +1069,7 @@ void select_text(int i, unsigned short select_mode, int fast, int override_lock)
   #if HAS_CAIRO==1
   int customfont;
   #endif
-  if(!strboolcmp(get_tok_value(xctx->text[i].prop_ptr, "lock", 0), "true") &&
+  if(!strboolcmp(get_tok_value(xctx->text[i].prop_ptr, "lock", 0), 1) &&
       select_mode == SELECTED && !override_lock) return;
   if(!(fast & 1)) {
     my_strncpy(s,xctx->text[i].prop_ptr!=NULL?xctx->text[i].prop_ptr:"<NULL>",S(s));
@@ -1112,7 +1112,7 @@ void select_box(int c, int i, unsigned short select_mode, int fast, int override
   char str[1024];       /* overflow safe */
   char s[256];          /* overflow safe */
 
-  if(!strboolcmp(get_tok_value(xctx->rect[c][i].prop_ptr, "lock", 0), "true") &&
+  if(!strboolcmp(get_tok_value(xctx->rect[c][i].prop_ptr, "lock", 0), 1) &&
       select_mode == SELECTED && !override_lock) return;
   if(!(fast & 1))
   {
@@ -1189,7 +1189,7 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast, int over
   char s[256];          /* overflow safe */
   int bezier;
 
-  if(!strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "lock", 0), "true") &&
+  if(!strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "lock", 0), 1) &&
       select_mode == SELECTED && !override_lock) return;
   if(!(fast & 1) )
   {
@@ -1201,7 +1201,7 @@ void select_polygon(int c, int i, unsigned short select_mode, int fast, int over
    my_snprintf(str, S(str), "n=%4d x0 = %.16g  y0 = %.16g ...", i, xctx->poly[c][i].x[0], xctx->poly[c][i].y[0]);
    statusmsg(str,1);
   }
-  bezier = 2 + !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), "true");
+  bezier = 2 + !strboolcmp(get_tok_value(xctx->poly[c][i].prop_ptr, "bezier", 0), 1);
   xctx->poly[c][i].sel = select_mode;
   if(select_mode) {
     if(!(fast & 2)) drawtemppolygon(xctx->gc[SELLAYER], NOW,
@@ -1220,7 +1220,7 @@ void select_line(int c, int i, unsigned short select_mode, int fast, int overrid
   char str[1024];       /* overflow safe */
   char s[256];          /* overflow safe */
 
-  if(!strboolcmp(get_tok_value(xctx->line[c][i].prop_ptr, "lock", 0), "true") &&
+  if(!strboolcmp(get_tok_value(xctx->line[c][i].prop_ptr, "lock", 0), 1) &&
       select_mode == SELECTED && !override_lock) return;
   if(!(fast & 1) )
   {

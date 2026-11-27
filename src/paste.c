@@ -122,7 +122,7 @@ static void merge_box(FILE *fd)
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
       ptr[i].fill = 2;
-    else if( !strboolcmp(fill_ptr, "false") )
+    else if( !strboolcmp(fill_ptr, 0) )
       ptr[i].fill = 0;
     else
       ptr[i].fill = 1;
@@ -160,7 +160,7 @@ static void merge_arc(FILE *fd)
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
       ptr[i].fill = 2; /* bit 1: solid fill (not stippled) */
-    else if( !strboolcmp(fill_ptr, "true") )
+    else if( !strboolcmp(fill_ptr, 1) )
       ptr[i].fill = 1;
     else
       ptr[i].fill = 0;
@@ -220,7 +220,7 @@ static void merge_polygon(FILE *fd)
     fill_ptr = get_tok_value(ptr[i].prop_ptr,"fill",0);
     if( !strcmp(fill_ptr, "full") )
       ptr[i].fill = 2; /* bit 1: solid fill (not stippled) */
-    else if( !strboolcmp(fill_ptr, "true") )
+    else if( !strboolcmp(fill_ptr, 1) )
       ptr[i].fill = 1;
     else
       ptr[i].fill = 0;

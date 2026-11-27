@@ -44,7 +44,7 @@ static void find_closest_wire(double mx, double my, int override_lock)
   }
  }
  if( w != -1 && d <= threshold &&
-   (override_lock || strboolcmp(get_tok_value(xctx->wire[w].prop_ptr, "lock", 0), "true")) )
+   (override_lock || strboolcmp(get_tok_value(xctx->wire[w].prop_ptr, "lock", 0), 1)) )
  {
   sel.n = w; sel.type = WIRE;
   distance = d;
@@ -135,7 +135,7 @@ static void find_closest_polygon(double mx, double my, int override_lock)
   for(i=0;i<xctx->polygons[c]; ++i)
   {
     xPoly *p = &xctx->poly[c][i];
-    bezier = !strboolcmp(get_tok_value(p->prop_ptr, "bezier", 0), "true");
+    bezier = !strboolcmp(get_tok_value(p->prop_ptr, "bezier", 0), 1);
     bezier = bezier && (p->points > 2);
 
     if(bezier) {
@@ -157,7 +157,7 @@ static void find_closest_polygon(double mx, double my, int override_lock)
   } /* end for i */
  } /* end for c */
  if( d <= threshold && l!=-1 &&
-   (override_lock || strboolcmp(get_tok_value(xctx->poly[col][l].prop_ptr, "lock", 0), "true")))
+   (override_lock || strboolcmp(get_tok_value(xctx->poly[col][l].prop_ptr, "lock", 0), 1)))
  {
   sel.n = l; sel.type = POLYGON; sel.col = col;
   distance = d;
@@ -188,7 +188,7 @@ static void find_closest_line(double mx, double my, int override_lock)
   } /* end for i */
  } /* end for c */
  if( d <= threshold && l!=-1 &&
-   (override_lock || strboolcmp(get_tok_value(xctx->line[col][l].prop_ptr, "lock", 0), "true")))
+   (override_lock || strboolcmp(get_tok_value(xctx->line[col][l].prop_ptr, "lock", 0), 1)))
  {
   sel.n = l; sel.type = LINE; sel.col = col;
   distance = d;
@@ -325,7 +325,7 @@ static void find_closest_arc(double mx, double my, int override_lock)
   } /* end for i */
  } /* end for c */
  if(r!=-1 && d <= threshold &&
-    strboolcmp(get_tok_value(xctx->arc[col][r].prop_ptr, "lock", 0), "true"))
+    strboolcmp(get_tok_value(xctx->arc[col][r].prop_ptr, "lock", 0), 1))
  {
   sel.n = r; sel.type = ARC; sel.col = col;
   distance = d;
@@ -361,7 +361,7 @@ static void find_closest_box(double mx ,double my, int override_lock)
   } /* end for i */
  } /* end for c */
  dbg(1, ("find_closest_box(): d=%.16g\n", d));
- if( r!=-1 &&  (override_lock || strboolcmp(get_tok_value(xctx->rect[col][r].prop_ptr, "lock", 0), "true"))) {
+ if( r!=-1 &&  (override_lock || strboolcmp(get_tok_value(xctx->rect[col][r].prop_ptr, "lock", 0), 1))) {
   sel.n = r; sel.type = xRECT; sel.col = col;
   distance = d;
  }
@@ -393,7 +393,7 @@ static void find_closest_element(double mx, double my, int override_lock)
       dbg(2, ("find_closest_element(): finding closest element, instances=%d, dist=%.16g\n", i, tmp));
     }
   } /* end for i */
-  if( r != -1 &&  (override_lock || strboolcmp(get_tok_value(xctx->inst[r].prop_ptr, "lock", 0), "true")) ) {
+  if( r != -1 &&  (override_lock || strboolcmp(get_tok_value(xctx->inst[r].prop_ptr, "lock", 0), 1)) ) {
     distance = d;
     sel.n = r; sel.type = ELEMENT;
   }
@@ -441,7 +441,7 @@ static void find_closest_text(double mx, double my, int override_lock)
   } /* end for i */
 
  if( r != -1 &&
-   (override_lock || strboolcmp(get_tok_value(xctx->text[r].prop_ptr, "lock", 0), "true")) )
+   (override_lock || strboolcmp(get_tok_value(xctx->text[r].prop_ptr, "lock", 0), 1)) )
  {
   sel.n = r; sel.type = xTEXT;
   distance = d;

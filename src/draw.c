@@ -741,7 +741,7 @@ void draw_symbol(int what,int c, int n,int layer,short tmp_flip, short rot,
       int dash;
       int bezier;
       polygon = &(symptr->poly[layer])[j];
-      bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
+      bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), 1);
       dash = (disabled == 1) ? 3 : polygon->dash;
       x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
       y = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
@@ -993,7 +993,7 @@ void draw_temp_symbol(int what, GC gc, int n,int layer,short tmp_flip, short rot
    {
      int bezier;
      polygon = &(symptr->poly[layer])[j];
-     bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), "true");
+     bezier = !strboolcmp(get_tok_value(polygon->prop_ptr, "bezier", 0), 1);
      {   /* scope block so we declare some auxiliary arrays for coord transforms. 20171115 */
        int k;
        double *x = my_malloc(_ALLOC_ID_, sizeof(double) * polygon->points);
@@ -2600,7 +2600,7 @@ int graph_fullxzoom(int i, Graph_ctx *gr, int dataset)
     const char *ptr;
 
     raw = xctx->raw;
-    autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "true");
+    autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), 1);
     if(autoload == 0) autoload = 2;
     ptr = get_tok_value(r->prop_ptr,"rawfile", 0);
     if(!ptr[0]) {
@@ -2710,7 +2710,7 @@ int graph_fullyzoom(xRect *r,  Graph_ctx *gr, int graph_dataset)
       int autoload = 0, save_datasets = -1, save_npoints = -1;
       const char *ptr;
 
-      autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "true");
+      autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), 1);
       if(autoload == 0) autoload = 2;
       dbg(1, ("graph_fullyzoom(): graph_dataset=%d\n", graph_dataset));
       my_strdup2(_ALLOC_ID_, &node, get_tok_value(r->prop_ptr,"node", 0));
@@ -4910,7 +4910,7 @@ int find_closest_wave(int i, Graph_ctx *gr, int *node_number)
   if(gr->digital) return -1;
 
   *node_number = -1;
-  autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "true");
+  autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), 1);
   if(autoload == 0) autoload = 2; /* 2: switch */
   else if(autoload == 1) autoload = 33; /* 1: read, 32: no_warning */
 
@@ -5162,7 +5162,7 @@ int smith_closest_point(int i, double um, double vm, double *freq_ret, int *wave
   if(gr.mode != 3) return -1; /* Smith plane distance only makes sense in Smith mode */
   if(gr.digital) return -1;
 
-  autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "true");
+  autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), 1);
   if(autoload == 0) autoload = 2; /* 2: switch */
   else if(autoload == 1) autoload = 33; /* 1: read, 32: no_warning */
 
@@ -5409,7 +5409,7 @@ int smith_cursor_markers(int i, double f, int max_n, int *sx, int *sy)
   if(gr->mode != 3) return 0; /* Smith plane distance only makes sense in Smith mode */
   if(gr->digital) return 0;
 
-  autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "true");
+  autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), 1);
   if(autoload == 0) autoload = 2; /* 2: switch */
   else if(autoload == 1) autoload = 33; /* 1: read, 32: no_warning */
 
@@ -5707,7 +5707,7 @@ void draw_graph(int i, int flags, Graph_ctx *gr, void *ct)
     clear_cairo_surface(xctx->cairo_save_ctx, gr->sx1, gr->sy1, sw, sh);
     clear_cairo_surface(xctx->cairo_ctx, gr->sx1, gr->sy1, sw, sh);
     #endif
-    autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), "true");
+    autoload = !strboolcmp(get_tok_value(r->prop_ptr,"autoload", 0), 1);
     if(autoload == 0) autoload = 2; /* 2: switch */
     else if(autoload == 1) autoload = 33; /* 1: read, 32: no_warning */
     /* graph box, gridlines and axes */
@@ -6909,7 +6909,7 @@ void draw(void)
       if(draw_layer && xctx->enable_layer[c]) for(i=0;i<xctx->polygons[c]; ++i) {
         int bezier;
         xPoly *p = &xctx->poly[c][i];
-        bezier = 2 + !strboolcmp(get_tok_value(p->prop_ptr, "bezier", 0), "true");
+        bezier = 2 + !strboolcmp(get_tok_value(p->prop_ptr, "bezier", 0), 1);
         drawpolygon(cc, NOW, p->x, p->y, p->points, p->fill, p->dash, p->bus, bezier);
       }
       if(use_hash) init_inst_iterator(&ctx, x1, y1, x2, y2);

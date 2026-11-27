@@ -6244,7 +6244,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
         if(argc > 5 && !strcmp(argv[5], "fill")) {
           const char *attr = get_tok_value(r->prop_ptr,"fill", 0);
           if(!strcmp(attr, "full")) xctx->rect[c][n].fill = 2;
-          else if(!strboolcmp(attr, "false")) xctx->rect[c][n].fill = 0;
+          else if(!strboolcmp(attr, 0)) xctx->rect[c][n].fill = 0;
           else xctx->rect[c][n].fill = 1;
         }
         set_rect_extraptr(0, &xctx->rect[c][n]);
@@ -6896,7 +6896,7 @@ int xschem(ClientData clientdata, Tcl_Interp *interp, int argc, const char * arg
           if(!strcmp(argv[i], "-eat_escapes")) {
             if(argc > i + 1) {
               i++;
-              eat_escapes = !strboolcmp(argv[i], "true");
+              eat_escapes = !strboolcmp(argv[i], 1);
             }
           } else if(!strcmp(argv[i], "-inst")) {
             if(argc > i + 1) {
